@@ -1,0 +1,36 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    tankRoyaleVersion = '1.0.2'
+}
+
+dependencies {
+    implementation "dev.robocode.tankroyale:robocode-tankroyale-bot-api:${tankRoyaleVersion}"
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main']
+        }
+    }
+}
+
+application {
+    mainClass = 'okurun.OkuRunBot'
+}
+
+test {
+    useJUnitPlatform()
+}
+
