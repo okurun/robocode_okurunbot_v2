@@ -1,0 +1,14 @@
+{
+  "name": "OkuRun Bot",
+  "version": "2.0",
+  "authors": [
+    "Naoki Okumura"
+  ],
+  "description": "",
+  "homepage": "",
+  "countryCodes": [
+    "jp"
+  ],
+  "platform": "JVM",
+  "programmingLang": "Java 11"
+}
