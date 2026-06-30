@@ -50,7 +50,7 @@ public class ArenaMap {
                 return Double.POSITIVE_INFINITY;
             }
 
-            final double r = OkuRunBot.BODY_SIZE / 2;
+            final double r = OkuRunBot.BODY_SIZE * 0.5;
             final double angleRad = Math.toRadians(direction);
 
             return switch (id) {
@@ -153,7 +153,7 @@ public class ArenaMap {
          * @return
          */
         public double[] getCenter() {
-            return new double[] { (x1 + x2) / 2, (y1 + y2) / 2 };
+            return new double[] { (x1 + x2) * 0.5, (y1 + y2) * 0.5 };
         }
 
         /**
@@ -199,8 +199,8 @@ public class ArenaMap {
                 WallId.TOP, new Wall(WallId.TOP, -1, height),
                 WallId.RIGHT, new Wall(WallId.RIGHT, width, -1),
                 WallId.BOTTOM, new Wall(WallId.BOTTOM, -1, 0));
-        final int halfWidth = width / 2;
-        final int halfHeight = height / 2;
+        final double halfWidth = width * 0.5;
+        final double halfHeight = height * 0.5;
         this.areas = Map.of(
                 AreaId.TOP_LEFT, new Area(AreaId.TOP_LEFT, 0, halfHeight, halfWidth, height),
                 AreaId.TOP_RIGHT, new Area(AreaId.TOP_RIGHT, halfWidth, halfHeight, width, height),

@@ -83,7 +83,7 @@ public class NormalGunAction implements GunAction {
                 // 現在位置と予測位置が自分から見てほぼ一直線なら発射します
                 bot.setFire(1);
                 battleManager.bulletStack.addLast(
-                        new BulletStatus(this.getClass().getName(), fireTarget.x, fireTarget.y, targetEnemyId,
+                        new BulletStatus(commander.getPredictorModelName(bot), fireTarget.x, fireTarget.y, targetEnemyId,
                                 fireTarget.scandTurnNum));
                 return null;
             }
@@ -93,7 +93,7 @@ public class NormalGunAction implements GunAction {
 
         bot.setFire(bulletPower);
         battleManager.bulletStack.addLast(
-                new BulletStatus(this.getClass().getName(), fireTarget.x, fireTarget.y, targetEnemyId,
+                new BulletStatus(commander.getPredictorModelName(bot), fireTarget.x, fireTarget.y, targetEnemyId,
                         fireTarget.scandTurnNum));
         return null;
     }

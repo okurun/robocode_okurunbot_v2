@@ -11,6 +11,7 @@ import okurun.battlemanager.EnemyProfile;
 import okurun.commander.Commander;
 import okurun.driver.Driver;
 import okurun.gunner.Gunner;
+import okurun.predictor.PredictionAccuracy;
 import okurun.predictor.Predictor;
 import okurun.radaroperator.RadarOperator;
 
@@ -226,11 +227,16 @@ public class OkuRunBot extends Bot {
 
     @Override
     public void onBulletFired(BulletFiredEvent bulletFiredEvent) {
+        battleManager.setLastFiredTurnNum(bulletFiredEvent.getTurnNumber());
         final BulletStatus bulletStatus = battleManager.bulletStack.pollFirst();
         if (bulletStatus != null) {
             bulletStatus.bulletState = bulletFiredEvent.getBullet();
             battleManager.bullets.put(bulletStatus.bulletState.getBulletId(), bulletStatus);
-            // predictor.predictionAccuracies.get(bulletStatus.predictModel).incrementFireCount();
+            final PredictionAccuracy predictionAccuracy = predictor.predictionAccuracies.get(bulletStatus.predictModel);
+            if (predictionAccuracy == null) {
+                System.out.println(getTurnNumber() + " onBulletFired: predictionAccuracy is null");
+            }
+            predictionAccuracy.incrementFireCount();
         }
     }
 
@@ -242,7 +248,7 @@ public class OkuRunBot extends Bot {
     public void onBulletHit(BulletHitBotEvent bulletHitBotEvent) {
         final BulletState bulletState = bulletHitBotEvent.getBullet();
         final int bulletId = bulletState.getBulletId();
-        // final BulletStatus bulletStatus = battleManager.bullets.get(bulletId);
+        final BulletStatus bulletStatus = battleManager.bullets.get(bulletId);
 
         battleManager.bullets.remove(bulletId);
         if (bulletHitBotEvent.getEnergy() <= 0) {
@@ -252,11 +258,11 @@ public class OkuRunBot extends Bot {
             }
         }
 
-        // if (bulletHitBotEvent.getVictimId() == bulletStatus.targetEnemyId) {
-        //     predictor.predictionAccuracies.get(bulletStatus.predictModel).incrementHitCount();
-        // } else {
-        //     predictor.predictionAccuracies.get(bulletStatus.predictModel).incrementMissCount();
-        // }
+        if (bulletHitBotEvent.getVictimId() == bulletStatus.targetEnemyId) {
+            predictor.predictionAccuracies.get(bulletStatus.predictModel).incrementHitCount();
+        } else {
+            predictor.predictionAccuracies.get(bulletStatus.predictModel).incrementMissCount();
+        }
 
     }
 
@@ -264,20 +270,20 @@ public class OkuRunBot extends Bot {
     public void onBulletHitBullet(BulletHitBulletEvent bulletHitBulletEvent) {
         final BulletState bulletState = bulletHitBulletEvent.getBullet();
         final int bulletId = bulletState.getBulletId();
-        // final BulletStatus bulletStatus = battleManager.bullets.get(bulletId);
+        final BulletStatus bulletStatus = battleManager.bullets.get(bulletId);
 
         battleManager.bullets.remove(bulletId);
-        // predictor.predictionAccuracies.get(bulletStatus.predictModel).incrementMissCount();
+        predictor.predictionAccuracies.get(bulletStatus.predictModel).incrementMissCount();
     }
 
     @Override
     public void onBulletHitWall(BulletHitWallEvent bulletHitWallEvent) {
         final BulletState bulletState = bulletHitWallEvent.getBullet();
         final int bulletId = bulletState.getBulletId();
-        // final BulletStatus bulletStatus = battleManager.bullets.get(bulletId);
+        final BulletStatus bulletStatus = battleManager.bullets.get(bulletId);
 
         battleManager.bullets.remove(bulletId);
-        // predictor.predictionAccuracies.get(bulletStatus.predictModel).incrementMissCount();
+        predictor.predictionAccuracies.get(bulletStatus.predictModel).incrementMissCount();
     }
 
     @Override

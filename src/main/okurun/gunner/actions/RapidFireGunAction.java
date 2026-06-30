@@ -72,7 +72,7 @@ public class RapidFireGunAction implements GunAction {
 
         bot.setFire(bulletPower);
         battleManager.bulletStack.addLast(
-                new BulletStatus(this.getClass().getName(), fireTarget.x, fireTarget.y, targetEnemyId,
+                new BulletStatus(commander.getPredictorModelName(bot), fireTarget.x, fireTarget.y, targetEnemyId,
                         fireTarget.scandTurnNum));
         return null;
     }

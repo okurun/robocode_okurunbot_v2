@@ -144,8 +144,11 @@ public class OneOnOnePositiveTactic implements Tactic {
 
         if (bot.getGunHeat() <= bot.getGunCoolingRate() * 2) {
             // 2ターン以内に射撃可能であれば射撃を行います
+            if (bot.getTurnNumber() - battleManager.getLastFiredTurnNum() > 100) {
+                // 射撃できない状態が続いていたら連射を選択する
+                return RapidFireGunAction.class.getName();
+            }
             return NormalGunAction.class.getName();
-            // return RapidFireGunAction.class.getName();
         }
 
         if (targetEnemyId != Commander.NO_TARGET) {

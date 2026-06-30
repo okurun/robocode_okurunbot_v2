@@ -20,14 +20,14 @@ public class Predictor {
 
     public Predictor(ArenaMap arenaMap) {
         this.arenaMap = arenaMap;
-        predictModels.put(SimplePredictModel.class.getName(), new SimplePredictModel());
-        for (final String modelName : predictModels.keySet()) {
-            predictionAccuracies.put(modelName, new PredictionAccuracy());
-        }
     }
 
     public void init(OkuRunBot bot) {
         predictedDataCache.clear();
+        predictModels.put(SimplePredictModel.class.getName(), new SimplePredictModel());
+        for (final String modelName : predictModels.keySet()) {
+            predictionAccuracies.put(modelName, new PredictionAccuracy());
+        }
     }
 
     public void action(OkuRunBot bot) {
@@ -115,10 +115,10 @@ public class Predictor {
     }
 
     public void onRoundEnded(RoundEndedEvent roundEndedEvent, OkuRunBot bot) {
-        // for (final String modelName : predictModels.keySet()) {
-        //     final PredictionAccuracy predictionAccuracy = predictionAccuracies.get(modelName);
-        //     System.out.println(modelName + "(" + predictionAccuracy.getAccuracyString() + ")");
-        // }
+        for (final String modelName : predictModels.keySet()) {
+            final PredictionAccuracy predictionAccuracy = predictionAccuracies.get(modelName);
+            System.out.println(modelName + "(" + predictionAccuracy.getAccuracyString() + ")");
+        }
     }
 
     /**

@@ -14,15 +14,18 @@ public class PredictionAccuracy {
     }
 
     public void incrementFireCount() {
-        fireCount.incrementAndGet();
+        final int cnt = fireCount.incrementAndGet();
+        System.out.println("incrementFireCount: " + cnt);
     }
 
     public void incrementHitCount() {
-        hitCount.incrementAndGet();
+        final int cnt = hitCount.incrementAndGet();
+        System.out.println("incrementHitCount: " + cnt);
     }
 
     public void incrementMissCount() {
-        missCount.incrementAndGet();
+        final int cnt = missCount.incrementAndGet();
+        System.out.println("incrementMissCount: " + cnt);
     }
 
     public String getAccuracyString() {
@@ -30,21 +33,21 @@ public class PredictionAccuracy {
     }
 
     private double getHitRate() {
-        if (fireCount.get() != 0 && hitCount.get() != 0) {
+        if (fireCount.get() == 0 || hitCount.get() == 0) {
             return 0;
         }
         return roundRate((double) hitCount.get() / fireCount.get());
     }
 
     private double getMissRate() {
-        if (missCount.get() != 0 && hitCount.get() != 0) {
+        if (fireCount.get() == 0 || missCount.get() == 0) {
             return 0;
         }
         return roundRate((double) missCount.get() / fireCount.get());
     }
 
     private static double roundRate(double rate) {
-        if (rate < 0.15) {
+        if (rate < 0) {
             return 0;
         }
         return Math.round(rate * 1000) / 10;

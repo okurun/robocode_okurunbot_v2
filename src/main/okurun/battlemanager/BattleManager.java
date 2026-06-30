@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import dev.robocode.tankroyale.botapi.events.BotDeathEvent;
 import dev.robocode.tankroyale.botapi.events.RoundEndedEvent;
@@ -18,6 +19,7 @@ public class BattleManager {
 
     private final Map<Integer, EnemyProfile> enemyProfiles = new ConcurrentHashMap<>();
     private final Map<String, Object> caches = new ConcurrentHashMap<>();
+    private final AtomicInteger lastFiredTurnNum = new AtomicInteger(0);
 
     private int enemyCount;
     private int myId;
@@ -29,6 +31,7 @@ public class BattleManager {
     }
 
     private void init() {
+        lastFiredTurnNum.set(0);
         enemyProfiles.clear();
         bulletStack.clear();
         bullets.clear();
@@ -171,6 +174,14 @@ public class BattleManager {
         return nearestAliveEnemy;
     }
 
+    public void setLastFiredTurnNum(int turnNum) {
+        lastFiredTurnNum.set(turnNum);
+    }
+
+    public int getLastFiredTurnNum() {
+        return lastFiredTurnNum.get();
+    }
+
     public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
         init();
     }
@@ -189,7 +200,12 @@ public class BattleManager {
         double turnDegree = 0;
         double acceleration = 0;
         if (enemyState != null) {
-            turnDegree = (e.getDirection() - enemyState.heading) / (e.getTurnNumber() - enemyState.scandTurnNum);
+            final double diffDegree = e.getDirection() - enemyState.heading;
+            if (diffDegree == 0) {
+                turnDegree = 0;
+            } else {
+                turnDegree = diffDegree / (e.getTurnNumber() - enemyState.scandTurnNum);
+            }
             acceleration = e.getSpeed() - enemyState.velocity;
         }
 
