@@ -65,7 +65,7 @@ public class BattleManager {
             } else if (bulletStatus.predictTurnNum < bot.getTurnNumber()) {
                 color = Color.fromRgba(color, 255 - (bot.getTurnNumber() - bulletStatus.predictTurnNum) * 20);
             }
-            bot.drawCircle(bulletStatus.targetX, bulletStatus.targetY, 10, color);
+            bot.drawTarget(bulletStatus.targetX, bulletStatus.targetY, color);
         }
     }
 

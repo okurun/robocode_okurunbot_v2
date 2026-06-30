@@ -46,7 +46,7 @@ public interface GunAction {
                 color = Color.WHITE;
                 break;
         }
-        drawTargetPoint(bot, fireTarget, Color.fromRgba(color, 50));
+        drawTargetPoint(bot, fireTarget, Color.fromRgba(color, 150));
     }
 
     /**
@@ -58,7 +58,7 @@ public interface GunAction {
      * @param color      描画色
      */
     private static void drawTargetPoint(OkuRunBot bot, EnemyState fireTarget, Color color) {
-        bot.drawCircle(fireTarget.x, fireTarget.y, 10, color);
+        bot.drawTarget(fireTarget.x, fireTarget.y, color);
     }
 
     /**

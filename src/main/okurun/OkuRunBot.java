@@ -113,6 +113,17 @@ public class OkuRunBot extends Bot {
         g.clear();
     }
 
+    public void drawTarget(double x, double y, Color color) {
+        var g = getGraphics();
+        g.setFillColor(Color.fromRgba(color, 50));
+        g.setStrokeColor(Color.fromRgba(color, 150));
+        g.setStrokeWidth(1);
+        g.fillCircle(x, y, 10);
+        g.drawCircle(x, y, 6);
+        g.drawLine(x - 11, y, x + 11, y);
+        g.drawLine(x, y - 11, x, y + 11);
+    }
+
     /**
      * 画面に円を描画します
      * ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
