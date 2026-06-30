@@ -1,6 +1,8 @@
 package okurun.commander.tactics;
 
 import okurun.OkuRunBot;
+import okurun.commander.Commander.AccelePriority;
+import okurun.commander.Commander.HandlePriority;
 
 public interface Tactic {
     void action(OkuRunBot bot);
@@ -19,7 +21,11 @@ public interface Tactic {
 
     String getDriveActionName(OkuRunBot bot);
 
-    boolean isZigzagAllowed(OkuRunBot bot);
+    HandlePriority getHandlePriority(OkuRunBot bot);
+
+    AccelePriority getAccelePriority(OkuRunBot bot);
+
+    double getMinSpeed(OkuRunBot bot);
 
     /**
      * 三角関数を使用して、角度が90度で指定された距離となる点Cの座標を計算します。

@@ -11,11 +11,19 @@ import okurun.commander.tactics.*;
 public class Commander {
     public static final int NO_TARGET = -1;
 
+    public static enum HandlePriority {
+        TARGET, AVOID
+    }
+
+    public static enum AccelePriority {
+        MAX_SPEED, HANDLE
+    }
+
     private Map<String, Tactic> tactics = new HashMap<>();
     private Tactic currentTactic = null;
 
     public void init(OkuRunBot bot) {
-        tactics.put(OneOnOneTactic.class.getName(), new OneOnOneTactic());
+        tactics.put(OneOnOnePositiveTactic.class.getName(), new OneOnOnePositiveTactic());
         tactics.put(SurvivalTactic.class.getName(), new SurvivalTactic());
     }
 
@@ -24,7 +32,7 @@ public class Commander {
         currentTactic = tactics.get(SurvivalTactic.class.getName());
         if (battleManager.getAliveEnemyCount() < 2) {
             // 生存している敵が1機以下
-            currentTactic = tactics.get(OneOnOneTactic.class.getName());
+            currentTactic = tactics.get(OneOnOnePositiveTactic.class.getName());
         }
 
         currentTactic.action(bot);
@@ -58,8 +66,16 @@ public class Commander {
         return currentTactic.getDriveActionName(bot);
     }
 
-    public boolean isZigzagAllowed(OkuRunBot bot) {
-        return currentTactic.isZigzagAllowed(bot);
+    public AccelePriority getAccelePriority(OkuRunBot bot) {
+        return currentTactic.getAccelePriority(bot);
+    }
+
+    public HandlePriority getHandlePriority(OkuRunBot bot) {
+        return currentTactic.getHandlePriority(bot);
+    }
+
+    public double getMinSpeed(OkuRunBot bot) {
+        return currentTactic.getMinSpeed(bot);
     }
 
     /**

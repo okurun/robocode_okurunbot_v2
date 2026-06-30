@@ -8,13 +8,15 @@ import okurun.battlemanager.BattleManager;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
+import okurun.commander.Commander.AccelePriority;
+import okurun.commander.Commander.HandlePriority;
 import okurun.driver.actions.*;
 import okurun.gunner.actions.*;
 import okurun.predictor.Predictor;
 import okurun.predictor.models.*;
 import okurun.radaroperator.actions.*;
 
-public class OneOnOneTactic implements Tactic {
+public class OneOnOnePositiveTactic implements Tactic {
     private int targetEnemyId = Commander.NO_TARGET;
     private double[] targetMovePosition = null;
     private double baseBulletPower = 2;
@@ -178,7 +180,7 @@ public class OneOnOneTactic implements Tactic {
     public String getDriveActionName(OkuRunBot bot) {
         return driveActionName;
     }
-    
+
     private void setDriveActionName(OkuRunBot bot) {
         final ArenaMap arenaMap = bot.getArenaMap();
         final List<ArenaMap.PotentialCollisionWall> collisionWalls = arenaMap.getPotentialCollisionWalls(bot);
@@ -190,7 +192,17 @@ public class OneOnOneTactic implements Tactic {
     }
 
     @Override
-    public boolean isZigzagAllowed(OkuRunBot bot) {
-        return false;
+    public HandlePriority getHandlePriority(OkuRunBot bot) {
+        return HandlePriority.TARGET;
+    }
+
+    @Override
+    public AccelePriority getAccelePriority(OkuRunBot bot) {
+        return AccelePriority.MAX_SPEED;
+    }
+
+    @Override
+    public double getMinSpeed(OkuRunBot bot) {
+        return 6;
     }
 }

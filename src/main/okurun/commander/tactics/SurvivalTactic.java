@@ -9,6 +9,8 @@ import okurun.battlemanager.BattleManager;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
+import okurun.commander.Commander.AccelePriority;
+import okurun.commander.Commander.HandlePriority;
 import okurun.driver.actions.*;
 import okurun.gunner.actions.*;
 import okurun.predictor.Predictor;
@@ -179,7 +181,20 @@ public class SurvivalTactic implements Tactic {
     }
 
     @Override
-    public boolean isZigzagAllowed(OkuRunBot bot) {
-        return true;
+    public HandlePriority getHandlePriority(OkuRunBot bot) {
+        return HandlePriority.AVOID;
+    }
+
+    @Override
+    public AccelePriority getAccelePriority(OkuRunBot bot) {
+        return AccelePriority.HANDLE;
+    }
+
+    @Override
+    public double getMinSpeed(OkuRunBot bot) {
+        if (targetMovePosition != null && bot.distanceTo(targetMovePosition[0], targetMovePosition[1]) < 100) {
+            return 7;
+        }
+        return 6;
     }
 }
