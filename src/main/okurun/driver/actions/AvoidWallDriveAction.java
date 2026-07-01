@@ -19,11 +19,11 @@ public class AvoidWallDriveAction implements DriveAction {
         final ArenaMap.PotentialCollisionWall pcWall = pcWalls.get(0);
 
         // 壁に対して平行より10度だけ離れる方向に旋回
-        final double leftTurnAngle = pcWall.getWall().getLeftTurnAngleToParallel(bot);
+        final double leftTurnAngle = pcWall.wall.getLeftTurnAngleToParallel(bot);
         bot.setTurnLeft((leftTurnAngle > 0) ? leftTurnAngle + 10 : leftTurnAngle - 10);
 
         // 減速しないと衝突する場合は減速する
-        final double turnsToCollision = pcWall.getTurnsToCollision();
+        final double turnsToCollision = pcWall.turnsToCollision;
         double maxSpeed = Math.min(Constants.MAX_SPEED, turnsToCollision * Math.abs(Constants.DECELERATION));
         bot.setMaxSpeed(maxSpeed);
         double distance = 100;

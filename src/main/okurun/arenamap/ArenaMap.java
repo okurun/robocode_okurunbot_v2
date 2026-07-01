@@ -88,7 +88,6 @@ public class ArenaMap {
 
         /**
          * この壁と平行な方向に向くために、ハンドルを左にきるべき角度（度数法）を返します。
-         * 返される角度は -90度から 90度の範囲です（マイナス値は右にきることを表します）。
          * 
          * @param bot ボット
          * @return 壁と平行になるために左にきるべき角度（-90 〜 90）
@@ -97,26 +96,17 @@ public class ArenaMap {
             double h = bot.getDirection();
             switch (id) {
                 case LEFT, RIGHT -> {
-                    double diff90 = normalizeRelativeAngle(90 - h);
-                    double diff270 = normalizeRelativeAngle(270 - h);
+                    double diff90 = bot.normalizeRelativeAngle(90 - h);
+                    double diff270 = bot.normalizeRelativeAngle(270 - h);
                     return (Math.abs(diff90) <= Math.abs(diff270)) ? diff90 : diff270;
                 }
                 case TOP, BOTTOM -> {
-                    double diff0 = normalizeRelativeAngle(0 - h);
-                    double diff180 = normalizeRelativeAngle(180 - h);
+                    double diff0 = bot.normalizeRelativeAngle(0 - h);
+                    double diff180 = bot.normalizeRelativeAngle(180 - h);
                     return (Math.abs(diff0) <= Math.abs(diff180)) ? diff0 : diff180;
                 }
                 default -> throw new IllegalStateException("Unknown wall id: " + id);
             }
-        }
-
-        private double normalizeRelativeAngle(double angle) {
-            double angleDiff = angle;
-            while (angleDiff <= -180)
-                angleDiff += 360;
-            while (angleDiff > 180)
-                angleDiff -= 360;
-            return angleDiff;
         }
     }
 
@@ -246,10 +236,10 @@ public class ArenaMap {
     }
 
     /**
-     * 指定された進行方向に対して、衝突する可能性のある壁のリストを返します。
+     * 進行方向に面している壁を返します
      * 
      * @param direction 進行方向（度数法：0〜360）
-     * @return 衝突する可能性のある壁のリスト
+     * @return 進行方向に面している壁のリスト
      */
     @SuppressWarnings("unchecked")
     public List<Wall> getWallsFacingTo(double direction) {
@@ -266,52 +256,68 @@ public class ArenaMap {
         return facing;
     }
 
+    /**
+     * 衝突する可能性がある壁を表すクラス
+     */
     public class PotentialCollisionWall {
-        private Wall wall;
-        private double turnsToCollision;
+        public final Wall wall;
+        public final double turnsToCollision;
 
         public PotentialCollisionWall(Wall wall, double turnsToCollision) {
             this.wall = wall;
             this.turnsToCollision = turnsToCollision;
         }
-
-        public Wall getWall() {
-            return wall;
-        }
-
-        public double getTurnsToCollision() {
-            return turnsToCollision;
-        }
     }
 
+    /**
+     * Botが衝突する可能性のある壁のリストを返します
+     * 
+     * @param bot Bot
+     * @return 衝突する可能性のある壁のリスト
+     */
     @SuppressWarnings("unchecked")
     public List<PotentialCollisionWall> getPotentialCollisionWalls(OkuRunBot bot) {
         if (caches.containsKey("potentialCollisionWalls")) {
             return (List<PotentialCollisionWall>) caches.get("potentialCollisionWalls");
         }
-        final List<PotentialCollisionWall> collisionWalls = getPotentialCollisionWalls(bot.getX(), bot.getY(), bot.getDirection(),
+        final List<PotentialCollisionWall> collisionWalls = getPotentialCollisionWalls(bot.getX(), bot.getY(),
+                bot.getDirection(),
                 Constants.MAX_SPEED);
         caches.put("potentialCollisionWalls", collisionWalls);
         return collisionWalls;
     }
 
+    /**
+     * 座標、進行方向、速度から衝突する可能性のある壁を返します
+     * 
+     * @param x x座標
+     * @param y y座標
+     * @param d 進行方向
+     * @param s 速度
+     * @return 衝突する可能性のある壁のリスト
+     */
     private List<PotentialCollisionWall> getPotentialCollisionWalls(double x, double y, double d, double s) {
         if (s == 0) {
             return List.of();
         }
 
+        // 後退している場合は進行方向を反転させる
         final double direction = (s < 0) ? (d + 180) % 360 : d;
+        // 後退している場合は速度を正にする
         final double speed = (s < 0) ? -s : s;
 
         final double deceleration = Math.abs(dev.robocode.tankroyale.botapi.Constants.DECELERATION);
+        // 減速が完了するまでのターン数を計算（プラス1は安全マージン）
         final double limitTurns = Math.ceil(speed / deceleration) + 1;
 
         // 移動方向に面している壁
         final List<Wall> facingWalls = getWallsFacingTo(direction);
-        final List<PotentialCollisionWall> collisionWalls = new ArrayList<>();
 
+        final List<PotentialCollisionWall> collisionWalls = new ArrayList<>();
         for (Wall wall : facingWalls) {
+            // 衝突までのターン数を計算
             double turns = wall.getTurnsToCollision(x, y, direction, speed);
+            // 減速が完了する前に壁に衝突する可能性がある場合
             if (turns <= limitTurns) {
                 collisionWalls.add(new PotentialCollisionWall(wall, turns));
             }
@@ -319,8 +325,8 @@ public class ArenaMap {
 
         // 衝突までのターン数でソートする（近い順）
         collisionWalls.sort((w1, w2) -> Double.compare(
-                w1.getTurnsToCollision(),
-                w2.getTurnsToCollision()));
+                w1.turnsToCollision,
+                w2.turnsToCollision));
 
         return collisionWalls;
     }
@@ -345,8 +351,8 @@ public class ArenaMap {
     /**
      * 各エリアにいる敵の数を返します
      * 
-     * @param bot
-     * @return
+     * @param bot Bot
+     * @return 各エリアの敵の数
      */
     @SuppressWarnings("unchecked")
     private Map<AreaId, Integer> getAreasEnemyCount(OkuRunBot bot) {
@@ -355,11 +361,15 @@ public class ArenaMap {
         }
 
         final BattleManager battleManager = bot.getBattleManager();
+        // 生存している敵の最後の状態を取得
         final Map<Integer, EnemyState> enemyStates = battleManager.getLatestAlivalEnemyStates();
+
         final Map<AreaId, Integer> enemyCount = new HashMap<>();
+        // 各エリアの敵の数を初期化
         for (final Area area : areas.values()) {
             enemyCount.put(area.id, 0);
         }
+        // 各敵がどのエリアにいるかを確認してカウントする
         for (final EnemyState enemyState : enemyStates.values()) {
             if (enemyState == null) {
                 continue;
@@ -378,8 +388,8 @@ public class ArenaMap {
     /**
      * 敵の少ない安全なエリア一覧を返します
      * 
-     * @param bot
-     * @return
+     * @param bot Bot
+     * @return 敵の少ない安全なエリア一覧
      */
     @SuppressWarnings("unchecked")
     private List<Area> getSafeAreas(OkuRunBot bot) {
@@ -387,7 +397,9 @@ public class ArenaMap {
             return (List<Area>) caches.get("safeAreas");
         }
 
+        // 各エリアの敵の数を取得
         final Map<AreaId, Integer> areaEnemyCount = getAreasEnemyCount(bot);
+        // 一番敵の数が少ないエリアの敵の数を取得
         int minEnemyCount = Integer.MAX_VALUE;
         List<Area> safeAreas = new ArrayList<>();
         for (final AreaId areaId : areaEnemyCount.keySet()) {
@@ -396,13 +408,18 @@ public class ArenaMap {
                 minEnemyCount = enemyCount;
             }
         }
+        // 現在のエリアを取得
         final Area currentArea = getArea(bot.getX(), bot.getY());
+        // 現在のエリアの隣のエリアのリストを取得
         final List<Area> neighboringAreas = currentArea.getNeighboringAreas();
-        boolean containNeighboringArea = false; // 隣のエリアが含まれているか
+        // 隣のエリアに敵の数が一番少ないエリアが含まれているか
+        boolean containNeighboringArea = false;
+        // 一番敵の数が少ないエリアのリストを取得
         for (final AreaId areaId : areaEnemyCount.keySet()) {
             if (areaEnemyCount.get(areaId) == minEnemyCount) {
                 final Area area = areas.get(areaId);
                 if (area.equals(currentArea)) {
+                    // 現在のエリアが一番敵の数が少ない場合は、現在のエリアを返す
                     caches.put("safeAreas", List.of(area));
                     return (List<Area>) caches.get("safeAreas");
                 }
@@ -413,7 +430,7 @@ public class ArenaMap {
             }
         }
         if (containNeighboringArea && safeAreas.contains(currentArea.getOppositeArea())) {
-            // 隣エリアが含まれている場合は、反対側エリアを除外する（隣エリアを優先するため）
+            // 隣エリアが含まれている場合は、反対側エリアを除外する（反対側エリアへ向かうと激戦区であるアリーナ中心を通らざるを得ないため）
             safeAreas.remove(currentArea.getOppositeArea());
         }
         caches.put("safeAreas", safeAreas);
@@ -431,12 +448,18 @@ public class ArenaMap {
             return (Area) caches.get("safeArea");
         }
 
+        // 安全エリアのリストを取得
         final List<Area> safeAreas = getSafeAreas(bot);
+        if (safeAreas.size() == 1) {
+            caches.put("safeArea", safeAreas.get(0));
+            return safeAreas.get(0);
+        }
+
         double minDegree = Double.MAX_VALUE;
         Area minArea = null;
         for (final Area area : safeAreas) {
             final double[] center = area.getCenter();
-            final double degree = bot.bearingTo(center[0], center[1]);
+            final double degree = Math.abs(bot.bearingTo(center[0], center[1]));
             if (degree < minDegree) {
                 minDegree = degree;
                 minArea = area;
