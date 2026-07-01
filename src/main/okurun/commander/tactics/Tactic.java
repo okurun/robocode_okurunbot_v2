@@ -1,5 +1,6 @@
 package okurun.commander.tactics;
 
+import dev.robocode.tankroyale.botapi.events.HitByBulletEvent;
 import okurun.OkuRunBot;
 import okurun.commander.Commander.AccelePriority;
 import okurun.commander.Commander.HandlePriority;
@@ -26,6 +27,8 @@ public interface Tactic {
     AccelePriority getAccelePriority(OkuRunBot bot);
 
     double getMinSpeed(OkuRunBot bot);
+
+    void onHitByBullet(HitByBulletEvent hitByBulletEvent);
 
     /**
      * 三角関数を使用して、角度が90度で指定された距離となる点Cの座標を計算します。

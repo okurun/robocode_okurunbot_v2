@@ -3,6 +3,7 @@ package okurun.commander;
 import java.util.HashMap;
 import java.util.Map;
 
+import dev.robocode.tankroyale.botapi.events.HitByBulletEvent;
 import okurun.OkuRunBot;
 import okurun.battlemanager.BattleManager;
 import okurun.battlemanager.EnemyState;
@@ -12,7 +13,7 @@ public class Commander {
     public static final int NO_TARGET = -1;
 
     public static enum HandlePriority {
-        TARGET, AVOID
+        TARGET, AVOID_BULLET
     }
 
     public static enum AccelePriority {
@@ -182,5 +183,9 @@ public class Commander {
 
         // 近づいているときが負、遠ざかるときが正
         return separationVelocity;
+    }
+
+    public void onHitByBullet(HitByBulletEvent hitByBulletEvent) {
+        currentTactic.onHitByBullet(hitByBulletEvent);
     }
 }

@@ -7,25 +7,16 @@ public class PredictionAccuracy {
     private final AtomicInteger hitCount = new AtomicInteger(0);
     private final AtomicInteger missCount = new AtomicInteger(0);
 
-    public PredictionAccuracy() {
-        fireCount.set(0);
-        hitCount.set(0);
-        missCount.set(0);
-    }
-
     public void incrementFireCount() {
-        final int cnt = fireCount.incrementAndGet();
-        System.out.println("incrementFireCount: " + cnt);
+        fireCount.incrementAndGet();
     }
 
     public void incrementHitCount() {
-        final int cnt = hitCount.incrementAndGet();
-        System.out.println("incrementHitCount: " + cnt);
+        hitCount.incrementAndGet();
     }
 
     public void incrementMissCount() {
-        final int cnt = missCount.incrementAndGet();
-        System.out.println("incrementMissCount: " + cnt);
+        missCount.incrementAndGet();
     }
 
     public String getAccuracyString() {

@@ -2,6 +2,7 @@ package okurun.commander.tactics;
 
 import java.util.List;
 
+import dev.robocode.tankroyale.botapi.events.HitByBulletEvent;
 import okurun.OkuRunBot;
 import okurun.arenamap.ArenaMap;
 import okurun.battlemanager.BattleManager;
@@ -22,6 +23,9 @@ public class OneOnOnePositiveTactic implements Tactic {
     private double baseBulletPower = 2;
     private String predictorModelName = SimplePredictModel.class.getName();
     private String driveActionName = MoveToDriveAction.class.getName();
+    private String gunActionName = NormalGunAction.class.getName();
+    private String radarActionName = TargetScanRadarAction.class.getName();
+    
 
     @Override
     public void action(OkuRunBot bot) {
@@ -30,6 +34,8 @@ public class OneOnOnePositiveTactic implements Tactic {
         setPredictorModelName(bot);
         setTargetMovePosition(bot);
         setDriveActionName(bot);
+        setGunActionName(bot);
+        setRadarActionName(bot);
     }
 
     @Override
@@ -122,61 +128,79 @@ public class OneOnOnePositiveTactic implements Tactic {
 
     @Override
     public String getGunActionName(OkuRunBot bot) {
+        return gunActionName;
+    }
+
+    private void setGunActionName(OkuRunBot bot) {
         if (targetEnemyId == Commander.NO_TARGET) {
             // ターゲットが設定されていない場合はスキャンを行います
-            return ScanGunAction.class.getName();
+            gunActionName = ScanGunAction.class.getName();
+            return;
         }
 
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
         if (targetEnemyProfile == null) {
-            return ScanGunAction.class.getName();
+            gunActionName =  ScanGunAction.class.getName();
+            return;
         }
         final EnemyState latesEnemyState = targetEnemyProfile.getLatestState();
         if (latesEnemyState == null) {
             // 敵のステータスが取得できない場合はスキャンを行います
-            return ScanGunAction.class.getName();
+            gunActionName =  ScanGunAction.class.getName();
+            return;
         }
         if (latesEnemyState.energy <= 0) {
             // 敵のエネルギーが0以下なら止めを刺します
-            return ExecutionGunAction.class.getName();
+            gunActionName =  ExecutionGunAction.class.getName();
+            return;
         }
 
         if (bot.getGunHeat() <= bot.getGunCoolingRate() * 2) {
             // 2ターン以内に射撃可能であれば射撃を行います
             if (bot.getTurnNumber() - battleManager.getLastFiredTurnNum() > 100) {
                 // 射撃できない状態が続いていたら連射を選択する
-                return RapidFireGunAction.class.getName();
+                gunActionName = RapidFireGunAction.class.getName();
+                return;
             }
-            return NormalGunAction.class.getName();
+            gunActionName = NormalGunAction.class.getName();
+            return;
         }
 
         if (targetEnemyId != Commander.NO_TARGET) {
             // ターゲットが設定されている場合は砲頭を敵に向けます
-            return TrackingGunAction.class.getName();
+            gunActionName = TrackingGunAction.class.getName();
+            return;
         }
 
         // 上記意外はスキャンを行います
-        return ScanGunAction.class.getName();
+        gunActionName = ScanGunAction.class.getName();
     }
 
     @Override
     public String getRadarActionName(OkuRunBot bot) {
+        return radarActionName;
+    }
+
+    private void setRadarActionName(OkuRunBot bot) {
         if (targetEnemyId == Commander.NO_TARGET) {
-            return AllScanRadarAction.class.getName();
+            radarActionName = AllScanRadarAction.class.getName();
+            return;
         }
 
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
         if (targetEnemyProfile == null) {
-            return AllScanRadarAction.class.getName();
+            radarActionName = AllScanRadarAction.class.getName();
+            return;
         }
         final EnemyState latestEnemyState = targetEnemyProfile.getLatestState();
         if (latestEnemyState == null || latestEnemyState.scandTurnNum < bot.getTurnNumber() - 5) {
-            return AllScanRadarAction.class.getName();
+            radarActionName = AllScanRadarAction.class.getName();
+            return;
         }
 
-        return TargetScanRadarAction.class.getName();
+        radarActionName = TargetScanRadarAction.class.getName();
     }
 
     @Override
@@ -207,5 +231,9 @@ public class OneOnOnePositiveTactic implements Tactic {
     @Override
     public double getMinSpeed(OkuRunBot bot) {
         return 6;
+    }
+
+    @Override
+    public void onHitByBullet(HitByBulletEvent hitByBulletEvent) {
     }
 }

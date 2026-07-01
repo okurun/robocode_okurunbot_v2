@@ -44,7 +44,6 @@ public class OkuRunBot extends Bot {
 
     @Override
     public void run() {
-        System.out.println("OkuRunBot.run() start");
         init();
         while (isRunning()) {
             action();
@@ -52,7 +51,6 @@ public class OkuRunBot extends Bot {
     }
 
     private void init() {
-        System.out.println("OkuRunBot.init() start");
         setBodyColor(Color.WHITE);
         setTurretColor(Color.RED);
         setTracksColor(Color.GRAY);
@@ -121,8 +119,8 @@ public class OkuRunBot extends Bot {
         g.setStrokeWidth(1);
         g.fillCircle(x, y, 10);
         g.drawCircle(x, y, 6);
-        g.drawLine(x - 11, y, x + 11, y);
-        g.drawLine(x, y - 11, x, y + 11);
+        g.drawLine(x - 12, y, x + 12, y);
+        g.drawLine(x, y - 12, x, y + 12);
     }
 
     /**
@@ -186,28 +184,30 @@ public class OkuRunBot extends Bot {
 
     @Override
     public void onRoundStarted(RoundStartedEvent roundStartedEvent) {
+        System.out.println("OkuRunBot.onRoundStarted()");
     }
 
     @Override
     public void onRoundEnded(RoundEndedEvent roundEndedEvent) {
+        System.out.println("OkuRunBot.onRoundEnded()");
         battleManager.onRoundEnded(roundEndedEvent, this);
         predictor.onRoundEnded(roundEndedEvent, this);
     }
 
     @Override
     public void onTick(TickEvent tickEvent) {
-        // System.out.println("OkuRunBot.onTick()");
+        // System.out.println(tickEvent.getTurnNumber() + ": OkuRunBot.onTick()");
     }
 
     @Override
     public void onBotDeath(BotDeathEvent botDeathEvent) {
-        System.out.println(getTurnNumber() + ": OkuRunBot.onBotDeath(): " + botDeathEvent.getVictimId());
+        System.out.println(botDeathEvent.getTurnNumber() + ": OkuRunBot.onBotDeath(): " + botDeathEvent.getVictimId());
         battleManager.onBotDeath(botDeathEvent, this);
     }
 
     @Override
     public void onDeath(DeathEvent deathEvent) {
-        System.out.println(getTurnNumber() + ": OkuRunBot.onDeath(): " + deathEvent.toString());
+        System.out.println(deathEvent.getTurnNumber() + ": OkuRunBot.onDeath(): " + deathEvent.toString());
     }
 
     @Override
@@ -234,7 +234,7 @@ public class OkuRunBot extends Bot {
             battleManager.bullets.put(bulletStatus.bulletState.getBulletId(), bulletStatus);
             final PredictionAccuracy predictionAccuracy = predictor.predictionAccuracies.get(bulletStatus.predictModel);
             if (predictionAccuracy == null) {
-                System.out.println(getTurnNumber() + " onBulletFired: predictionAccuracy is null");
+                System.out.println(bulletFiredEvent.getTurnNumber() + " onBulletFired: predictionAccuracy is null");
             }
             predictionAccuracy.incrementFireCount();
         }
@@ -242,6 +242,7 @@ public class OkuRunBot extends Bot {
 
     @Override
     public void onHitByBullet(HitByBulletEvent hitByBulletEvent) {
+        commander.onHitByBullet(hitByBulletEvent);
     }
 
     @Override
@@ -293,7 +294,7 @@ public class OkuRunBot extends Bot {
 
     @Override
     public void onSkippedTurn(SkippedTurnEvent skippedTurnEvent) {
-        System.out.println(getTurnNumber() + ": OkuRunBot.onSkippedTurn()");
+        System.out.println(skippedTurnEvent.getTurnNumber() + ": OkuRunBot.onSkippedTurn()");
     }
 
     @Override
@@ -303,11 +304,12 @@ public class OkuRunBot extends Bot {
 
     @Override
     public void onCustomEvent(CustomEvent customEvent) {
-        System.out.println("OkuRunBot.onCustomEvent()");
+        System.out.println(customEvent.getTurnNumber() + ": OkuRunBot.onCustomEvent()");
     }
 
     @Override
     public void onTeamMessage(TeamMessageEvent teamMessageEvent) {
-        System.out.println("OkuRunBot.onTeamMessage()");
+        System.out.println(
+                teamMessageEvent.getTurnNumber() + ": OkuRunBot.onTeamMessage(): " + teamMessageEvent.getMessage());
     }
 }

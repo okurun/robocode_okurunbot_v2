@@ -2,6 +2,7 @@ package okurun.commander.tactics;
 
 import java.util.List;
 
+import dev.robocode.tankroyale.botapi.events.HitByBulletEvent;
 import okurun.OkuRunBot;
 import okurun.arenamap.ArenaMap;
 import okurun.arenamap.ArenaMap.Area;
@@ -47,9 +48,9 @@ public class SurvivalTactic implements Tactic {
 
         // final EnemyProfile zeroEnergyEnemy = battleManager.getZeroEnergyEnemy();
         // if (zeroEnergyEnemy != null) {
-        //     // エネルギーが0の敵をターゲットにします
-        //     targetEnemyId = zeroEnergyEnemy.getId();
-        //     return;
+        // // エネルギーが0の敵をターゲットにします
+        // targetEnemyId = zeroEnergyEnemy.getId();
+        // return;
         // }
 
         final EnemyProfile nearestEnemy = battleManager.getNearestAliveEnemy(bot);
@@ -128,9 +129,9 @@ public class SurvivalTactic implements Tactic {
                 return;
             }
             // if (latesEnemyState.energy <= 0) {
-            //     // 敵のエネルギーが0以下なら止めを刺します
-            //     gunActionName = ExecutionGunAction.class.getName();
-            //     return;
+            // // 敵のエネルギーが0以下なら止めを刺します
+            // gunActionName = ExecutionGunAction.class.getName();
+            // return;
             // }
             gunActionName = NormalGunAction.class.getName();
             return;
@@ -182,7 +183,7 @@ public class SurvivalTactic implements Tactic {
 
     @Override
     public HandlePriority getHandlePriority(OkuRunBot bot) {
-        return HandlePriority.AVOID;
+        return HandlePriority.AVOID_BULLET;
     }
 
     @Override
@@ -196,5 +197,9 @@ public class SurvivalTactic implements Tactic {
             return 7;
         }
         return 6;
+    }
+
+    @Override
+    public void onHitByBullet(HitByBulletEvent hitByBulletEvent) {
     }
 }

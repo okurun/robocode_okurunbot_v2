@@ -19,7 +19,7 @@ public class MoveToDriveAction implements DriveAction {
         }
 
         double bearingTo = bot.bearingTo(pos[0], pos[1]);
-        if (commander.getHandlePriority(bot) == HandlePriority.AVOID) {
+        if (commander.getHandlePriority(bot) == HandlePriority.AVOID_BULLET) {
             final double turnRate = Math.abs(bot.getTurnRate()) * 0.5;
             bearingTo += (bearingTo > 0) ? turnRate : -turnRate;
         }
