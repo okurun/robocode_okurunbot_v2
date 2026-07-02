@@ -2,6 +2,9 @@ package okurun.battlemanager;
 
 import dev.robocode.tankroyale.botapi.BulletState;
 
+/**
+ * 発射された弾丸の情報を保持するクラス
+ */
 public class BulletStatus {
     public final String predictModel;
     public final double targetX;

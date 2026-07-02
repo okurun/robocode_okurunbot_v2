@@ -31,7 +31,7 @@ public class Commander {
     public void action(OkuRunBot bot) {
         final BattleManager battleManager = bot.getBattleManager();
         currentTactic = tactics.get(SurvivalTactic.class.getName());
-        if (battleManager.getAliveEnemyCount() < 2) {
+        if (battleManager.getAliveEnemyCount(bot) < 2) {
             // 生存している敵が1機以下
             currentTactic = tactics.get(OneOnOnePositiveTactic.class.getName());
         }
@@ -185,7 +185,7 @@ public class Commander {
         return separationVelocity;
     }
 
-    public void onHitByBullet(HitByBulletEvent hitByBulletEvent) {
+    public void onHitByBullet(HitByBulletEvent hitByBulletEvent, OkuRunBot bot) {
         currentTactic.onHitByBullet(hitByBulletEvent);
     }
 }

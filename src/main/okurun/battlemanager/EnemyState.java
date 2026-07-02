@@ -1,5 +1,8 @@
 package okurun.battlemanager;
 
+/**
+ * スキャンした敵ボットの情報を保持するクラス
+ */
 public class EnemyState {
     public final int id;
     public final int scandTurnNum;
@@ -28,9 +31,5 @@ public class EnemyState {
 
     public double[] getPosition() {
         return new double[] { x, y };
-    }
-
-    public int[] getPositionInt() {
-        return new int[] { (int) Math.round(x), (int) Math.round(y) };
     }
 }

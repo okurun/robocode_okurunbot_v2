@@ -31,6 +31,7 @@ public interface GunAction {
      * @param bulletPower 弾丸のパワー
      */
     public static void drawTargetPoint(OkuRunBot bot, EnemyState fireTarget, int bulletPower) {
+        // 弾丸のパワーに応じて色分け
         final Color color;
         switch ((int) bulletPower) {
             case 1:
@@ -93,7 +94,7 @@ public interface GunAction {
             beforeState = predictedState;
             turnNum++;
             if (turnNum > 100) {
-                System.out.println("Error: turnNum is too large");
+                System.out.println("Warning: turnNum is too large");
                 return null;
             }
         }

@@ -50,7 +50,7 @@ public class OneOnOnePositiveTactic implements Tactic {
      */
     private void setTargetEnemyId(OkuRunBot bot) {
         final BattleManager battleManager = bot.getBattleManager();
-        final EnemyProfile alivalEnemy = battleManager.getAlivalEnemy();
+        final EnemyProfile alivalEnemy = battleManager.getAlivalEnemy(bot);
         if (alivalEnemy != null) {
             // 敵の位置を把握している
             targetEnemyId = alivalEnemy.getId();

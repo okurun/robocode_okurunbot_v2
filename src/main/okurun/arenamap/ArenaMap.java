@@ -362,7 +362,7 @@ public class ArenaMap {
 
         final BattleManager battleManager = bot.getBattleManager();
         // 生存している敵の最後の状態を取得
-        final Map<Integer, EnemyState> enemyStates = battleManager.getLatestAlivalEnemyStates();
+        final Map<Integer, EnemyState> enemyStates = battleManager.getLatestAlivalAndNotMissingEnemies(bot);
 
         final Map<AreaId, Integer> enemyCount = new HashMap<>();
         // 各エリアの敵の数を初期化

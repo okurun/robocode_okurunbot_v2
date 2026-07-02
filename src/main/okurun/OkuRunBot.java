@@ -1,17 +1,13 @@
 package okurun;
 
 import dev.robocode.tankroyale.botapi.Bot;
-import dev.robocode.tankroyale.botapi.BulletState;
 import dev.robocode.tankroyale.botapi.events.*;
 import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.arenamap.ArenaMap;
 import okurun.battlemanager.BattleManager;
-import okurun.battlemanager.BulletStatus;
-import okurun.battlemanager.EnemyProfile;
 import okurun.commander.Commander;
 import okurun.driver.Driver;
 import okurun.gunner.Gunner;
-import okurun.predictor.PredictionAccuracy;
 import okurun.predictor.Predictor;
 import okurun.radaroperator.RadarOperator;
 
@@ -159,132 +155,95 @@ public class OkuRunBot extends Bot {
 
     @Override
     public void onConnected(ConnectedEvent connectedEvent) {
-        System.out.println("OkuRunBot.onConnected()");
+        System.out.println("onConnected()");
     }
 
     @Override
     public void onDisconnected(DisconnectedEvent disconnectedEvent) {
-        System.out.println("OkuRunBot.onDisconnected()");
+        System.out.println("onDisconnected()");
     }
 
     @Override
     public void onConnectionError(ConnectionErrorEvent connectionErrorEvent) {
-        System.out.println("OkuRunBot.onConnectionError(): " + connectionErrorEvent.getError());
+        System.out.println("onConnectionError(): " + connectionErrorEvent.getError());
     }
 
     @Override
     public void onGameStarted(GameStartedEvent gameStartedEvent) {
-        System.out.println("OkuRunBot.onGameStarted()");
+        System.out.println("onGameStarted()");
     }
 
     @Override
     public void onGameEnded(GameEndedEvent gameEndedEvent) {
-        System.out.println("OkuRunBot.onGameEnded()");
+        System.out.println("onGameEnded()");
     }
 
     @Override
     public void onRoundStarted(RoundStartedEvent roundStartedEvent) {
-        System.out.println("OkuRunBot.onRoundStarted()");
+        System.out.println("onRoundStarted()");
     }
 
     @Override
     public void onRoundEnded(RoundEndedEvent roundEndedEvent) {
-        System.out.println("OkuRunBot.onRoundEnded()");
+        System.out.println("onRoundEnded()");
         battleManager.onRoundEnded(roundEndedEvent, this);
         predictor.onRoundEnded(roundEndedEvent, this);
     }
 
     @Override
     public void onTick(TickEvent tickEvent) {
-        // System.out.println(tickEvent.getTurnNumber() + ": OkuRunBot.onTick()");
+        // System.out.println(tickEvent.getTurnNumber() + ": onTick()");
     }
 
     @Override
     public void onBotDeath(BotDeathEvent botDeathEvent) {
-        System.out.println(botDeathEvent.getTurnNumber() + ": OkuRunBot.onBotDeath(): " + botDeathEvent.getVictimId());
+        System.out.println(botDeathEvent.getTurnNumber() + ": onBotDeath(): " + botDeathEvent.getVictimId());
         battleManager.onBotDeath(botDeathEvent, this);
     }
 
     @Override
     public void onDeath(DeathEvent deathEvent) {
-        System.out.println(deathEvent.getTurnNumber() + ": OkuRunBot.onDeath(): " + deathEvent.toString());
+        System.out.println(deathEvent.getTurnNumber() + ": onDeath(): " + deathEvent.toString());
     }
 
     @Override
     public void onHitBot(HitBotEvent botHitBotEvent) {
-        if (botHitBotEvent.getEnergy() <= 0) {
-            final EnemyProfile enemyProfile = battleManager.getEnemyProfile(botHitBotEvent.getVictimId());
-            if (enemyProfile != null) {
-                enemyProfile.died();
-            }
-        }
+        battleManager.onHitBot(botHitBotEvent, this);
     }
 
     @Override
     public void onHitWall(HitWallEvent botHitWallEvent) {
-        setTracksColor(Color.RED);
+        System.out.println(botHitWallEvent.getTurnNumber() + ": onHitWall()");
     }
 
     @Override
     public void onBulletFired(BulletFiredEvent bulletFiredEvent) {
-        battleManager.setLastFiredTurnNum(bulletFiredEvent.getTurnNumber());
-        final BulletStatus bulletStatus = battleManager.bulletStack.pollFirst();
-        if (bulletStatus != null) {
-            bulletStatus.bulletState = bulletFiredEvent.getBullet();
-            battleManager.bullets.put(bulletStatus.bulletState.getBulletId(), bulletStatus);
-            final PredictionAccuracy predictionAccuracy = predictor.predictionAccuracies.get(bulletStatus.predictModel);
-            if (predictionAccuracy == null) {
-                System.out.println(bulletFiredEvent.getTurnNumber() + " onBulletFired: predictionAccuracy is null");
-            }
-            predictionAccuracy.incrementFireCount();
-        }
+        battleManager.onBulletFired(bulletFiredEvent, this);
+        predictor.onBulletFired(bulletFiredEvent, this);
     }
 
     @Override
     public void onHitByBullet(HitByBulletEvent hitByBulletEvent) {
-        commander.onHitByBullet(hitByBulletEvent);
+        battleManager.onHitByBullet(hitByBulletEvent, this);
+        commander.onHitByBullet(hitByBulletEvent, this);
     }
 
     @Override
     public void onBulletHit(BulletHitBotEvent bulletHitBotEvent) {
-        final BulletState bulletState = bulletHitBotEvent.getBullet();
-        final int bulletId = bulletState.getBulletId();
-        final BulletStatus bulletStatus = battleManager.bullets.get(bulletId);
-
-        battleManager.bullets.remove(bulletId);
-        if (bulletHitBotEvent.getEnergy() <= 0) {
-            final EnemyProfile enemyProfile = battleManager.getEnemyProfile(bulletHitBotEvent.getVictimId());
-            if (enemyProfile != null) {
-                enemyProfile.died();
-            }
-        }
-
-        if (bulletHitBotEvent.getVictimId() == bulletStatus.targetEnemyId) {
-            predictor.predictionAccuracies.get(bulletStatus.predictModel).incrementHitCount();
-        } else {
-            predictor.predictionAccuracies.get(bulletStatus.predictModel).incrementMissCount();
-        }
-
+        battleManager.onBulletHit(bulletHitBotEvent, this);
+        predictor.onBulletHit(bulletHitBotEvent, this);
     }
 
     @Override
     public void onBulletHitBullet(BulletHitBulletEvent bulletHitBulletEvent) {
-        final BulletState bulletState = bulletHitBulletEvent.getBullet();
-        final int bulletId = bulletState.getBulletId();
-        final BulletStatus bulletStatus = battleManager.bullets.get(bulletId);
-
-        battleManager.bullets.remove(bulletId);
-        predictor.predictionAccuracies.get(bulletStatus.predictModel).incrementMissCount();
+        battleManager.onBulletHitBullet(bulletHitBulletEvent, this);
+        predictor.onBulletHitBullet(bulletHitBulletEvent, this);
     }
 
     @Override
     public void onBulletHitWall(BulletHitWallEvent bulletHitWallEvent) {
-        final BulletState bulletState = bulletHitWallEvent.getBullet();
-        final int bulletId = bulletState.getBulletId();
-        final BulletStatus bulletStatus = battleManager.bullets.get(bulletId);
-
-        battleManager.bullets.remove(bulletId);
-        predictor.predictionAccuracies.get(bulletStatus.predictModel).incrementMissCount();
+        battleManager.onBulletHitWall(bulletHitWallEvent, this);
+        predictor.onBulletHitWall(bulletHitWallEvent, this);
     }
 
     @Override
@@ -294,22 +253,22 @@ public class OkuRunBot extends Bot {
 
     @Override
     public void onSkippedTurn(SkippedTurnEvent skippedTurnEvent) {
-        System.out.println(skippedTurnEvent.getTurnNumber() + ": OkuRunBot.onSkippedTurn()");
+        System.out.println(skippedTurnEvent.getTurnNumber() + ": onSkippedTurn()");
     }
 
     @Override
     public void onWonRound(WonRoundEvent wonRoundEvent) {
-        System.out.println("OkuRunBot.onWonRound()");
+        System.out.println("onWonRound()");
     }
 
     @Override
     public void onCustomEvent(CustomEvent customEvent) {
-        System.out.println(customEvent.getTurnNumber() + ": OkuRunBot.onCustomEvent()");
+        System.out.println(customEvent.getTurnNumber() + ": onCustomEvent()");
     }
 
     @Override
     public void onTeamMessage(TeamMessageEvent teamMessageEvent) {
         System.out.println(
-                teamMessageEvent.getTurnNumber() + ": OkuRunBot.onTeamMessage(): " + teamMessageEvent.getMessage());
+                teamMessageEvent.getTurnNumber() + ": onTeamMessage(): " + teamMessageEvent.getMessage());
     }
 }

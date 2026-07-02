@@ -92,6 +92,8 @@ public class NormalGunAction implements GunAction {
         }
 
         bot.setFire(bulletPower);
+
+        // デバッグ用に弾丸の情報をスタックに保存します
         battleManager.bulletStack.addLast(
                 new BulletStatus(commander.getPredictorModelName(bot), fireTarget.x, fireTarget.y, targetEnemyId,
                         fireTarget.scandTurnNum));

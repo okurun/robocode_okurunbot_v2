@@ -89,7 +89,7 @@ public class SurvivalTactic implements Tactic {
 
     private void setBaseBulletPower(OkuRunBot bot) {
         // 敵の数が多い時はパワーを下げる
-        final int alivalEnemyCount = bot.getBattleManager().getAliveEnemyCount();
+        final int alivalEnemyCount = bot.getBattleManager().getAliveEnemyCount(bot);
         if (alivalEnemyCount > 2) {
             baseBulletPower = 1;
         } else if (alivalEnemyCount > 1) {
@@ -128,11 +128,11 @@ public class SurvivalTactic implements Tactic {
                 gunActionName = ScanGunAction.class.getName();
                 return;
             }
-            // if (latesEnemyState.energy <= 0) {
-            // // 敵のエネルギーが0以下なら止めを刺します
-            // gunActionName = ExecutionGunAction.class.getName();
-            // return;
-            // }
+            if (latesEnemyState.energy <= 0) {
+                // 敵のエネルギーが0以下なら止めを刺します
+                gunActionName = ExecutionGunAction.class.getName();
+                return;
+            }
             gunActionName = NormalGunAction.class.getName();
             return;
         }

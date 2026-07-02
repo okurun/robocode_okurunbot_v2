@@ -4,9 +4,12 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 
-import dev.robocode.tankroyale.botapi.events.RoundEndedEvent;
+import dev.robocode.tankroyale.botapi.BulletState;
+import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
 import okurun.arenamap.ArenaMap;
+import okurun.battlemanager.BattleManager;
+import okurun.battlemanager.BulletStatus;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.predictor.models.*;
@@ -119,6 +122,51 @@ public class Predictor {
             final PredictionAccuracy predictionAccuracy = predictionAccuracies.get(modelName);
             System.out.println(modelName + "(" + predictionAccuracy.getAccuracyString() + ")");
         }
+    }
+
+    public void onBulletFired(BulletFiredEvent bulletFiredEvent, OkuRunBot bot) {
+        final BattleManager battleManager = bot.getBattleManager();
+        final BulletStatus bulletStatus = battleManager.bullets.get(bulletFiredEvent.getBullet().getBulletId());
+        if (bulletStatus != null) {
+            bulletStatus.bulletState = bulletFiredEvent.getBullet();
+            final PredictionAccuracy predictionAccuracy = predictionAccuracies.get(bulletStatus.predictModel);
+            if (predictionAccuracy == null) {
+                System.out.println(bulletFiredEvent.getTurnNumber() + " onBulletFired: predictionAccuracy is null");
+            }
+            predictionAccuracy.incrementFireCount();
+        }
+    }
+
+    public void onBulletHit(BulletHitBotEvent bulletHitBotEvent, OkuRunBot bot) {
+        final BattleManager battleManager = bot.getBattleManager();
+        final BulletState bulletState = bulletHitBotEvent.getBullet();
+        final int bulletId = bulletState.getBulletId();
+        final BulletStatus bulletStatus = battleManager.bullets.get(bulletId);
+
+        if (bulletHitBotEvent.getVictimId() == bulletStatus.targetEnemyId) {
+            predictionAccuracies.get(bulletStatus.predictModel).incrementHitCount();
+        } else {
+            predictionAccuracies.get(bulletStatus.predictModel).incrementMissCount();
+        }
+    }
+
+    public void onBulletHitBullet(BulletHitBulletEvent bulletHitBulletEvent, OkuRunBot bot) {
+        final BattleManager battleManager = bot.getBattleManager();
+        final BulletState bulletState = bulletHitBulletEvent.getBullet();
+        final int bulletId = bulletState.getBulletId();
+        final BulletStatus bulletStatus = battleManager.bullets.get(bulletId);
+
+        predictionAccuracies.get(bulletStatus.predictModel).incrementMissCount();
+    }
+
+    public void onBulletHitWall(BulletHitWallEvent bulletHitWallEvent, OkuRunBot bot) {
+        final BattleManager battleManager = bot.getBattleManager();
+        final BulletState bulletState = bulletHitWallEvent.getBullet();
+        final int bulletId = bulletState.getBulletId();
+        final BulletStatus bulletStatus = battleManager.bullets.get(bulletId);
+
+        predictionAccuracies.get(bulletStatus.predictModel).incrementMissCount();
+
     }
 
     /**
