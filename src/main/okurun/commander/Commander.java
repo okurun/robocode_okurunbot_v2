@@ -6,6 +6,7 @@ import java.util.Map;
 import dev.robocode.tankroyale.botapi.events.HitByBulletEvent;
 import okurun.OkuRunBot;
 import okurun.battlemanager.BattleManager;
+import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.commander.tactics.*;
 
@@ -17,7 +18,7 @@ public class Commander {
     }
 
     public static enum AccelePriority {
-        MAX_SPEED, HANDLE
+        MAX_SPEED, HANDLE, AVOID_BULLET
     }
 
     private Map<String, Tactic> tactics = new HashMap<>();
@@ -25,20 +26,39 @@ public class Commander {
 
     public void init(OkuRunBot bot) {
         tactics.put(OneOnOnePositiveTactic.class.getName(), new OneOnOnePositiveTactic());
+        tactics.put(OneOnOneNegativeTactic.class.getName(), new OneOnOneNegativeTactic());
         tactics.put(SurvivalTactic.class.getName(), new SurvivalTactic());
     }
 
     public void action(OkuRunBot bot) {
-        final BattleManager battleManager = bot.getBattleManager();
-        currentTactic = tactics.get(SurvivalTactic.class.getName());
-        if (battleManager.getAliveEnemyCount(bot) < 2) {
-            // 生存している敵が1機以下
-            currentTactic = tactics.get(OneOnOnePositiveTactic.class.getName());
-        }
-
+        setCurrentTactic(bot);
         currentTactic.action(bot);
     }
 
+    private void setCurrentTactic(OkuRunBot bot) {
+        final BattleManager battleManager = bot.getBattleManager();
+        if (battleManager.getAliveAndNotMissingEnemyCount(bot) < 2) {
+            // 生存している敵が1機のみ
+            final EnemyProfile enemyProfile = battleManager.getAlivalEnemy(bot);
+            if (enemyProfile == null) {
+                currentTactic = tactics.get(OneOnOneNegativeTactic.class.getName());
+                return;
+            }
+            final EnemyState latestEnemyState = enemyProfile.getLatestState();
+            if (latestEnemyState == null) {
+                currentTactic = tactics.get(OneOnOneNegativeTactic.class.getName());
+                return;
+            }
+            if (bot.getEnergy() - latestEnemyState.energy < 0) {
+                currentTactic = tactics.get(OneOnOneNegativeTactic.class.getName());
+                return;
+            }
+            currentTactic = tactics.get(OneOnOnePositiveTactic.class.getName());
+            return;
+        }
+        currentTactic = tactics.get(SurvivalTactic.class.getName());
+    }
+    
     public int getTargetEnemyId(OkuRunBot bot) {
         return currentTactic.getTargetEnemyId(bot);
     }

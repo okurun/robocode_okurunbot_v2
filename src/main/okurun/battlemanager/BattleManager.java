@@ -81,12 +81,12 @@ public class BattleManager {
     }
 
     /**
-     * 生存している敵ボットの数を返します
+     * 生存していて見失っていない敵ボットの数を返します
      * 
      * @param bot Bot
-     * @return 生存している敵ボットの数
+     * @return 生存していて見失っていない敵ボットの数
      */
-    public int getAliveEnemyCount(OkuRunBot bot) {
+    public int getAliveAndNotMissingEnemyCount(OkuRunBot bot) {
         int aliveEnemyCount = 0;
         for (final EnemyProfile enemyProfile : enemyProfiles.values()) {
             if (enemyProfile.isAliveAndNotMissing(bot)) {
@@ -96,34 +96,15 @@ public class BattleManager {
         return aliveEnemyCount;
     }
 
-    /**
-     * 全ての生存している敵をスキャンしたかどうかを返します
-     * 
-     * @return 全ての生存している敵をスキャンしたかどうか
-     */
-    public boolean hasScannedAllAliveEnemies(OkuRunBot bot) {
-        if (caches.containsKey("hasScannedAllAliveEnemies")) {
-            return (boolean) caches.get("hasScannedAllAliveEnemies");
-        }
-        for (final EnemyProfile enemyProfile : enemyProfiles.values()) {
-            if (enemyProfile.isAliveAndNotMissing(bot) && enemyProfile.getLatestState() == null) {
-                caches.put("hasScannedAllAliveEnemies", Boolean.FALSE);
-                return false;
-            }
-        }
-        caches.put("hasScannedAllAliveEnemies", Boolean.TRUE);
-        return true;
-    }
-
     public EnemyProfile getEnemyProfile(int id) {
         return enemyProfiles.get(id);
     }
 
     /**
-     * 生きている敵のうち、最初に発見した敵のプロファイルを取得します
+     * 生きていて見失っていない敵のうち、最初に発見した敵のプロファイルを取得します
      * 
      * @param bot Bot
-     * @return 生きている敵のうち、最初に発見した敵のプロファイル
+     * @return 生きていて見失っていない敵のうち、最初に発見した敵のプロファイル
      */
     public EnemyProfile getAlivalEnemy(OkuRunBot bot) {
         for (final EnemyProfile enemyProfile : enemyProfiles.values()) {
@@ -146,10 +127,10 @@ public class BattleManager {
     }
 
     /**
-     * 生存していて、観測出来ている全ての敵ボットの最新の状態をMapで返します
+     * 生存していて見失っていない、全ての敵ボットの最新の状態をMapで返します
      * 
      * @param bot Bot
-     * @return 生存していて、観測出来ている全ての敵ボットの最新の状態
+     * @return 生存していて見失っていない、全ての敵ボットの最新の状態
      */
     public Map<Integer, EnemyState> getLatestAlivalAndNotMissingEnemies(OkuRunBot bot) {
         Map<Integer, EnemyState> latestEnemyStates = new HashMap<>();

@@ -173,6 +173,22 @@ public class ArenaMap {
                 case BOTTOM_LEFT -> List.of(areas.get(AreaId.BOTTOM_RIGHT), areas.get(AreaId.TOP_LEFT));
             };
         }
+
+        /**
+         * ボットから見た隣接するエリアのうち、進行方向に最も近いエリアを返します
+         * 
+         * @param bot Bot
+         * @return 隣接するエリアのうち、進行方向に最も近いエリア
+         */
+        public Area getNeighboringArea(OkuRunBot bot) {
+            final List<Area> neighboringAreas = getNeighboringAreas();
+            if (bot.bearingTo(neighboringAreas.get(0).getCenter()) > bot
+                    .bearingTo(neighboringAreas.get(1).getCenter())) {
+                // 隣接エリアのうち、進行方向に最も近いエリアを返す
+                return neighboringAreas.get(1);
+            }
+            return neighboringAreas.get(0);
+        }
     }
 
     private int height;
@@ -346,6 +362,16 @@ public class ArenaMap {
             }
         }
         return null;
+    }
+
+    /**
+     * Botが現在いるエリアを返します
+     * 
+     * @param bot Bot
+     * @return Botがいるエリア
+     */
+    public Area getArea(OkuRunBot bot) {
+        return getArea(bot.getX(), bot.getY());
     }
 
     /**

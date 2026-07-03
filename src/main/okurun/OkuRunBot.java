@@ -75,6 +75,10 @@ public class OkuRunBot extends Bot {
         return new double[] { getX(), getY() };
     }
 
+    public double bearingTo(double[] pos) {
+        return bearingTo(pos[0], pos[1]);
+    }
+
     public ArenaMap getArenaMap() {
         return arenaMap;
     }

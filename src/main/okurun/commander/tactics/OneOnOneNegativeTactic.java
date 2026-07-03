@@ -17,7 +17,7 @@ import okurun.predictor.Predictor;
 import okurun.predictor.models.*;
 import okurun.radaroperator.actions.*;
 
-public class OneOnOnePositiveTactic implements Tactic {
+public class OneOnOneNegativeTactic implements Tactic {
     private int targetEnemyId = Commander.NO_TARGET;
     private double[] targetMovePosition = null;
     private double baseBulletPower = 2;
@@ -65,22 +65,25 @@ public class OneOnOnePositiveTactic implements Tactic {
     }
 
     private void setTargetMovePosition(OkuRunBot bot) {
+        final ArenaMap.Area targetMoveArea = getTargetMoveArea(bot);
+        targetMovePosition = Tactic.calculatePointCUsingTrig(
+                bot.getPosition(), targetMoveArea.getCenter(), 30, false);
+    }
+
+    private ArenaMap.Area getTargetMoveArea(OkuRunBot bot) {
         final ArenaMap arenaMap = bot.getArenaMap();
         if (targetEnemyId == Commander.NO_TARGET) {
-            targetMovePosition = arenaMap.getArea(bot).getNeighboringArea(bot).getCenter();
-            return;
+            return arenaMap.getArea(bot).getNeighboringArea(bot);
         }
 
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
         if (targetEnemyProfile == null) {
-            targetMovePosition = arenaMap.getArea(bot).getNeighboringArea(bot).getCenter();
-            return;
+            return arenaMap.getArea(bot).getNeighboringArea(bot);
         }
         final EnemyState latestEnemyState = targetEnemyProfile.getLatestState();
         if (latestEnemyState == null) {
-            targetMovePosition = arenaMap.getArea(bot).getNeighboringArea(bot).getCenter();
-            return;
+            return arenaMap.getArea(bot).getNeighboringArea(bot);
         }
 
         final Predictor predictor = bot.getPredictor();
@@ -89,23 +92,28 @@ public class OneOnOnePositiveTactic implements Tactic {
             predictedEnemyState = latestEnemyState;
         }
 
-        final double distance = Math.max(0, 200 - ((bot.getEnergy() - latestEnemyState.energy) * 5));
-        final boolean clockwise = true;
-        targetMovePosition = Tactic.calculatePointCUsingTrig(
-                bot.getPosition(), predictedEnemyState.getPosition(), distance, clockwise);
-        if (!bot.getArenaMap().isInsideArena(targetMovePosition)) {
-            targetMovePosition = Tactic.calculatePointCUsingTrig(
-                    bot.getPosition(), predictedEnemyState.getPosition(), distance, !clockwise);
+        final ArenaMap.Area enemyArea = arenaMap.getArea(predictedEnemyState.x, predictedEnemyState.y);
+        if (enemyArea == null) {
+            return arenaMap.getArea(bot).getNeighboringArea(bot);
         }
-    }
 
+        // 敵の反対側のエリアへ移動する
+        final ArenaMap.Area oppositeArea = enemyArea.getOppositeArea();
+        final double[] oppositeAreaCenter = oppositeArea.getCenter();
+        if (Math.abs(bot.bearingTo(oppositeAreaCenter) - bot.bearingTo(predictedEnemyState.getPosition())) < 30) {
+            // 進路上に敵がいる場合は近傍のエリアへ移動する
+            return oppositeArea.getNeighboringArea(bot);
+        }
+        return oppositeArea;
+    }
+        
     @Override
     public double getBaseBulletPower(OkuRunBot bot) {
         return baseBulletPower;
     }
 
     private void setBaseBulletPower(OkuRunBot bot) {
-        double bulletPower = 2;
+        double bulletPower = 1.5;
 
         // 自分のエネルギーが少ない時はパワーを下げる
         if (bot.getEnergy() < 20) {
@@ -162,7 +170,7 @@ public class OneOnOnePositiveTactic implements Tactic {
 
         if (bot.getGunHeat() <= bot.getGunCoolingRate() * 2) {
             // 2ターン以内に射撃可能であれば射撃を行います
-            if (bot.getTurnNumber() - battleManager.getLastFiredTurnNum() > 100) {
+            if (bot.getTurnNumber() - battleManager.getLastFiredTurnNum() > 150) {
                 // 射撃できない状態が続いていたら連射を選択する
                 gunActionName = RapidFireGunAction.class.getName();
                 return;
@@ -229,12 +237,12 @@ public class OneOnOnePositiveTactic implements Tactic {
 
     @Override
     public AccelePriority getAccelePriority(OkuRunBot bot) {
-        return AccelePriority.MAX_SPEED;
+        return AccelePriority.AVOID_BULLET;
     }
 
     @Override
     public double getMinSpeed(OkuRunBot bot) {
-        return 6;
+        return 4;
     }
 
     @Override
