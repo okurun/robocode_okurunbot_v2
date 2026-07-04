@@ -10,6 +10,7 @@ import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
 import okurun.commander.Commander.AccelePriority;
 import okurun.commander.Commander.HandlePriority;
+import okurun.predictor.Predictor;
 
 /**
  * 移動目標へ向かうDriveアクション
@@ -56,7 +57,9 @@ public class MoveToDriveAction implements DriveAction {
                     if (enemyState != null) {
                         // 敵との距離によってブレーキの頻度を変える
                         final double enemyDistance = bot.distanceTo(enemyState.x, enemyState.y);
-                        randNum = Math.max(randNum, Math.min(3, (int) Math.ceil(enemyDistance / bot.calcBulletSpeed(1))));
+                        randNum = Math.max(randNum,
+                                Math.min((int) (Constants.MAX_SPEED - commander.getMinSpeed(bot) + 1),
+                                        (int) Math.ceil(enemyDistance / bot.calcBulletSpeed(1))));
                     }
                     final Random random = new Random();
                     if (random.nextInt(randNum) == 0) {
@@ -71,9 +74,16 @@ public class MoveToDriveAction implements DriveAction {
         bot.setForward(distance);
         bot.setMaxSpeed(speed);
 
-        final Color color = Color.fromRgba(Color.LIGHT_BLUE, 50);
-        bot.drawCircle(pos[0], pos[1], 5, color);
-        bot.drawLine(bot.getX(), bot.getY(), pos[0], pos[1], color);
+        // 移動目標を描画します
+        // ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
+        final Color color = Color.LIGHT_BLUE;
+        bot.drawCircle(pos[0], pos[1], 5, Color.fromRgba(color, 50));
+        bot.drawLine(bot.getX(), bot.getY(), pos[0], pos[1], Color.fromRgba(color, 50));
+
+        final double[] actualPos = Predictor.calcPosition(bot.getPosition(), bot.getDirection() + bearingTo, distance,
+                1);
+        bot.drawLine(bot.getX(), bot.getY(), actualPos[0], actualPos[1], color);
+
         return null;
     }
 

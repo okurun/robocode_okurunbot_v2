@@ -2,56 +2,24 @@ package okurun.commander.tactics;
 
 import java.util.List;
 
-import dev.robocode.tankroyale.botapi.events.HitByBulletEvent;
 import okurun.OkuRunBot;
 import okurun.arenamap.ArenaMap;
 import okurun.battlemanager.BattleManager;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
-import okurun.commander.Commander.AccelePriority;
-import okurun.commander.Commander.HandlePriority;
 import okurun.driver.actions.*;
 import okurun.gunner.actions.*;
 import okurun.predictor.Predictor;
-import okurun.predictor.models.*;
 import okurun.radaroperator.actions.*;
 
 /**
  * 1v1の状況で積極的に攻める戦略
  */
-public class OneOnOnePositiveTactic implements Tactic {
-    private int targetEnemyId = Commander.NO_TARGET;
-    private double[] targetMovePosition = null;
-    private double baseBulletPower = 2;
-    private String predictorModelName = SimplePredictModel.class.getName();
-    private String driveActionName = MoveToDriveAction.class.getName();
-    private String gunActionName = NormalGunAction.class.getName();
-    private String radarActionName = TargetScanRadarAction.class.getName();
-    
+public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
 
     @Override
-    public void action(OkuRunBot bot) {
-        setTargetEnemyId(bot);
-        setBaseBulletPower(bot);
-        setPredictorModelName(bot);
-        setTargetMovePosition(bot);
-        setDriveActionName(bot);
-        setGunActionName(bot);
-        setRadarActionName(bot);
-    }
-
-    @Override
-    public int getTargetEnemyId(OkuRunBot bot) {
-        return targetEnemyId;
-    }
-
-    /**
-     * ターゲットを設定します
-     * 
-     * @param bot
-     */
-    private void setTargetEnemyId(OkuRunBot bot) {
+    protected void setTargetEnemyId(OkuRunBot bot) {
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile alivalEnemy = battleManager.getAlivalEnemy(bot);
         if (alivalEnemy != null && alivalEnemy.getLatestState() != null) {
@@ -63,11 +31,7 @@ public class OneOnOnePositiveTactic implements Tactic {
     }
 
     @Override
-    public double[] getTargetMovePosition(OkuRunBot bot) {
-        return targetMovePosition;
-    }
-
-    private void setTargetMovePosition(OkuRunBot bot) {
+    protected void setTargetMovePosition(OkuRunBot bot) {
         final ArenaMap arenaMap = bot.getArenaMap();
         if (targetEnemyId == Commander.NO_TARGET) {
             // 隣のエリアへ向かう
@@ -108,11 +72,7 @@ public class OneOnOnePositiveTactic implements Tactic {
     }
 
     @Override
-    public double getBaseBulletPower(OkuRunBot bot) {
-        return baseBulletPower;
-    }
-
-    private void setBaseBulletPower(OkuRunBot bot) {
+    protected void setBaseBulletPower(OkuRunBot bot) {
         double bulletPower = 2;
 
         // 自分のエネルギーが少ない時はパワーを下げる
@@ -130,20 +90,7 @@ public class OneOnOnePositiveTactic implements Tactic {
     }
 
     @Override
-    public String getPredictorModelName(OkuRunBot bot) {
-        return predictorModelName;
-    }
-
-    private void setPredictorModelName(OkuRunBot bot) {
-        predictorModelName = SimplePredictModel.class.getName();
-    }
-
-    @Override
-    public String getGunActionName(OkuRunBot bot) {
-        return gunActionName;
-    }
-
-    private void setGunActionName(OkuRunBot bot) {
+    protected void setGunActionName(OkuRunBot bot) {
         if (targetEnemyId == Commander.NO_TARGET) {
             // ターゲットが設定されていない場合はスキャンを行います
             gunActionName = ScanGunAction.class.getName();
@@ -190,11 +137,7 @@ public class OneOnOnePositiveTactic implements Tactic {
     }
 
     @Override
-    public String getRadarActionName(OkuRunBot bot) {
-        return radarActionName;
-    }
-
-    private void setRadarActionName(OkuRunBot bot) {
+    protected void setRadarActionName(OkuRunBot bot) {
         if (targetEnemyId == Commander.NO_TARGET) {
             radarActionName = AllScanRadarAction.class.getName();
             return;
@@ -216,11 +159,7 @@ public class OneOnOnePositiveTactic implements Tactic {
     }
 
     @Override
-    public String getDriveActionName(OkuRunBot bot) {
-        return driveActionName;
-    }
-
-    private void setDriveActionName(OkuRunBot bot) {
+    protected void setDriveActionName(OkuRunBot bot) {
         final ArenaMap arenaMap = bot.getArenaMap();
         final List<ArenaMap.PotentialCollisionWall> collisionWalls = arenaMap.getPotentialCollisionWalls(bot);
         if (!collisionWalls.isEmpty()) {
@@ -231,27 +170,8 @@ public class OneOnOnePositiveTactic implements Tactic {
     }
 
     @Override
-    public HandlePriority getHandlePriority(OkuRunBot bot) {
-        return HandlePriority.TARGET;
-    }
-
-    @Override
-    public AccelePriority getAccelePriority(OkuRunBot bot) {
-        return AccelePriority.MAX_SPEED;
-    }
-
-    @Override
     public double getMinSpeed(OkuRunBot bot) {
         return 6;
     }
 
-    /**
-     * 弾丸が自分に当たった時の処理
-     * 
-     * @param e   弾丸が自分に当たったイベント
-     * @param bot ボット
-     */
-    @Override
-    public void onHitByBullet(HitByBulletEvent e, OkuRunBot bot) {
-    }
 }

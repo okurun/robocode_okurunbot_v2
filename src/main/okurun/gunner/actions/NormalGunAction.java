@@ -108,7 +108,8 @@ public class NormalGunAction implements GunAction {
      * @return 撃つ弾のパワー
      */
     private static double getBulletPower(OkuRunBot bot, EnemyState currentEnemyState) {
-        double bulletPower = bot.getCommander().getBaseBulletPower(bot);
+        final Commander commander = bot.getCommander();
+        double bulletPower = commander.getBaseBulletPower(bot);
 
         // 敵との距離が近い時はパワーを上げる
         final double distance = bot.distanceTo(currentEnemyState.x, currentEnemyState.y);
@@ -150,12 +151,10 @@ public class NormalGunAction implements GunAction {
 
         // 距離が近く敵が自分に対して縦方向に向いている時はパワーを上げる
         if (distance <= 150) {
-            final double enemyLateralAngle = Commander.getEnemyLateralAngle(bot, currentEnemyState);
-            if ((enemyLateralAngle >= 160 && enemyLateralAngle <= 200)
-                    || (enemyLateralAngle <= -160 && enemyLateralAngle >= -200)) {
+            final double enemyLateralAngle = Math.abs(commander.getEnemyLateralAngle(bot, currentEnemyState));
+            if (enemyLateralAngle <= 20 ||enemyLateralAngle >= 160) {
                 bulletPower += 0.5;
-            } else if ((enemyLateralAngle >= 70 && enemyLateralAngle <= 110)
-                    || (enemyLateralAngle <= -70 && enemyLateralAngle >= -110)) {
+            } else if (enemyLateralAngle >= 70 && enemyLateralAngle <= 110) {
                 bulletPower -= 0.5;
             }
         }

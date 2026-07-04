@@ -2,6 +2,7 @@ package okurun.commander;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import dev.robocode.tankroyale.botapi.events.HitByBulletEvent;
 import okurun.OkuRunBot;
@@ -33,6 +34,7 @@ public class Commander {
 
     private Map<String, Tactic> tactics = new HashMap<>();
     private Tactic currentTactic = null;
+    private final Map<String, Object> caches = new ConcurrentHashMap<>();
 
     public void init(OkuRunBot bot) {
         tactics.put(OneOnOnePositiveTactic.class.getName(), new OneOnOnePositiveTactic());
@@ -41,6 +43,7 @@ public class Commander {
     }
 
     public void action(OkuRunBot bot) {
+        caches.clear();
         setCurrentTactic(bot);
         currentTactic.action(bot);
     }
@@ -60,7 +63,7 @@ public class Commander {
                 return;
             }
             if (bot.getEnergy() - latestEnemyState.energy < 0) {
-                currentTactic = tactics.get(OneOnOnePositiveTactic.class.getName());
+                currentTactic = tactics.get(OneOnOneNegativeTactic.class.getName());
                 return;
             }
             currentTactic = tactics.get(OneOnOnePositiveTactic.class.getName());
@@ -116,8 +119,13 @@ public class Commander {
      * @param enamyState 攻撃対象の現在の状態
      * @return 相手の相対角度（-180度 〜 180度）
      */
-    public static double getEnemyLateralAngle(OkuRunBot bot, EnemyState enamyState) {
-        return getEnemyLateralAngle(bot.getX(), bot.getY(), enamyState.x, enamyState.y, enamyState.heading);
+    public double getEnemyLateralAngle(OkuRunBot bot, EnemyState enamyState) {
+        if (caches.containsKey("enemyLateralAngle" + enamyState.id)) {
+            return (double) caches.get("enemyLateralAngle" + enamyState.id);
+        }
+        final double enemyLateralAngle = getEnemyLateralAngle(bot.getX(), bot.getY(), enamyState.x, enamyState.y, enamyState.heading);
+        caches.put("enemyLateralAngle" + enamyState.id, enemyLateralAngle);
+        return enemyLateralAngle;
     }
 
     /**

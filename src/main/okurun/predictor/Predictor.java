@@ -31,6 +31,7 @@ public class Predictor {
     public void init(OkuRunBot bot) {
         predictedDataCache.clear();
         predictModels.put(SimplePredictModel.class.getName(), new SimplePredictModel());
+        predictModels.put(HistoryPredictModel.class.getName(), new HistoryPredictModel());
         for (final String modelName : predictModels.keySet()) {
             predictionAccuracies.put(modelName, new PredictionAccuracy());
         }
@@ -38,6 +39,9 @@ public class Predictor {
 
     public void action(OkuRunBot bot) {
         predictedDataCache.clear();
+        for (PredictModel model : predictModels.values()) {
+            model.clearCache();
+        }
     }
 
     /**
