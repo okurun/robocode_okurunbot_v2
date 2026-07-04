@@ -112,6 +112,14 @@ public class OkuRunBot extends Bot {
         g.clear();
     }
 
+    /**
+     * 射撃目標を描画します
+     * ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
+     * 
+     * @param x     X座標
+     * @param y     Y座標
+     * @param color 描画色
+     */
     public void drawTarget(double x, double y, Color color) {
         var g = getGraphics();
         g.setFillColor(Color.fromRgba(color, 50));
@@ -157,122 +165,232 @@ public class OkuRunBot extends Bot {
         g.drawLine(x1, y1, x2, y2);
     }
 
+    /**
+     * サーバーから接続した時の処理
+     * 
+     * @param e 接続イベント
+     */
     @Override
-    public void onConnected(ConnectedEvent connectedEvent) {
+    public void onConnected(ConnectedEvent e) {
         System.out.println("onConnected()");
     }
 
+    /**
+     * サーバーから切断した時の処理
+     * 
+     * @param e 切断イベント
+     */
     @Override
-    public void onDisconnected(DisconnectedEvent disconnectedEvent) {
+    public void onDisconnected(DisconnectedEvent e) {
         System.out.println("onDisconnected()");
     }
 
+    /**
+     * 接続エラーが発生した時の処理
+     * 
+     * @param e 接続エラーイベント
+     */
     @Override
-    public void onConnectionError(ConnectionErrorEvent connectionErrorEvent) {
-        System.out.println("onConnectionError(): " + connectionErrorEvent.getError());
+    public void onConnectionError(ConnectionErrorEvent e) {
+        System.out.println("onConnectionError(): " + e.getError());
     }
 
+    /**
+     * ゲームが開始された時の処理
+     * 
+     * @param e ゲーム開始イベント
+     */
     @Override
-    public void onGameStarted(GameStartedEvent gameStartedEvent) {
+    public void onGameStarted(GameStartedEvent e) {
         System.out.println("onGameStarted()");
     }
 
+    /**
+     * ゲームが終了した時の処理
+     * 
+     * @param e ゲーム終了イベント
+     */
     @Override
-    public void onGameEnded(GameEndedEvent gameEndedEvent) {
+    public void onGameEnded(GameEndedEvent e) {
         System.out.println("onGameEnded()");
     }
 
+    /**
+     * ラウンドが開始した時の処理
+     * 
+     * @param e ラウンド開始イベント
+     */
     @Override
-    public void onRoundStarted(RoundStartedEvent roundStartedEvent) {
+    public void onRoundStarted(RoundStartedEvent e) {
         System.out.println("onRoundStarted()");
     }
 
+    /**
+     * ラウンドが終了した時の処理
+     * 
+     * @param e ラウンド終了イベント
+     */
     @Override
-    public void onRoundEnded(RoundEndedEvent roundEndedEvent) {
+    public void onRoundEnded(RoundEndedEvent e) {
         System.out.println("onRoundEnded()");
-        battleManager.onRoundEnded(roundEndedEvent, this);
-        predictor.onRoundEnded(roundEndedEvent, this);
+        battleManager.onRoundEnded(e, this);
+        predictor.onRoundEnded(e, this);
     }
 
+    /**
+     * 1ターン中の一定時間経過毎に呼ばれる
+     * 
+     * @param e 1ターン中の一定時間経過イベント
+     */
     @Override
-    public void onTick(TickEvent tickEvent) {
-        // System.out.println(tickEvent.getTurnNumber() + ": onTick()");
+    public void onTick(TickEvent e) {
+        // System.out.println(e.getTurnNumber() + ": onTick()");
     }
 
+    /**
+     * 敵ボットが死んだ時の処理
+     * 
+     * @param e 敵ボットが死んだイベント
+     */
     @Override
-    public void onBotDeath(BotDeathEvent botDeathEvent) {
-        System.out.println(botDeathEvent.getTurnNumber() + ": onBotDeath(): " + botDeathEvent.getVictimId());
-        battleManager.onBotDeath(botDeathEvent, this);
+    public void onBotDeath(BotDeathEvent e) {
+        System.out.println(e.getTurnNumber() + ": onBotDeath(): " + e.getVictimId());
+        battleManager.onBotDeath(e, this);
     }
 
+    /**
+     * 自分が死んだ時の処理
+     * 
+     * @param e 自分が死んだイベント
+     */
     @Override
-    public void onDeath(DeathEvent deathEvent) {
-        System.out.println(deathEvent.getTurnNumber() + ": onDeath(): " + deathEvent.toString());
+    public void onDeath(DeathEvent e) {
+        System.out.println(e.getTurnNumber() + ": onDeath(): " + e.toString());
     }
 
+    /**
+     * 当たったボットの時の処理
+     * 
+     * @param e 当たったボットのイベント
+     */
     @Override
-    public void onHitBot(HitBotEvent botHitBotEvent) {
-        battleManager.onHitBot(botHitBotEvent, this);
+    public void onHitBot(HitBotEvent e) {
+        battleManager.onHitBot(e, this);
     }
 
+    /**
+     * 当たった壁の時の処理
+     * 
+     * @param e 当たった壁のイベント
+     */
     @Override
-    public void onHitWall(HitWallEvent botHitWallEvent) {
-        System.out.println(botHitWallEvent.getTurnNumber() + ": onHitWall()");
+    public void onHitWall(HitWallEvent e) {
+        System.out.println(e.getTurnNumber() + ": onHitWall()");
     }
 
+    /**
+     * 弾丸が発射された時の処理
+     * 
+     * @param e 弾丸が発射されたイベント
+     */
     @Override
-    public void onBulletFired(BulletFiredEvent bulletFiredEvent) {
-        battleManager.onBulletFired(bulletFiredEvent, this);
-        predictor.onBulletFired(bulletFiredEvent, this);
+    public void onBulletFired(BulletFiredEvent e) {
+        battleManager.onBulletFired(e, this);
+        predictor.onBulletFired(e, this);
     }
 
+    /**
+     * 当たった弾丸の時の処理
+     * 
+     * @param e 当たった弾丸のイベント
+     */
     @Override
-    public void onHitByBullet(HitByBulletEvent hitByBulletEvent) {
-        battleManager.onHitByBullet(hitByBulletEvent, this);
-        commander.onHitByBullet(hitByBulletEvent, this);
+    public void onHitByBullet(HitByBulletEvent e) {
+        battleManager.onHitByBullet(e, this);
+        commander.onHitByBullet(e, this);
     }
 
+    /**
+     * 弾丸が敵ボットに当たった時の処理
+     * 
+     * @param e 弾丸が敵ボットに当たったイベント
+     */
     @Override
-    public void onBulletHit(BulletHitBotEvent bulletHitBotEvent) {
-        battleManager.onBulletHit(bulletHitBotEvent, this);
-        predictor.onBulletHit(bulletHitBotEvent, this);
+    public void onBulletHit(BulletHitBotEvent e) {
+        battleManager.onBulletHit(e, this);
+        predictor.onBulletHit(e, this);
     }
 
+    /**
+     * 弾丸が弾丸に当たった時の処理
+     * 
+     * @param e 弾丸が弾丸に当たったイベント
+     */
     @Override
-    public void onBulletHitBullet(BulletHitBulletEvent bulletHitBulletEvent) {
-        battleManager.onBulletHitBullet(bulletHitBulletEvent, this);
-        predictor.onBulletHitBullet(bulletHitBulletEvent, this);
+    public void onBulletHitBullet(BulletHitBulletEvent e) {
+        battleManager.onBulletHitBullet(e, this);
+        predictor.onBulletHitBullet(e, this);
     }
 
+    /**
+     * 弾丸が壁に当たった時の処理
+     * 
+     * @param e 弾丸が壁に当たったイベント
+     */
     @Override
-    public void onBulletHitWall(BulletHitWallEvent bulletHitWallEvent) {
-        battleManager.onBulletHitWall(bulletHitWallEvent, this);
-        predictor.onBulletHitWall(bulletHitWallEvent, this);
+    public void onBulletHitWall(BulletHitWallEvent e) {
+        battleManager.onBulletHitWall(e, this);
+        predictor.onBulletHitWall(e, this);
     }
 
+    /**
+     * 敵ボットがスキャンされた時の処理
+     * 
+     * @param e 敵ボットがスキャンされたイベント
+     */
     @Override
-    public void onScannedBot(ScannedBotEvent scannedBotEvent) {
-        battleManager.onScannedBot(scannedBotEvent, this);
+    public void onScannedBot(ScannedBotEvent e) {
+        battleManager.onScannedBot(e, this);
     }
 
+    /**
+     * ターンがスキップされた時の処理
+     * 
+     * @param e ターンがスキップされたイベント
+     */
     @Override
-    public void onSkippedTurn(SkippedTurnEvent skippedTurnEvent) {
-        System.out.println(skippedTurnEvent.getTurnNumber() + ": onSkippedTurn()");
+    public void onSkippedTurn(SkippedTurnEvent e) {
+        System.out.println(e.getTurnNumber() + ": onSkippedTurn()");
     }
 
+    /**
+     * ラウンドで勝利した時の処理
+     * 
+     * @param e ラウンドで勝利したイベント
+     */
     @Override
-    public void onWonRound(WonRoundEvent wonRoundEvent) {
+    public void onWonRound(WonRoundEvent e) {
         System.out.println("onWonRound()");
     }
 
+    /**
+     * カスタムイベントが発生した時の処理
+     * 
+     * @param e カスタムイベント
+     */
     @Override
-    public void onCustomEvent(CustomEvent customEvent) {
-        System.out.println(customEvent.getTurnNumber() + ": onCustomEvent()");
+    public void onCustomEvent(CustomEvent e) {
+        System.out.println(e.getTurnNumber() + ": onCustomEvent()");
     }
 
+    /**
+     * チームメッセージを受信した時の処理
+     * 
+     * @param e チームメッセージイベント
+     */
     @Override
-    public void onTeamMessage(TeamMessageEvent teamMessageEvent) {
+    public void onTeamMessage(TeamMessageEvent e) {
         System.out.println(
-                teamMessageEvent.getTurnNumber() + ": onTeamMessage(): " + teamMessageEvent.getMessage());
+                e.getTurnNumber() + ": onTeamMessage(): " + e.getMessage());
     }
 }

@@ -6,6 +6,9 @@ import dev.robocode.tankroyale.botapi.Constants;
 import okurun.OkuRunBot;
 import okurun.arenamap.ArenaMap;
 
+/**
+ * 壁を回避するDriveAction
+ */
 public class AvoidWallDriveAction implements DriveAction {
 
     @Override

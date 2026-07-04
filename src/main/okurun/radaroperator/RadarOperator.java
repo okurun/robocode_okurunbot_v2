@@ -6,6 +6,9 @@ import java.util.Map;
 import okurun.OkuRunBot;
 import okurun.radaroperator.actions.*;
 
+/**
+ * レーダー技士クラス
+ */
 public class RadarOperator {
     private Map<String, RadarAction> actions = new HashMap<>();
 

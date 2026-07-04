@@ -17,6 +17,9 @@ import okurun.predictor.Predictor;
 import okurun.predictor.models.*;
 import okurun.radaroperator.actions.*;
 
+/**
+ * 1v1の状況で逃げながら逆転を狙う戦略
+ */
 public class OneOnOneNegativeTactic implements Tactic {
     private int targetEnemyId = Commander.NO_TARGET;
     private double[] targetMovePosition = null;
@@ -25,7 +28,6 @@ public class OneOnOneNegativeTactic implements Tactic {
     private String driveActionName = MoveToDriveAction.class.getName();
     private String gunActionName = NormalGunAction.class.getName();
     private String radarActionName = TargetScanRadarAction.class.getName();
-    
 
     @Override
     public void action(OkuRunBot bot) {
@@ -66,23 +68,33 @@ public class OneOnOneNegativeTactic implements Tactic {
 
     private void setTargetMovePosition(OkuRunBot bot) {
         final ArenaMap.Area targetMoveArea = getTargetMoveArea(bot);
+        // 目的地で停止してしまわないように少しズラす
         targetMovePosition = Tactic.calculatePointCUsingTrig(
                 bot.getPosition(), targetMoveArea.getCenter(), 30, false);
     }
 
+    /**
+     * 目的地エリアを取得します
+     * 
+     * @param bot Bot
+     * @return 目的地のエリア
+     */
     private ArenaMap.Area getTargetMoveArea(OkuRunBot bot) {
         final ArenaMap arenaMap = bot.getArenaMap();
         if (targetEnemyId == Commander.NO_TARGET) {
+            // 隣のエリアへ向かう
             return arenaMap.getArea(bot).getNeighboringArea(bot);
         }
 
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
         if (targetEnemyProfile == null) {
+            // 隣のエリアへ向かう
             return arenaMap.getArea(bot).getNeighboringArea(bot);
         }
         final EnemyState latestEnemyState = targetEnemyProfile.getLatestState();
         if (latestEnemyState == null) {
+            // 隣のエリアへ向かう
             return arenaMap.getArea(bot).getNeighboringArea(bot);
         }
 
@@ -94,6 +106,7 @@ public class OneOnOneNegativeTactic implements Tactic {
 
         final ArenaMap.Area enemyArea = arenaMap.getArea(predictedEnemyState.x, predictedEnemyState.y);
         if (enemyArea == null) {
+            // 隣のエリアへ向かう
             return arenaMap.getArea(bot).getNeighboringArea(bot);
         }
 
@@ -106,7 +119,7 @@ public class OneOnOneNegativeTactic implements Tactic {
         }
         return oppositeArea;
     }
-        
+
     @Override
     public double getBaseBulletPower(OkuRunBot bot) {
         return baseBulletPower;
@@ -153,18 +166,18 @@ public class OneOnOneNegativeTactic implements Tactic {
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
         if (targetEnemyProfile == null) {
-            gunActionName =  ScanGunAction.class.getName();
+            gunActionName = ScanGunAction.class.getName();
             return;
         }
         final EnemyState latesEnemyState = targetEnemyProfile.getLatestState();
         if (latesEnemyState == null) {
             // 敵のステータスが取得できない場合はスキャンを行います
-            gunActionName =  ScanGunAction.class.getName();
+            gunActionName = ScanGunAction.class.getName();
             return;
         }
         if (latesEnemyState.energy <= 0) {
             // 敵のエネルギーが0以下なら止めを刺します
-            gunActionName =  ExecutionGunAction.class.getName();
+            gunActionName = ExecutionGunAction.class.getName();
             return;
         }
 
@@ -245,7 +258,13 @@ public class OneOnOneNegativeTactic implements Tactic {
         return 4;
     }
 
+    /**
+     * 弾丸が自分に当たった時の処理
+     * 
+     * @param e   弾丸が自分に当たったイベント
+     * @param bot ボット
+     */
     @Override
-    public void onHitByBullet(HitByBulletEvent hitByBulletEvent) {
+    public void onHitByBullet(HitByBulletEvent e, OkuRunBot bot) {
     }
 }

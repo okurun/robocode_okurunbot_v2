@@ -14,6 +14,9 @@ import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.predictor.models.*;
 
+/**
+ * 予測士クラス
+ */
 public class Predictor {
     private final ArenaMap arenaMap;
     private final Map<String, PredictModel> predictModels = new HashMap<>();
@@ -117,51 +120,81 @@ public class Predictor {
         return predictModels.get(modelName);
     }
 
-    public void onRoundEnded(RoundEndedEvent roundEndedEvent, OkuRunBot bot) {
+    /**
+     * ラウンドが終わった時の処理
+     * 
+     * @param e   ラウンドが終わったイベント
+     * @param bot ボット
+     */
+    public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
         for (final String modelName : predictModels.keySet()) {
             final PredictionAccuracy predictionAccuracy = predictionAccuracies.get(modelName);
             System.out.println(modelName + "(" + predictionAccuracy.getAccuracyString() + ")");
         }
     }
 
-    public void onBulletFired(BulletFiredEvent bulletFiredEvent, OkuRunBot bot) {
+    /**
+     * 弾丸が発射された時の処理
+     * 
+     * @param bulletFiredEvent 弾丸が発射されたイベント
+     * @param bot              ボット
+     */
+    public void onBulletFired(BulletFiredEvent e, OkuRunBot bot) {
         final BattleManager battleManager = bot.getBattleManager();
-        final BulletStatus bulletStatus = battleManager.bullets.get(bulletFiredEvent.getBullet().getBulletId());
+        final BulletStatus bulletStatus = battleManager.bullets.get(e.getBullet().getBulletId());
         if (bulletStatus != null) {
-            bulletStatus.bulletState = bulletFiredEvent.getBullet();
+            bulletStatus.bulletState = e.getBullet();
             final PredictionAccuracy predictionAccuracy = predictionAccuracies.get(bulletStatus.predictModel);
             if (predictionAccuracy == null) {
-                System.out.println(bulletFiredEvent.getTurnNumber() + " onBulletFired: predictionAccuracy is null");
+                System.out.println(e.getTurnNumber() + " onBulletFired: predictionAccuracy is null");
             }
             predictionAccuracy.incrementFireCount();
         }
     }
 
-    public void onBulletHit(BulletHitBotEvent bulletHitBotEvent, OkuRunBot bot) {
+    /**
+     * 弾丸が敵ボットに当たった時の処理
+     * 
+     * @param bulletHitBotEvent 弾丸が敵ボットに当たったイベント
+     * @param bot               ボット
+     */
+    public void onBulletHit(BulletHitBotEvent e, OkuRunBot bot) {
         final BattleManager battleManager = bot.getBattleManager();
-        final BulletState bulletState = bulletHitBotEvent.getBullet();
+        final BulletState bulletState = e.getBullet();
         final int bulletId = bulletState.getBulletId();
         final BulletStatus bulletStatus = battleManager.bullets.get(bulletId);
 
-        if (bulletHitBotEvent.getVictimId() == bulletStatus.targetEnemyId) {
+        if (e.getVictimId() == bulletStatus.targetEnemyId) {
             predictionAccuracies.get(bulletStatus.predictModel).incrementHitCount();
         } else {
             predictionAccuracies.get(bulletStatus.predictModel).incrementMissCount();
         }
     }
 
-    public void onBulletHitBullet(BulletHitBulletEvent bulletHitBulletEvent, OkuRunBot bot) {
+    /**
+     * 弾丸が弾丸に当たった時の処理
+     * 
+     * @param bulletHitBulletEvent 弾丸が弾丸に当たったイベント
+     * @param bot                  ボット
+     */
+    public void onBulletHitBullet(BulletHitBulletEvent e, OkuRunBot bot) {
         final BattleManager battleManager = bot.getBattleManager();
-        final BulletState bulletState = bulletHitBulletEvent.getBullet();
+        final BulletState bulletState = e.getBullet();
         final int bulletId = bulletState.getBulletId();
         final BulletStatus bulletStatus = battleManager.bullets.get(bulletId);
 
         predictionAccuracies.get(bulletStatus.predictModel).incrementMissCount();
     }
 
-    public void onBulletHitWall(BulletHitWallEvent bulletHitWallEvent, OkuRunBot bot) {
+    /**
+     * 弾丸が壁に当たった時の処理
+     * 
+     * @param e   弾丸が壁に当たったイベント
+     * @param bot ボット
+     */
+    public void onBulletHitWall(BulletHitWallEvent e, OkuRunBot bot) {
         final BattleManager battleManager = bot.getBattleManager();
-        final BulletState bulletState = bulletHitWallEvent.getBullet();
+        final BulletState bulletState = e.getBullet();
         final int bulletId = bulletState.getBulletId();
         final BulletStatus bulletStatus = battleManager.bullets.get(bulletId);
 

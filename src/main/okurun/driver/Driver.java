@@ -6,6 +6,9 @@ import java.util.Map;
 import okurun.OkuRunBot;
 import okurun.driver.actions.*;
 
+/**
+ * 操舵士クラス
+ */
 public class Driver {
     private final Map<String, DriveAction> actions = new HashMap<>();
 

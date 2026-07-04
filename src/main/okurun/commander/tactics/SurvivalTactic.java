@@ -18,6 +18,9 @@ import okurun.predictor.Predictor;
 import okurun.predictor.models.*;
 import okurun.radaroperator.actions.*;
 
+/**
+ * 敵が複数いる時の生存戦略
+ */
 public class SurvivalTactic implements Tactic {
     private int targetEnemyId = Commander.NO_TARGET;
     private double baseBulletPower = 2;
@@ -46,12 +49,12 @@ public class SurvivalTactic implements Tactic {
     private void setTargetEnemyId(OkuRunBot bot) {
         final BattleManager battleManager = bot.getBattleManager();
 
-        // final EnemyProfile zeroEnergyEnemy = battleManager.getZeroEnergyEnemy();
-        // if (zeroEnergyEnemy != null) {
-        // // エネルギーが0の敵をターゲットにします
-        // targetEnemyId = zeroEnergyEnemy.getId();
-        // return;
-        // }
+        final EnemyProfile zeroEnergyEnemy = battleManager.getZeroEnergyEnemy(bot);
+        if (zeroEnergyEnemy != null) {
+            // エネルギーが0の敵をターゲットにします
+            targetEnemyId = zeroEnergyEnemy.getId();
+            return;
+        }
 
         final EnemyProfile nearestEnemy = battleManager.getNearestAliveEnemy(bot);
         if (nearestEnemy != null) {
@@ -76,8 +79,10 @@ public class SurvivalTactic implements Tactic {
     }
 
     private void setTargetMovePosition(OkuRunBot bot) {
+        // 敵の少ない安全なエリアへ向かう
         final ArenaMap arenaMap = bot.getArenaMap();
         final Area safeArea = arenaMap.getSafeArea(bot);
+        // 目的地で停止してしまわないように少しズラす
         targetMovePosition = Tactic.calculatePointCUsingTrig(
                 bot.getPosition(), safeArea.getCenter(), 30, false);
     }
@@ -196,7 +201,13 @@ public class SurvivalTactic implements Tactic {
         return 4;
     }
 
+    /**
+     * 弾丸が自分に当たった時の処理
+     * 
+     * @param e   弾丸が自分に当たったイベント
+     * @param bot ボット
+     */
     @Override
-    public void onHitByBullet(HitByBulletEvent hitByBulletEvent) {
+    public void onHitByBullet(HitByBulletEvent e, OkuRunBot bot) {
     }
 }

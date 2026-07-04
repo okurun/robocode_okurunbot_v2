@@ -28,7 +28,13 @@ public interface Tactic {
 
     double getMinSpeed(OkuRunBot bot);
 
-    void onHitByBullet(HitByBulletEvent hitByBulletEvent);
+    /**
+     * 弾丸が自分に当たった時の処理
+     * 
+     * @param e   弾丸が自分に当たったイベント
+     * @param bot ボット
+     */
+    void onHitByBullet(HitByBulletEvent e, OkuRunBot bot);
 
     /**
      * 三角関数を使用して、角度が90度で指定された距離となる点Cの座標を計算します。

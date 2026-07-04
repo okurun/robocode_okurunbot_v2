@@ -10,13 +10,23 @@ import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.commander.tactics.*;
 
+/**
+ * 指揮官クラス
+ * 戦況に応じて戦略を決定し、各コンポーネントに指示を出します。
+ */
 public class Commander {
     public static final int NO_TARGET = -1;
 
+    /**
+     * ハンドリングの優先順位
+     */
     public static enum HandlePriority {
         TARGET, AVOID_BULLET
     }
 
+    /**
+     * 加速の優先順位
+     */
     public static enum AccelePriority {
         MAX_SPEED, HANDLE, AVOID_BULLET
     }
@@ -50,7 +60,7 @@ public class Commander {
                 return;
             }
             if (bot.getEnergy() - latestEnemyState.energy < 0) {
-                currentTactic = tactics.get(OneOnOneNegativeTactic.class.getName());
+                currentTactic = tactics.get(OneOnOnePositiveTactic.class.getName());
                 return;
             }
             currentTactic = tactics.get(OneOnOnePositiveTactic.class.getName());
@@ -205,7 +215,13 @@ public class Commander {
         return separationVelocity;
     }
 
-    public void onHitByBullet(HitByBulletEvent hitByBulletEvent, OkuRunBot bot) {
-        currentTactic.onHitByBullet(hitByBulletEvent);
+    /**
+     * 弾丸が自分に当たった時の処理
+     * 
+     * @param e   弾丸が自分に当たったイベント
+     * @param bot ボット
+     */
+    public void onHitByBullet(HitByBulletEvent e, OkuRunBot bot) {
+        currentTactic.onHitByBullet(e, bot);
     }
 }

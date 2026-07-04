@@ -12,11 +12,17 @@ import okurun.OkuRunBot;
 import okurun.battlemanager.BattleManager;
 import okurun.battlemanager.EnemyState;
 
+/**
+ * アリーナマップクラス
+ */
 public class ArenaMap {
     public static enum WallId {
         LEFT, TOP, RIGHT, BOTTOM
     }
 
+    /**
+     * 壁クラス
+     */
     public class Wall {
         public final WallId id;
         public final int x, y;
@@ -27,6 +33,13 @@ public class ArenaMap {
             this.y = y;
         }
 
+        /**
+         * 指定した方向に面しているかを返します
+         * 進行方向が壁に向いている場合はtrue、そうでない場合はfalseを返します
+         * 
+         * @param direction 進行方向（度数法：0〜360）
+         * @return 進行方向に面している場合はtrue、そうでない場合はfalse
+         */
         public boolean isFacing(double direction) {
             return switch (id) {
                 case TOP -> (direction > 0 && direction < 180);
@@ -114,6 +127,9 @@ public class ArenaMap {
         TOP_LEFT, TOP_RIGHT, BOTTOM_RIGHT, BOTTOM_LEFT
     }
 
+    /**
+     * エリアクラス
+     */
     public class Area {
         public final AreaId id;
         public final double x1, y1, x2, y2;

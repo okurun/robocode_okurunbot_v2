@@ -17,6 +17,9 @@ import okurun.predictor.Predictor;
 import okurun.predictor.models.*;
 import okurun.radaroperator.actions.*;
 
+/**
+ * 1v1の状況で積極的に攻める戦略
+ */
 public class OneOnOnePositiveTactic implements Tactic {
     private int targetEnemyId = Commander.NO_TARGET;
     private double[] targetMovePosition = null;
@@ -67,6 +70,7 @@ public class OneOnOnePositiveTactic implements Tactic {
     private void setTargetMovePosition(OkuRunBot bot) {
         final ArenaMap arenaMap = bot.getArenaMap();
         if (targetEnemyId == Commander.NO_TARGET) {
+            // 隣のエリアへ向かう
             targetMovePosition = arenaMap.getArea(bot).getNeighboringArea(bot).getCenter();
             return;
         }
@@ -74,11 +78,13 @@ public class OneOnOnePositiveTactic implements Tactic {
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
         if (targetEnemyProfile == null) {
+            // 隣のエリアへ向かう
             targetMovePosition = arenaMap.getArea(bot).getNeighboringArea(bot).getCenter();
             return;
         }
         final EnemyState latestEnemyState = targetEnemyProfile.getLatestState();
         if (latestEnemyState == null) {
+            // 隣のエリアへ向かう
             targetMovePosition = arenaMap.getArea(bot).getNeighboringArea(bot).getCenter();
             return;
         }
@@ -89,6 +95,8 @@ public class OneOnOnePositiveTactic implements Tactic {
             predictedEnemyState = latestEnemyState;
         }
 
+        // 敵位置の少し横を目指します
+        // 距離は自分と敵のエネルギー差を考慮して調整します
         final double distance = Math.max(0, 200 - ((bot.getEnergy() - latestEnemyState.energy) * 5));
         final boolean clockwise = true;
         targetMovePosition = Tactic.calculatePointCUsingTrig(
@@ -237,7 +245,13 @@ public class OneOnOnePositiveTactic implements Tactic {
         return 6;
     }
 
+    /**
+     * 弾丸が自分に当たった時の処理
+     * 
+     * @param e   弾丸が自分に当たったイベント
+     * @param bot ボット
+     */
     @Override
-    public void onHitByBullet(HitByBulletEvent hitByBulletEvent) {
+    public void onHitByBullet(HitByBulletEvent e, OkuRunBot bot) {
     }
 }

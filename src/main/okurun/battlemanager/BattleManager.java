@@ -12,6 +12,9 @@ import dev.robocode.tankroyale.botapi.events.*;
 import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.OkuRunBot;
 
+/**
+ * 戦闘管理クラス
+ */
 public class BattleManager {
     public final Deque<BulletStatus> bulletStack = new ConcurrentLinkedDeque<>();
     public final Map<Integer, BulletStatus> bullets = new ConcurrentHashMap<>();
@@ -123,7 +126,11 @@ public class BattleManager {
      * @return 指定したIDの敵の最新の敵ボットの状態
      */
     public EnemyState getLatestEnemyState(int id) {
-        return enemyProfiles.get(id).getLatestState();
+        final EnemyProfile enemyProfile = enemyProfiles.get(id);
+        if (enemyProfile == null) {
+            return null;
+        }
+        return enemyProfile.getLatestState();
     }
 
     /**
@@ -199,10 +206,22 @@ public class BattleManager {
         return lastFiredTurnNum.get();
     }
 
+    /**
+     * ラウンド終了時の処理
+     * 
+     * @param e
+     * @param bot
+     */
     public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
         init();
     }
 
+    /**
+     * 敵ボットが死んだ時の処理
+     * 
+     * @param e   敵ボット死亡イベント
+     * @param bot Bot
+     */
     public void onBotDeath(BotDeathEvent e, OkuRunBot bot) {
         final EnemyProfile enemyProfile = enemyProfiles.get(e.getVictimId());
         if (enemyProfile == null) {
@@ -211,59 +230,101 @@ public class BattleManager {
         enemyProfile.died();
     }
 
-    public void onHitBot(HitBotEvent botHitBotEvent, OkuRunBot bot) {
-        final EnemyProfile enemyProfile = getEnemyProfile(botHitBotEvent.getVictimId());
+    /**
+     * 自分が敵ボットにぶつかった時の処理
+     * 
+     * @param e   敵ボットにぶつかったイベント
+     * @param bot Bot
+     */
+    public void onHitBot(HitBotEvent e, OkuRunBot bot) {
+        final EnemyProfile enemyProfile = getEnemyProfile(e.getVictimId());
         if (enemyProfile != null) {
-            enemyProfile.setLastConfirmedTurn(botHitBotEvent.getTurnNumber());
+            enemyProfile.setLastConfirmedTurn(e.getTurnNumber());
         }
     }
 
-    public void onBulletFired(BulletFiredEvent bulletFiredEvent, OkuRunBot bot) {
-        setLastFiredTurnNum(bulletFiredEvent.getTurnNumber());
+    /**
+     * 自分が弾を発射した時の処理
+     * 
+     * @param e   弾が発射されたイベント
+     * @param bot Bot
+     */
+    public void onBulletFired(BulletFiredEvent e, OkuRunBot bot) {
+        setLastFiredTurnNum(e.getTurnNumber());
         final BulletStatus bulletStatus = bulletStack.pollFirst();
         if (bulletStatus != null) {
-            bulletStatus.bulletState = bulletFiredEvent.getBullet();
+            bulletStatus.bulletState = e.getBullet();
             bullets.put(bulletStatus.bulletState.getBulletId(), bulletStatus);
         }
     }
 
-    public void onHitByBullet(HitByBulletEvent hitByBulletEvent, OkuRunBot bot) {
-        final int ownerId = hitByBulletEvent.getBullet().getOwnerId();
+    /**
+     * 自分が敵の弾に当った時の処理
+     * 
+     * @param e   弾が当たったイベント
+     * @param bot Bot
+     */
+    public void onHitByBullet(HitByBulletEvent e, OkuRunBot bot) {
+        final int ownerId = e.getBullet().getOwnerId();
         final EnemyProfile enemyProfile = getEnemyProfile(ownerId);
         if (enemyProfile != null) {
-            enemyProfile.setLastConfirmedTurn(hitByBulletEvent.getTurnNumber());
+            enemyProfile.setLastConfirmedTurn(e.getTurnNumber());
         }
     }
 
-    public void onBulletHit(BulletHitBotEvent bulletHitBotEvent, OkuRunBot bot) {
-        final EnemyProfile enemyProfile = getEnemyProfile(bulletHitBotEvent.getVictimId());
+    /**
+     * Botが弾に当たった時の処理
+     * 
+     * @param e   Botが弾に当たったイベント
+     * @param bot Bot
+     */
+    public void onBulletHit(BulletHitBotEvent e, OkuRunBot bot) {
+        final EnemyProfile enemyProfile = getEnemyProfile(e.getVictimId());
         if (enemyProfile != null) {
-            enemyProfile.setLastConfirmedTurn(bulletHitBotEvent.getTurnNumber());
+            enemyProfile.setLastConfirmedTurn(e.getTurnNumber());
         }
 
-        final BulletState bulletState = bulletHitBotEvent.getBullet();
+        final BulletState bulletState = e.getBullet();
         final int bulletId = bulletState.getBulletId();
         bullets.remove(bulletId);
     }
 
-    public void onBulletHitBullet(BulletHitBulletEvent bulletHitBulletEvent, OkuRunBot bot) {
-        final int ownerId = bulletHitBulletEvent.getBullet().getOwnerId();
+    /**
+     * 弾が弾に当たった時の処理
+     * 
+     * @param e   弾が弾に当たったイベント
+     * @param bot Bot
+     */
+    public void onBulletHitBullet(BulletHitBulletEvent e, OkuRunBot bot) {
+        final int ownerId = e.getBullet().getOwnerId();
         final EnemyProfile enemyProfile = getEnemyProfile(ownerId);
         if (enemyProfile != null) {
-            enemyProfile.setLastConfirmedTurn(bulletHitBulletEvent.getTurnNumber());
+            enemyProfile.setLastConfirmedTurn(e.getTurnNumber());
         }
 
-        final BulletState bulletState = bulletHitBulletEvent.getBullet();
+        final BulletState bulletState = e.getBullet();
         final int bulletId = bulletState.getBulletId();
         bullets.remove(bulletId);
     }
 
-    public void onBulletHitWall(BulletHitWallEvent bulletHitWallEvent, OkuRunBot bot) {
-        final BulletState bulletState = bulletHitWallEvent.getBullet();
+    /**
+     * 弾が壁に当たった時の処理
+     * 
+     * @param e   弾が壁に当たったイベント
+     * @param bot Bot
+     */
+    public void onBulletHitWall(BulletHitWallEvent e, OkuRunBot bot) {
+        final BulletState bulletState = e.getBullet();
         final int bulletId = bulletState.getBulletId();
         bullets.remove(bulletId);
     }
 
+    /**
+     * 敵ボットをスキャンした時の処理
+     * 
+     * @param e   敵ボットをスキャンしたイベント
+     * @param bot Bot
+     */
     public void onScannedBot(ScannedBotEvent e, OkuRunBot bot) {
         final EnemyProfile enemyProfile = enemyProfiles.get(e.getScannedBotId());
         final EnemyState enemyState = enemyProfile.getLatestState();

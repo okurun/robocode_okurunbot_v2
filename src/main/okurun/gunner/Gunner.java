@@ -7,6 +7,9 @@ import okurun.OkuRunBot;
 import okurun.commander.Commander;
 import okurun.gunner.actions.*;
 
+/**
+ * 砲撃手クラス
+ */
 public class Gunner {
     private final Map<String, GunAction> actions = new HashMap<>();
 
