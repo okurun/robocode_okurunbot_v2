@@ -40,7 +40,7 @@ public class SimplePredictModel extends PredictModel {
 
         final double[] predictedPos = Predictor.calcPosition(enemyState.x, enemyState.y, enemyState.heading,
                 velocity, enemyState.turnDegree, 1);
-        return new EnemyState(enemyState.id, enemyState.scandTurnNum + 1, predictedPos[0], predictedPos[1],
+        return new EnemyState(enemyState.id, enemyState.scannedTurnNum + 1, predictedPos[0], predictedPos[1],
                 enemyState.heading + enemyState.turnDegree, velocity, enemyState.energy,
                 enemyState.turnDegree, velocity - enemyState.velocity, -1);
     }

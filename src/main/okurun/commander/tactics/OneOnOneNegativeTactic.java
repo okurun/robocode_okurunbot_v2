@@ -21,10 +21,10 @@ public class OneOnOneNegativeTactic extends AbstractOneOnOneTactic {
     @Override
     protected void setTargetEnemyId(OkuRunBot bot) {
         final BattleManager battleManager = bot.getBattleManager();
-        final EnemyProfile alivalEnemy = battleManager.getAlivalEnemy(bot);
-        if (alivalEnemy != null && alivalEnemy.getLatestState() != null) {
+        final EnemyProfile aliveEnemy = battleManager.getAliveEnemy(bot);
+        if (aliveEnemy != null && aliveEnemy.getLatestState() != null) {
             // 敵の位置を把握している
-            targetEnemyId = alivalEnemy.getId();
+            targetEnemyId = aliveEnemy.getId();
             return;
         }
         targetEnemyId = Commander.NO_TARGET;
@@ -152,7 +152,7 @@ public class OneOnOneNegativeTactic extends AbstractOneOnOneTactic {
             return;
         }
         final EnemyState latestEnemyState = targetEnemyProfile.getLatestState();
-        if (latestEnemyState == null || latestEnemyState.scandTurnNum < bot.getTurnNumber() - 5) {
+        if (latestEnemyState == null || latestEnemyState.scannedTurnNum < bot.getTurnNumber() - 5) {
             radarActionName = AllScanRadarAction.class.getName();
             return;
         }

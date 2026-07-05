@@ -31,7 +31,7 @@ public class TargetScanRadarAction implements RadarAction {
             return AllScanRadarAction.class.getName();
         }
 
-        if (bot.getTurnNumber() - latestEnemyState.scandTurnNum > 3) {
+        if (bot.getTurnNumber() - latestEnemyState.scannedTurnNum > 3) {
             // 見失ったら全周スキャンに戻ります
             return AllScanRadarAction.class.getName();
         }

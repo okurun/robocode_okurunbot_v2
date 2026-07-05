@@ -198,8 +198,8 @@ public class ArenaMap {
          */
         public Area getNeighboringArea(OkuRunBot bot) {
             final List<Area> neighboringAreas = getNeighboringAreas();
-            if (bot.bearingTo(neighboringAreas.get(0).getCenter()) > bot
-                    .bearingTo(neighboringAreas.get(1).getCenter())) {
+            if (Math.abs(bot.bearingTo(neighboringAreas.get(0).getCenter())) > Math.abs(bot
+                    .bearingTo(neighboringAreas.get(1).getCenter()))) {
                 // 隣接エリアのうち、進行方向に最も近いエリアを返す
                 return neighboringAreas.get(1);
             }
@@ -216,14 +216,14 @@ public class ArenaMap {
     public void init(int height, int width) {
         this.height = height;
         this.width = width;
-        this.walls = Map.of(
+        walls = Map.of(
                 WallId.LEFT, new Wall(WallId.LEFT, 0, -1),
                 WallId.TOP, new Wall(WallId.TOP, -1, height),
                 WallId.RIGHT, new Wall(WallId.RIGHT, width, -1),
                 WallId.BOTTOM, new Wall(WallId.BOTTOM, -1, 0));
         final double halfWidth = width * 0.5;
         final double halfHeight = height * 0.5;
-        this.areas = Map.of(
+        areas = Map.of(
                 AreaId.TOP_LEFT, new Area(AreaId.TOP_LEFT, 0, halfHeight, halfWidth, height),
                 AreaId.TOP_RIGHT, new Area(AreaId.TOP_RIGHT, halfWidth, halfHeight, width, height),
                 AreaId.BOTTOM_RIGHT, new Area(AreaId.BOTTOM_RIGHT, halfWidth, 0, width, halfHeight),
@@ -404,24 +404,27 @@ public class ArenaMap {
 
         final BattleManager battleManager = bot.getBattleManager();
         // 生存している敵の最後の状態を取得
-        final Map<Integer, EnemyState> enemyStates = battleManager.getLatestAlivalAndNotMissingEnemies(bot);
+        final Map<Integer, EnemyState> enemyStates = battleManager.getLatestAliveAndNotMissingEnemies(bot);
 
         final Map<AreaId, Integer> enemyCount = new HashMap<>();
         // 各エリアの敵の数を初期化
         for (final Area area : areas.values()) {
             enemyCount.put(area.id, 0);
         }
+        if (enemyStates.size() == 0) {
+            caches.put("areasEnemyCount", enemyCount);
+            return enemyCount;
+        }
         // 各敵がどのエリアにいるかを確認してカウントする
         for (final EnemyState enemyState : enemyStates.values()) {
             if (enemyState == null) {
                 continue;
             }
-            for (final Area area : areas.values()) {
-                if (area.isInside(enemyState.x, enemyState.y)) {
-                    enemyCount.put(area.id, enemyCount.get(area.id) + 1);
-                    continue;
-                }
+            final Area area = getArea(enemyState.x, enemyState.y);
+            if (area == null) {
+                continue;
             }
+            enemyCount.put(area.id, enemyCount.get(area.id) + 1);
         }
         caches.put("areasEnemyCount", enemyCount);
         return enemyCount;
@@ -441,22 +444,16 @@ public class ArenaMap {
 
         // 各エリアの敵の数を取得
         final Map<AreaId, Integer> areaEnemyCount = getAreasEnemyCount(bot);
-        // 一番敵の数が少ないエリアの敵の数を取得
-        int minEnemyCount = Integer.MAX_VALUE;
-        List<Area> safeAreas = new ArrayList<>();
-        for (final AreaId areaId : areaEnemyCount.keySet()) {
-            int enemyCount = areaEnemyCount.get(areaId);
-            if (enemyCount < minEnemyCount) {
-                minEnemyCount = enemyCount;
-            }
-        }
+        // 一番敵の数が少ないエリアの敵の数
+        int minEnemyCount = areaEnemyCount.values().stream().min(Integer::compare).orElse(0);
         // 現在のエリアを取得
-        final Area currentArea = getArea(bot.getX(), bot.getY());
+        final Area currentArea = getArea(bot);
         // 現在のエリアの隣のエリアのリストを取得
         final List<Area> neighboringAreas = currentArea.getNeighboringAreas();
         // 隣のエリアに敵の数が一番少ないエリアが含まれているか
         boolean containNeighboringArea = false;
         // 一番敵の数が少ないエリアのリストを取得
+        List<Area> safeAreas = new ArrayList<>();
         for (final AreaId areaId : areaEnemyCount.keySet()) {
             if (areaEnemyCount.get(areaId) == minEnemyCount) {
                 final Area area = areas.get(areaId);

@@ -5,7 +5,7 @@ package okurun.battlemanager;
  */
 public class EnemyState {
     public final int id;
-    public final int scandTurnNum;
+    public final int scannedTurnNum;
     public final double x;
     public final double y;
     public final double heading;
@@ -15,10 +15,10 @@ public class EnemyState {
     public final double acceleration;
     public final double distance;
 
-    public EnemyState(int id, int scandTurnNum, double x, double y, double heading, double velocity, double energy,
+    public EnemyState(int id, int scannedTurnNum, double x, double y, double heading, double velocity, double energy,
             double turnDegree, double acceleration, double distance) {
         this.id = id;
-        this.scandTurnNum = scandTurnNum;
+        this.scannedTurnNum = scannedTurnNum;
         this.x = x;
         this.y = y;
         this.heading = heading;

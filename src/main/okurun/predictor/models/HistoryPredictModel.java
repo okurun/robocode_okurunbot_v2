@@ -11,6 +11,7 @@ import okurun.predictor.Predictor;
 public class HistoryPredictModel extends PredictModel {
     private static final int LIMIT_TURN_NUM = 20;
     private static final int DETECT_ZIGZAG_TURN_CHANGE_NUM = 3;
+
     private static enum Turn {
         LEFT, RIGHT, STRAIGHT;
 
@@ -31,9 +32,10 @@ public class HistoryPredictModel extends PredictModel {
         if (moveHistories.size() < DETECT_ZIGZAG_TURN_CHANGE_NUM) {
             return null;
         }
-        final int turnNumDiff = enemyState.scandTurnNum - moveHistories.getLast().scandTurnNum;
+        final int turnNumDiff = enemyState.scannedTurnNum - moveHistories.getLast().scannedTurnNum;
         if (turnNumDiff <= 0) {
-            return new EnemyState(enemyState.id, enemyState.scandTurnNum + 1, enemyState.x, enemyState.y, enemyState.heading,
+            return new EnemyState(enemyState.id, enemyState.scannedTurnNum + 1, enemyState.x, enemyState.y,
+                    enemyState.heading,
                     enemyState.velocity, enemyState.energy, enemyState.turnDegree, enemyState.acceleration,
                     enemyState.distance);
         }
@@ -45,7 +47,7 @@ public class HistoryPredictModel extends PredictModel {
 
         final double[] predictedPos = Predictor.calcPosition(enemyState.x, enemyState.y, enemyState.heading,
                 moveHistory.velocity, moveHistory.turnDegree, 1);
-        return new EnemyState(enemyState.id, enemyState.scandTurnNum + 1, predictedPos[0], predictedPos[1],
+        return new EnemyState(enemyState.id, enemyState.scannedTurnNum + 1, predictedPos[0], predictedPos[1],
                 enemyState.heading + enemyState.turnDegree, moveHistory.velocity, enemyState.energy,
                 enemyState.turnDegree, moveHistory.velocity - enemyState.velocity, -1);
     }
@@ -59,8 +61,8 @@ public class HistoryPredictModel extends PredictModel {
         int turnChangeCnt = 0; // 旋回が逆転した回数
         int firstTurnChangeTurnNum = 0; // 最初に旋回した時までのターン数
         final List<EnemyState> history = new ArrayList<>();
-        for (EnemyState state: stateHistory) {
-            if (bot.getTurnNumber() - state.scandTurnNum > LIMIT_TURN_NUM) {
+        for (EnemyState state : stateHistory) {
+            if (bot.getTurnNumber() - state.scannedTurnNum > LIMIT_TURN_NUM) {
                 // LIMIT_TURN_NUM ターン以上昔の状態は考慮しない
                 return List.of();
             }
@@ -94,8 +96,8 @@ public class HistoryPredictModel extends PredictModel {
         if (stateHistory.size() > DETECT_ZIGZAG_TURN_CHANGE_NUM) {
             Turn prevTurn = null; // 前回の旋回方向
             int turnChangeCnt = 0; // 旋回が逆転した回数
-            for (EnemyState state: stateHistory) {
-                if (bot.getTurnNumber() - state.scandTurnNum > LIMIT_TURN_NUM) {
+            for (EnemyState state : stateHistory) {
+                if (bot.getTurnNumber() - state.scannedTurnNum > LIMIT_TURN_NUM) {
                     // LIMIT_TURN_NUM ターン以上昔の状態は考慮しない
                     return false;
                 }

@@ -81,7 +81,7 @@ public interface GunAction {
         int turnNum = 0;
         EnemyState beforeState = predictedState;
         while (bot.distanceTo(predictedState.x, predictedState.y) > bulletSpeed * turnNum) {
-            predictedState = predictor.predict(bot, targetEnemyProfile, predictedState.scandTurnNum + 1);
+            predictedState = predictor.predict(bot, targetEnemyProfile, predictedState.scannedTurnNum + 1);
             if (predictedState == null) {
                 return null;
             }

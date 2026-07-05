@@ -27,7 +27,7 @@ public class EnemyProfile {
      * 
      * @return 敵ボットのID
      */
-    public int   getId() {
+    public int getId() {
         return id;
     }
 
@@ -99,7 +99,7 @@ public class EnemyProfile {
         if (stateHistory.size() > 30) {
             stateHistory.removeLast();
         }
-        lastConfirmedTurn.set(state.scandTurnNum);
+        lastConfirmedTurn.set(state.scannedTurnNum);
     }
 
     /**

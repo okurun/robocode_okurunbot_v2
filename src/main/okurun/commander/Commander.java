@@ -54,7 +54,7 @@ public class Commander {
         final BattleManager battleManager = bot.getBattleManager();
         if (battleManager.getAliveAndNotMissingEnemyCount(bot) < 2) {
             // 生存している敵が1機のみ
-            final EnemyProfile enemyProfile = battleManager.getAlivalEnemy(bot);
+            final EnemyProfile enemyProfile = battleManager.getAliveEnemy(bot);
             if (enemyProfile == null) {
                 currentTactic = tactics.get(OneOnOneNegativeTactic.class.getName());
                 return;
@@ -73,7 +73,7 @@ public class Commander {
         }
         currentTactic = tactics.get(SurvivalTactic.class.getName());
     }
-    
+
     public int getTargetEnemyId(OkuRunBot bot) {
         return currentTactic.getTargetEnemyId(bot);
     }
@@ -125,7 +125,8 @@ public class Commander {
         if (caches.containsKey("enemyLateralAngle" + enamyState.id)) {
             return (double) caches.get("enemyLateralAngle" + enamyState.id);
         }
-        final double enemyLateralAngle = getEnemyLateralAngle(bot.getX(), bot.getY(), enamyState.x, enamyState.y, enamyState.heading);
+        final double enemyLateralAngle = getEnemyLateralAngle(bot.getX(), bot.getY(), enamyState.x, enamyState.y,
+                enamyState.heading);
         caches.put("enemyLateralAngle" + enamyState.id, enemyLateralAngle);
         return enemyLateralAngle;
     }

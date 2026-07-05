@@ -74,7 +74,7 @@ public class PredictionAccuracy {
         if (rate < 0) {
             return 0;
         }
-        return Math.round(rate * 1000) / 10;
+        return Math.round(rate * 1000) / 10.0;
     }
 
 }

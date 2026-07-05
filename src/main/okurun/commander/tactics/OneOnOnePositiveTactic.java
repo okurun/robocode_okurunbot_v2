@@ -22,7 +22,7 @@ public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
     @Override
     protected void setTargetEnemyId(OkuRunBot bot) {
         final BattleManager battleManager = bot.getBattleManager();
-        final EnemyProfile alivalEnemy = battleManager.getAlivalEnemy(bot);
+        final EnemyProfile alivalEnemy = battleManager.getAliveEnemy(bot);
         if (alivalEnemy != null && alivalEnemy.getLatestState() != null) {
             // 敵の位置を把握している
             targetEnemyId = alivalEnemy.getId();
@@ -90,29 +90,24 @@ public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
         if (targetEnemyProfile == null) {
-            gunActionName =  ScanGunAction.class.getName();
+            gunActionName = ScanGunAction.class.getName();
             return;
         }
         final EnemyState latesEnemyState = targetEnemyProfile.getLatestState();
         if (latesEnemyState == null) {
             // 敵のステータスが取得できない場合はスキャンを行います
-            gunActionName =  ScanGunAction.class.getName();
+            gunActionName = ScanGunAction.class.getName();
             return;
         }
         if (latesEnemyState.energy <= 0) {
             // 敵のエネルギーが0以下なら止めを刺します
-            gunActionName =  ExecutionGunAction.class.getName();
+            gunActionName = ExecutionGunAction.class.getName();
             return;
         }
 
         if (bot.getGunHeat() <= bot.getGunCoolingRate() * 2) {
             // 2ターン以内に射撃可能であれば射撃を行います
-            if (bot.getEnergy() > LOW_ENERGY_THRESHOLD) {
-                gunActionName = NormalGunAction.class.getName();
-                return;
-            }
-            // 残りエネルギーが少ない時は最大パワーで連射を選択する
-            gunActionName = RapidFireGunAction.class.getName();
+            gunActionName = NormalGunAction.class.getName();
             return;
         }
 
@@ -140,7 +135,7 @@ public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
             return;
         }
         final EnemyState latestEnemyState = targetEnemyProfile.getLatestState();
-        if (latestEnemyState == null || latestEnemyState.scandTurnNum < bot.getTurnNumber() - 5) {
+        if (latestEnemyState == null || latestEnemyState.scannedTurnNum < bot.getTurnNumber() - 5) {
             radarActionName = AllScanRadarAction.class.getName();
             return;
         }

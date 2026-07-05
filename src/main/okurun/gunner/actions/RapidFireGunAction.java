@@ -10,7 +10,7 @@ import okurun.commander.Commander;
 import okurun.predictor.Predictor;
 
 /**
- * 最大パワーで連射します
+ * 連射します
  */
 public class RapidFireGunAction implements GunAction {
 
@@ -37,7 +37,7 @@ public class RapidFireGunAction implements GunAction {
             }
         }
 
-        double bulletPower = Constants.MAX_FIREPOWER;
+        double bulletPower = Constants.MIN_FIREPOWER;
 
         // 射撃目標位置を計算します
         EnemyState fireTarget = GunAction.getFireTarget(bot, targetEnemyProfile, bulletPower);
@@ -68,7 +68,7 @@ public class RapidFireGunAction implements GunAction {
         // デバッグ用に弾丸の情報をスタックに保存します
         battleManager.bulletStack.addLast(
                 new BulletHistory(commander.getPredictorModelName(bot), fireTarget.x, fireTarget.y, targetEnemyId,
-                        fireTarget.scandTurnNum));
+                        fireTarget.scannedTurnNum));
         return null;
     }
 }

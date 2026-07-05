@@ -269,9 +269,9 @@ public class OkuRunBot extends Bot {
     }
 
     /**
-     * 当たったボットの時の処理
+     * 自分が敵ボットにぶつかった時の処理
      * 
-     * @param e 当たったボットのイベント
+     * @param e 敵ボットにぶつかったイベント
      */
     @Override
     public void onHitBot(HitBotEvent e) {
@@ -279,9 +279,9 @@ public class OkuRunBot extends Bot {
     }
 
     /**
-     * 当たった壁の時の処理
+     * 壁にぶつかった時の処理
      * 
-     * @param e 当たった壁のイベント
+     * @param e 壁にぶつかったイベント
      */
     @Override
     public void onHitWall(HitWallEvent e) {

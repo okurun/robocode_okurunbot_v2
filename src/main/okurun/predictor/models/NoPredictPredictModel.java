@@ -12,7 +12,8 @@ public class NoPredictPredictModel extends PredictModel {
 
     @Override
     public EnemyState nextTurnState(OkuRunBot bot, EnemyState enemyState, Deque<EnemyState> stateHistory) {
-        return new EnemyState(enemyState.id, enemyState.scandTurnNum + 1, enemyState.x, enemyState.y, enemyState.heading,
+        return new EnemyState(enemyState.id, enemyState.scannedTurnNum + 1, enemyState.x, enemyState.y,
+                enemyState.heading,
                 enemyState.velocity, enemyState.energy, enemyState.turnDegree, enemyState.acceleration,
                 enemyState.distance);
     }

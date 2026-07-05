@@ -109,7 +109,7 @@ public class BattleManager {
      * @param bot Bot
      * @return 生きていて見失っていない敵のうち、最初に発見した敵のプロファイル
      */
-    public EnemyProfile getAlivalEnemy(OkuRunBot bot) {
+    public EnemyProfile getAliveEnemy(OkuRunBot bot) {
         for (final EnemyProfile enemyProfile : enemyProfiles.values()) {
             if (enemyProfile.isAliveAndNotMissing(bot)) {
                 return enemyProfile;
@@ -139,8 +139,11 @@ public class BattleManager {
      * @param bot Bot
      * @return 生存していて見失っていない、全ての敵ボットの最新の状態
      */
-    public Map<Integer, EnemyState> getLatestAlivalAndNotMissingEnemies(OkuRunBot bot) {
+    public Map<Integer, EnemyState> getLatestAliveAndNotMissingEnemies(OkuRunBot bot) {
         Map<Integer, EnemyState> latestEnemyStates = new HashMap<>();
+        if (enemyProfiles.size() == 0) {
+            return latestEnemyStates;
+        }
         for (final EnemyProfile enemyProfile : enemyProfiles.values()) {
             if (!enemyProfile.isAliveAndNotMissing(bot)) {
                 continue;
@@ -157,6 +160,9 @@ public class BattleManager {
      * @return エネルギーが0の敵ボットのプロファイル
      */
     public EnemyProfile getZeroEnergyEnemy(OkuRunBot bot) {
+        if (enemyProfiles.size() == 0) {
+            return null;
+        }
         for (final EnemyProfile enemyProfile : enemyProfiles.values()) {
             if (!enemyProfile.isAliveAndNotMissing(bot)) {
                 continue;
@@ -335,7 +341,7 @@ public class BattleManager {
             if (diffDegree == 0) {
                 turnDegree = 0;
             } else {
-                turnDegree = diffDegree / (e.getTurnNumber() - enemyState.scandTurnNum);
+                turnDegree = diffDegree / (e.getTurnNumber() - enemyState.scannedTurnNum);
             }
             acceleration = e.getSpeed() - enemyState.velocity;
         }

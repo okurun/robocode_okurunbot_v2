@@ -88,7 +88,7 @@ public class NormalGunAction implements GunAction {
         // デバッグ用に弾丸の情報をスタックに保存します
         battleManager.bulletStack.addLast(
                 new BulletHistory(commander.getPredictorModelName(bot), fireTarget.x, fireTarget.y, targetEnemyId,
-                        fireTarget.scandTurnNum));
+                        fireTarget.scannedTurnNum));
         return null;
     }
 
