@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import dev.robocode.tankroyale.botapi.events.HitByBulletEvent;
+import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.OkuRunBot;
 import okurun.battlemanager.BattleManager;
 import okurun.battlemanager.EnemyProfile;
@@ -44,6 +45,7 @@ public class Commander {
 
     public void action(OkuRunBot bot) {
         caches.clear();
+        bot.setScanColor(Color.fromRgba(Color.WHITE, 30));
         setCurrentTactic(bot);
         currentTactic.action(bot);
     }

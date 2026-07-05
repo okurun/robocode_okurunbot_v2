@@ -30,22 +30,17 @@ public interface GunAction {
      * @param fireTarget  射撃目標位置
      * @param bulletPower 弾丸のパワー
      */
-    public static void drawTargetPoint(OkuRunBot bot, EnemyState fireTarget, int bulletPower) {
+    public static void drawTargetPoint(OkuRunBot bot, EnemyState fireTarget, double bulletPower) {
         // 弾丸のパワーに応じて色分け
         final Color color;
-        switch ((int) bulletPower) {
-            case 1:
-                color = Color.YELLOW;
-                break;
-            case 2:
-                color = Color.ORANGE;
-                break;
-            case 3:
-                color = Color.RED;
-                break;
-            default:
-                color = Color.WHITE;
-                break;
+        if (bulletPower >= 3) {
+            color = Color.RED;
+        } else if (bulletPower >= 2) {
+            color = Color.ORANGE;
+        } else if (bulletPower >= 1) {
+            color = Color.YELLOW;
+        } else {
+            color = Color.WHITE;
         }
         drawTargetPoint(bot, fireTarget, Color.fromRgba(color, 150));
     }

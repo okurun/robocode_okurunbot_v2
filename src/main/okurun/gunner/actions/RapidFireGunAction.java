@@ -1,8 +1,9 @@
 package okurun.gunner.actions;
 
+import dev.robocode.tankroyale.botapi.Constants;
 import okurun.OkuRunBot;
 import okurun.battlemanager.BattleManager;
-import okurun.battlemanager.BulletStatus;
+import okurun.battlemanager.BulletHistory;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
@@ -36,7 +37,7 @@ public class RapidFireGunAction implements GunAction {
             }
         }
 
-        double bulletPower = 3;
+        double bulletPower = Constants.MAX_FIREPOWER;
 
         // 射撃目標位置を計算します
         EnemyState fireTarget = GunAction.getFireTarget(bot, targetEnemyProfile, bulletPower);
@@ -50,7 +51,7 @@ public class RapidFireGunAction implements GunAction {
 
         // デバッグ用に射撃目標位置に円を描きます
         // ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
-        GunAction.drawTargetPoint(bot, fireTarget, (int) bulletPower);
+        GunAction.drawTargetPoint(bot, fireTarget, bulletPower);
 
         // 射撃目標位置に砲頭を向けます
         final double bearingTo = bot.gunBearingTo(fireTarget.x, fireTarget.y);
@@ -66,7 +67,7 @@ public class RapidFireGunAction implements GunAction {
 
         // デバッグ用に弾丸の情報をスタックに保存します
         battleManager.bulletStack.addLast(
-                new BulletStatus(commander.getPredictorModelName(bot), fireTarget.x, fireTarget.y, targetEnemyId,
+                new BulletHistory(commander.getPredictorModelName(bot), fireTarget.x, fireTarget.y, targetEnemyId,
                         fireTarget.scandTurnNum));
         return null;
     }

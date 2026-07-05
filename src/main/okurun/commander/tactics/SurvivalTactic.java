@@ -62,14 +62,14 @@ public class SurvivalTactic extends AbstractTactic {
 
     @Override
     protected void setBaseBulletPower(OkuRunBot bot) {
+        super.setBaseBulletPower(bot);
+
         // 敵の数が多い時はパワーを下げる
         final int alivalEnemyCount = bot.getBattleManager().getAliveAndNotMissingEnemyCount(bot);
         if (alivalEnemyCount > 2) {
-            baseBulletPower = 1;
+            baseBulletPower -= 1;
         } else if (alivalEnemyCount > 1) {
-            baseBulletPower = 1.5;
-        } else {
-            baseBulletPower = 2;
+            baseBulletPower =- 0.5;
         }
     }
 

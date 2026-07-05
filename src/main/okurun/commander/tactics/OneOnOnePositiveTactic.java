@@ -80,24 +80,6 @@ public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
     }
 
     @Override
-    protected void setBaseBulletPower(OkuRunBot bot) {
-        double bulletPower = 2;
-
-        // 自分のエネルギーが少ない時はパワーを下げる
-        if (bot.getEnergy() < 20) {
-            bulletPower -= 1;
-        } else if (bot.getEnergy() < 50) {
-            bulletPower -= 0.5;
-        } else if (bot.getEnergy() > 150) {
-            bulletPower += 1;
-        } else if (bot.getEnergy() > 100) {
-            bulletPower += 0.5;
-        }
-
-        baseBulletPower = bulletPower;
-    }
-
-    @Override
     protected void setGunActionName(OkuRunBot bot) {
         if (targetEnemyId == Commander.NO_TARGET) {
             // ターゲットが設定されていない場合はスキャンを行います

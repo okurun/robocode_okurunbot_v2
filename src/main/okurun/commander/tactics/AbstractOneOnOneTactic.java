@@ -18,13 +18,12 @@ public abstract class AbstractOneOnOneTactic extends AbstractTactic {
             final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
             if (targetEnemyProfile != null) {
                 if (HistoryPredictModel.canUse(bot, targetEnemyProfile.getStateHistory())) {
-                    bot.setGunColor(Color.BLUE);
+                    bot.setScanColor(Color.fromRgba(Color.LIGHT_BLUE, 2));
                     predictorModelName = HistoryPredictModel.class.getName();
                     return;
                 }
             }
         }
-        bot.setGunColor(Color.RED);
         predictorModelName = SimplePredictModel.class.getName();
     }
 

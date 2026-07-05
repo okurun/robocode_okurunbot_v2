@@ -43,6 +43,7 @@ public class OkuRunBot extends Bot {
         init();
         while (isRunning()) {
             action();
+            go();
         }
     }
 
@@ -68,7 +69,6 @@ public class OkuRunBot extends Bot {
         radarOperator.action(this);
         gunner.action(this);
         driver.action(this);
-        go();
     }
 
     public double[] getPosition() {
@@ -285,7 +285,7 @@ public class OkuRunBot extends Bot {
      */
     @Override
     public void onHitWall(HitWallEvent e) {
-        System.out.println(e.getTurnNumber() + ": onHitWall()");
+        System.out.println(e.getTurnNumber() + ": !!!! onHitWall() !!!!");
     }
 
     /**
@@ -300,7 +300,7 @@ public class OkuRunBot extends Bot {
     }
 
     /**
-     * 当たった弾丸の時の処理
+     * 自分が敵の弾に当った時の処理
      * 
      * @param e 当たった弾丸のイベント
      */
@@ -317,8 +317,8 @@ public class OkuRunBot extends Bot {
      */
     @Override
     public void onBulletHit(BulletHitBotEvent e) {
-        battleManager.onBulletHit(e, this);
         predictor.onBulletHit(e, this);
+        battleManager.onBulletHit(e, this);
     }
 
     /**
@@ -328,8 +328,8 @@ public class OkuRunBot extends Bot {
      */
     @Override
     public void onBulletHitBullet(BulletHitBulletEvent e) {
-        battleManager.onBulletHitBullet(e, this);
         predictor.onBulletHitBullet(e, this);
+        battleManager.onBulletHitBullet(e, this);
     }
 
     /**
@@ -339,8 +339,8 @@ public class OkuRunBot extends Bot {
      */
     @Override
     public void onBulletHitWall(BulletHitWallEvent e) {
-        battleManager.onBulletHitWall(e, this);
         predictor.onBulletHitWall(e, this);
+        battleManager.onBulletHitWall(e, this);
     }
 
     /**
@@ -360,7 +360,7 @@ public class OkuRunBot extends Bot {
      */
     @Override
     public void onSkippedTurn(SkippedTurnEvent e) {
-        System.out.println(e.getTurnNumber() + ": onSkippedTurn()");
+        System.out.println(e.getTurnNumber() + ": !!!! #### onSkippedTurn() #### !!!!");
     }
 
     /**

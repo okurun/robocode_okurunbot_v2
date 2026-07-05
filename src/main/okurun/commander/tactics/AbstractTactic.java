@@ -25,7 +25,6 @@ public abstract class AbstractTactic implements Tactic {
     }
 
     protected abstract void setTargetEnemyId(OkuRunBot bot);
-    protected abstract void setBaseBulletPower(OkuRunBot bot);
     protected abstract void setPredictorModelName(OkuRunBot bot);
     protected abstract void setTargetMovePosition(OkuRunBot bot);
     protected abstract void setDriveActionName(OkuRunBot bot);
@@ -65,6 +64,17 @@ public abstract class AbstractTactic implements Tactic {
     @Override
     public String getRadarActionName(OkuRunBot bot) {
         return radarActionName;
+    }
+
+    protected void setBaseBulletPower(OkuRunBot bot) {
+        baseBulletPower = 2;
+
+        // 自分のエネルギーが少ない時はパワーを下げる
+        if (bot.getEnergy() < 60) {
+            baseBulletPower -= (60 - bot.getEnergy()) * 0.03;
+        } else if (bot.getEnergy() > 100) {
+            baseBulletPower += (bot.getEnergy() - 100) * 0.03;
+        }
     }
 
     /**

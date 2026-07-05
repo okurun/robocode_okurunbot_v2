@@ -3,7 +3,7 @@ package okurun.gunner.actions;
 import dev.robocode.tankroyale.botapi.Constants;
 import okurun.OkuRunBot;
 import okurun.battlemanager.BattleManager;
-import okurun.battlemanager.BulletStatus;
+import okurun.battlemanager.BulletHistory;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
@@ -34,35 +34,36 @@ public class NormalGunAction implements GunAction {
         }
 
         // 弾丸のパワーを計算します
-        double bulletPower = Math.ceil(getBulletPower(bot, currentEnemyState));
+        double bulletPower = getBulletPower(bot, currentEnemyState);
 
         // 射撃目標位置を計算します
-        // 弾丸のパワーが0以下なら、最低1のパワーで計算します
-        EnemyState fireTarget = GunAction.getFireTarget(bot, targetEnemyProfile, bulletPower <= 0 ? 1 : bulletPower);
+        // 弾丸のパワーが0以下なら、最低のパワーで計算します
+        EnemyState fireTarget = GunAction.getFireTarget(bot, targetEnemyProfile,
+                (bulletPower <= 0) ? Constants.MIN_FIREPOWER : bulletPower);
         if (fireTarget == null) {
             return TrackingGunAction.class.getName();
         }
 
         // デバッグ用に射撃目標位置に円を描きます
         // ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
-        GunAction.drawTargetPoint(bot, fireTarget, (int) bulletPower);
+        GunAction.drawTargetPoint(bot, fireTarget, bulletPower);
 
         // 射撃目標位置に砲頭を向けます
         final double bearingTo = bot.gunBearingTo(fireTarget.x, fireTarget.y);
         bot.setAdjustGunForBodyTurn(true);
         bot.setTurnGunLeft(bearingTo);
 
-        if (bot.getGunHeat() > 0) {
+        if (bot.getGunHeat() > bot.getGunCoolingRate()) {
             // 砲がクールダウン中の場合は発射しません
             return null;
         }
 
-        if (bot.getGunTurnRemaining() > bot.getGunCoolingRate()) {
+        if (bot.getGunTurnRemaining() > 0) {
             // 砲頭が回頭中なら発射しません
             return null;
         }
 
-        if (Math.abs(bearingTo) > Constants.MAX_GUN_TURN_RATE) {
+        if (Math.abs(bearingTo) > bot.getMaxGunTurnRate()) {
             // 砲頭がまわり切らないなら発射しません
             return null;
         }
@@ -86,7 +87,7 @@ public class NormalGunAction implements GunAction {
 
         // デバッグ用に弾丸の情報をスタックに保存します
         battleManager.bulletStack.addLast(
-                new BulletStatus(commander.getPredictorModelName(bot), fireTarget.x, fireTarget.y, targetEnemyId,
+                new BulletHistory(commander.getPredictorModelName(bot), fireTarget.x, fireTarget.y, targetEnemyId,
                         fireTarget.scandTurnNum));
         return null;
     }
@@ -102,51 +103,31 @@ public class NormalGunAction implements GunAction {
         final Commander commander = bot.getCommander();
         double bulletPower = commander.getBaseBulletPower(bot);
 
-        // 敵との距離が近い時はパワーを上げる
+        // 敵との距離が近い時はパワーを上げ、遠い時はパワーを下げる
         final double distance = bot.distanceTo(currentEnemyState.x, currentEnemyState.y);
-        if (distance <= 20) {
-            bulletPower += 1.5;
-        } else if (distance > 20 && distance <= 50) {
-            bulletPower += 1;
-        } else if (distance > 50 && distance <= 100) {
-            bulletPower += 0.5;
-        } else if (distance > 200 && distance <= 300) {
-            bulletPower -= 0.5;
-        } else if (distance > 300 && distance <= 400) {
-            bulletPower -= 1;
-        } else if (distance > 400 && distance <= 500) {
-            bulletPower -= 1.5;
-        } else if (distance > 500 && distance <= 600) {
-            bulletPower -= 2;
-        } else if (distance > 600 && distance <= 700) {
-            bulletPower -= 2.5;
-        } else if (distance > 700) {
-            bulletPower -= 3;
+        if (distance > 0 && distance < 150) {
+            bulletPower += (150 - distance) * 0.01;
+        } else if (distance > 160) {
+            bulletPower -= (distance - 160) * 0.01;
         }
 
         // 敵との相対速度が自分に接近する動きならパワーを上げる
         final double approachVelocity = Commander.getApproachVelocity(bot, currentEnemyState);
-        if (approachVelocity >= Constants.MAX_SPEED) {
-            bulletPower += 1.5;
-        } else if (approachVelocity >= Constants.MAX_SPEED * 0.5) {
-            bulletPower += 1;
-        } else if (approachVelocity >= Constants.MAX_SPEED * 0.25) {
-            bulletPower += 0.5;
-        } else if (approachVelocity <= Constants.MAX_SPEED * -0.25) {
-            bulletPower -= 0.5;
-        } else if (approachVelocity <= Constants.MAX_SPEED * -0.5) {
-            bulletPower -= 1;
-        } else if (approachVelocity <= Constants.MAX_SPEED * -1) {
-            bulletPower -= 1.5;
+        if (approachVelocity > 0) {
+            bulletPower -= Math.abs(approachVelocity / Constants.MAX_SPEED) * 1.5;
+        } else if (approachVelocity < 0) {
+            bulletPower += Math.abs(approachVelocity / Constants.MAX_SPEED) * 1.5;
         }
 
         // 距離が近く敵が自分に対して縦方向に向いている時はパワーを上げる
         if (distance <= 150) {
             final double enemyLateralAngle = Math.abs(commander.getEnemyLateralAngle(bot, currentEnemyState));
-            if (enemyLateralAngle <= 20 ||enemyLateralAngle >= 160) {
-                bulletPower += 0.5;
+            if (enemyLateralAngle <= 20 || enemyLateralAngle >= 160) {
+                // 縦方向に向いている
+                bulletPower += 0.3;
             } else if (enemyLateralAngle >= 70 && enemyLateralAngle <= 110) {
-                bulletPower -= 0.5;
+                // 横方向に向いている
+                bulletPower -= 0.3;
             }
         }
 

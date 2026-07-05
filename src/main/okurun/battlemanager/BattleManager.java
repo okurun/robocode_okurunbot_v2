@@ -16,8 +16,8 @@ import okurun.OkuRunBot;
  * 戦闘管理クラス
  */
 public class BattleManager {
-    public final Deque<BulletStatus> bulletStack = new ConcurrentLinkedDeque<>();
-    public final Map<Integer, BulletStatus> bullets = new ConcurrentHashMap<>();
+    public final Deque<BulletHistory> bulletStack = new ConcurrentLinkedDeque<>();
+    public final Map<Integer, BulletHistory> bulletHistories = new ConcurrentHashMap<>();
 
     private final Map<Integer, EnemyProfile> enemyProfiles = new ConcurrentHashMap<>();
     private final Map<String, Object> caches = new ConcurrentHashMap<>();
@@ -36,7 +36,7 @@ public class BattleManager {
         lastFiredTurnNum.set(0);
         enemyProfiles.clear();
         bulletStack.clear();
-        bullets.clear();
+        bulletHistories.clear();
         for (int i = 1; i <= enemyCount + 1; i++) {
             if (i == myId)
                 continue;
@@ -49,9 +49,9 @@ public class BattleManager {
 
         // デバッグ用に射撃目標位置を描きます
         // ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
-        for (final BulletStatus bulletStatus : bullets.values()) {
+        for (final BulletHistory bulletHistory : bulletHistories.values()) {
             Color color;
-            switch ((int) bulletStatus.bulletState.getPower()) {
+            switch ((int) bulletHistory.bulletState.getPower()) {
                 case 1:
                     color = Color.YELLOW;
                     break;
@@ -65,12 +65,12 @@ public class BattleManager {
                     color = Color.WHITE;
                     break;
             }
-            if (bulletStatus.predictTurnNum > bot.getTurnNumber()) {
+            if (bulletHistory.predictTurnNum > bot.getTurnNumber()) {
                 color = Color.fromRgba(color, 200);
-            } else if (bulletStatus.predictTurnNum < bot.getTurnNumber()) {
-                color = Color.fromRgba(color, 255 - (bot.getTurnNumber() - bulletStatus.predictTurnNum) * 20);
+            } else if (bulletHistory.predictTurnNum < bot.getTurnNumber()) {
+                color = Color.fromRgba(color, 255 - (bot.getTurnNumber() - bulletHistory.predictTurnNum) * 20);
             }
-            bot.drawTarget(bulletStatus.targetX, bulletStatus.targetY, color);
+            bot.drawTarget(bulletHistory.targetX, bulletHistory.targetY, color);
         }
     }
 
@@ -251,10 +251,10 @@ public class BattleManager {
      */
     public void onBulletFired(BulletFiredEvent e, OkuRunBot bot) {
         setLastFiredTurnNum(e.getTurnNumber());
-        final BulletStatus bulletStatus = bulletStack.pollFirst();
-        if (bulletStatus != null) {
-            bulletStatus.bulletState = e.getBullet();
-            bullets.put(bulletStatus.bulletState.getBulletId(), bulletStatus);
+        final BulletHistory bulletHistory = bulletStack.pollFirst();
+        if (bulletHistory != null) {
+            bulletHistory.bulletState = e.getBullet();
+            bulletHistories.put(bulletHistory.bulletState.getBulletId(), bulletHistory);
         }
     }
 
@@ -273,9 +273,9 @@ public class BattleManager {
     }
 
     /**
-     * Botが弾に当たった時の処理
+     * 弾丸が敵ボットに当たった時の処理
      * 
-     * @param e   Botが弾に当たったイベント
+     * @param e   弾が当たったイベント
      * @param bot Bot
      */
     public void onBulletHit(BulletHitBotEvent e, OkuRunBot bot) {
@@ -286,7 +286,7 @@ public class BattleManager {
 
         final BulletState bulletState = e.getBullet();
         final int bulletId = bulletState.getBulletId();
-        bullets.remove(bulletId);
+        bulletHistories.remove(bulletId);
     }
 
     /**
@@ -304,7 +304,7 @@ public class BattleManager {
 
         final BulletState bulletState = e.getBullet();
         final int bulletId = bulletState.getBulletId();
-        bullets.remove(bulletId);
+        bulletHistories.remove(bulletId);
     }
 
     /**
@@ -316,7 +316,7 @@ public class BattleManager {
     public void onBulletHitWall(BulletHitWallEvent e, OkuRunBot bot) {
         final BulletState bulletState = e.getBullet();
         final int bulletId = bulletState.getBulletId();
-        bullets.remove(bulletId);
+        bulletHistories.remove(bulletId);
     }
 
     /**

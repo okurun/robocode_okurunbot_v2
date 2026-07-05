@@ -39,9 +39,12 @@ public class MoveToDriveAction implements DriveAction {
         final double speed;
         switch (commander.getAccelePriority(bot)) {
             case AccelePriority.HANDLE:
-                // 旋回を優先するため、旋回角度がMAX_TURN_RATEより大きい場合は減速する
-                final double diffTurnRate = Math.abs(bearingTo) - Constants.MAX_TURN_RATE;
-                if (diffTurnRate > 0) {
+                // 旋回を優先するため、旋回角度がTURN_RATEより大きい場合は減速する
+                final double diffTurnRate = Math.abs(bearingTo) - Math.abs(bot.getTurnRate());
+                if (diffTurnRate > 90) {
+                    speed = Math.max(commander.getMinSpeed(bot), bot.getSpeed() - 2);
+                    distance = -1;
+                } else if (diffTurnRate > 0) {
                     speed = Math.max(commander.getMinSpeed(bot), bot.getSpeed() - 1);
                 } else {
                     speed = Constants.MAX_SPEED;

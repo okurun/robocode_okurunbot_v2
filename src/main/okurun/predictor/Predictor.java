@@ -9,7 +9,7 @@ import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
 import okurun.arenamap.ArenaMap;
 import okurun.battlemanager.BattleManager;
-import okurun.battlemanager.BulletStatus;
+import okurun.battlemanager.BulletHistory;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.predictor.models.*;
@@ -145,10 +145,9 @@ public class Predictor {
      */
     public void onBulletFired(BulletFiredEvent e, OkuRunBot bot) {
         final BattleManager battleManager = bot.getBattleManager();
-        final BulletStatus bulletStatus = battleManager.bullets.get(e.getBullet().getBulletId());
-        if (bulletStatus != null) {
-            bulletStatus.bulletState = e.getBullet();
-            final PredictionAccuracy predictionAccuracy = predictionAccuracies.get(bulletStatus.predictModel);
+        final BulletHistory bulletHistory = battleManager.bulletHistories.get(e.getBullet().getBulletId());
+        if (bulletHistory != null) {
+            final PredictionAccuracy predictionAccuracy = predictionAccuracies.get(bulletHistory.predictModel);
             if (predictionAccuracy == null) {
                 System.out.println(e.getTurnNumber() + " onBulletFired: predictionAccuracy is null");
             }
@@ -166,12 +165,13 @@ public class Predictor {
         final BattleManager battleManager = bot.getBattleManager();
         final BulletState bulletState = e.getBullet();
         final int bulletId = bulletState.getBulletId();
-        final BulletStatus bulletStatus = battleManager.bullets.get(bulletId);
+        final BulletHistory bulletHistory = battleManager.bulletHistories.get(bulletId);
 
-        if (e.getVictimId() == bulletStatus.targetEnemyId) {
-            predictionAccuracies.get(bulletStatus.predictModel).incrementHitCount();
+        final PredictionAccuracy predictionAccuracy = predictionAccuracies.get(bulletHistory.predictModel);
+        if (e.getVictimId() == bulletHistory.targetEnemyId) {
+            predictionAccuracy.incrementHitCount();
         } else {
-            predictionAccuracies.get(bulletStatus.predictModel).incrementMissCount();
+            predictionAccuracy.incrementMissCount();
         }
     }
 
@@ -185,9 +185,10 @@ public class Predictor {
         final BattleManager battleManager = bot.getBattleManager();
         final BulletState bulletState = e.getBullet();
         final int bulletId = bulletState.getBulletId();
-        final BulletStatus bulletStatus = battleManager.bullets.get(bulletId);
+        final BulletHistory bulletHistory = battleManager.bulletHistories.get(bulletId);
 
-        predictionAccuracies.get(bulletStatus.predictModel).incrementMissCount();
+        final PredictionAccuracy predictionAccuracy = predictionAccuracies.get(bulletHistory.predictModel);
+        predictionAccuracy.incrementMissCount();
     }
 
     /**
@@ -200,10 +201,9 @@ public class Predictor {
         final BattleManager battleManager = bot.getBattleManager();
         final BulletState bulletState = e.getBullet();
         final int bulletId = bulletState.getBulletId();
-        final BulletStatus bulletStatus = battleManager.bullets.get(bulletId);
-
-        predictionAccuracies.get(bulletStatus.predictModel).incrementMissCount();
-
+        final BulletHistory bulletHistory = battleManager.bulletHistories.get(bulletId);
+        final PredictionAccuracy predictionAccuracy = predictionAccuracies.get(bulletHistory.predictModel);
+        predictionAccuracy.incrementMissCount();
     }
 
     /**
