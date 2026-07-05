@@ -57,12 +57,12 @@ public class NormalGunAction implements GunAction {
             return null;
         }
 
-        if (bot.getGunTurnRemaining() > 0) {
+        if (bot.getGunTurnRemaining() > bot.getGunCoolingRate()) {
             // 砲頭が回頭中なら発射しません
             return null;
         }
 
-        if (Math.abs(bearingTo) > Constants.MAX_GUN_TURN_RATE * 0.5) {
+        if (Math.abs(bearingTo) > Constants.MAX_GUN_TURN_RATE) {
             // 砲頭がまわり切らないなら発射しません
             return null;
         }
@@ -78,15 +78,6 @@ public class NormalGunAction implements GunAction {
         }
 
         if (bulletPower <= 0) {
-            if (bulletPower >= -1
-                    && Math.abs(bot.gunBearingTo(currentEnemyState.x, currentEnemyState.y) - bearingTo) < 5) {
-                // 現在位置と予測位置が自分から見てほぼ一直線なら発射します
-                bot.setFire(1);
-                battleManager.bulletStack.addLast(
-                        new BulletStatus(commander.getPredictorModelName(bot), fireTarget.x, fireTarget.y, targetEnemyId,
-                                fireTarget.scandTurnNum));
-                return null;
-            }
             // 弾丸のパワーが0以下なら発射しません
             return null;
         }

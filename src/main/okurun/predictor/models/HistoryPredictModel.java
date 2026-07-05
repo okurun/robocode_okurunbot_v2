@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
-import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.OkuRunBot;
 import okurun.battlemanager.EnemyState;
 import okurun.predictor.Predictor;
 
 public class HistoryPredictModel extends PredictModel {
+    private static final int LIMIT_TURN_NUM = 20;
+    private static final int DETECT_ZIGZAG_TURN_CHANGE_NUM = 3;
     private static enum Turn {
         LEFT, RIGHT, STRAIGHT;
 
@@ -26,16 +27,20 @@ public class HistoryPredictModel extends PredictModel {
 
     @Override
     public EnemyState nextTurnState(OkuRunBot bot, EnemyState enemyState, Deque<EnemyState> stateHistory) {
-        bot.setGunColor(Color.BLUE);
-        final List<EnemyState> moveHistories = getMoveHistories(enemyState.id, stateHistory);
-        if (moveHistories.size() < 2) {
+        final List<EnemyState> moveHistories = getMoveHistories(bot, enemyState.id, stateHistory);
+        if (moveHistories.size() < DETECT_ZIGZAG_TURN_CHANGE_NUM) {
             return null;
         }
         final int turnNumDiff = enemyState.scandTurnNum - moveHistories.getLast().scandTurnNum;
         if (turnNumDiff <= 0) {
-            return enemyState;
+            return new EnemyState(enemyState.id, enemyState.scandTurnNum + 1, enemyState.x, enemyState.y, enemyState.heading,
+                    enemyState.velocity, enemyState.energy, enemyState.turnDegree, enemyState.acceleration,
+                    enemyState.distance);
         }
         final int historyPos = (turnNumDiff - 1) % moveHistories.size();
+        for (int i = 0; i < turnNumDiff; i++) {
+            moveHistories.addFirst(moveHistories.removeLast());
+        }
         final EnemyState moveHistory = moveHistories.get(historyPos);
 
         final double[] predictedPos = Predictor.calcPosition(enemyState.x, enemyState.y, enemyState.heading,
@@ -46,32 +51,39 @@ public class HistoryPredictModel extends PredictModel {
     }
 
     @SuppressWarnings("unchecked")
-    private List<EnemyState> getMoveHistories(int enemyId, Deque<EnemyState> stateHistory) {
+    private List<EnemyState> getMoveHistories(OkuRunBot bot, int enemyId, Deque<EnemyState> stateHistory) {
         if (caches.containsKey("moveHistories" + enemyId)) {
             return (List<EnemyState>) caches.get("moveHistories" + enemyId);
         }
         Turn prevTurn = null; // 前回の旋回方向
-        int turnNumCnt = 0; // 旋回が逆転した回数
-        int firstTurnNumCnt = 0; // 最初に旋回した時のターン番号
+        int turnChangeCnt = 0; // 旋回が逆転した回数
+        int firstTurnChangeTurnNum = 0; // 最初に旋回した時までのターン数
         final List<EnemyState> history = new ArrayList<>();
         for (EnemyState state: stateHistory) {
+            if (bot.getTurnNumber() - state.scandTurnNum > LIMIT_TURN_NUM) {
+                // LIMIT_TURN_NUM ターン以上昔の状態は考慮しない
+                return List.of();
+            }
+
             final Turn turn = Turn.get(state.turnDegree);
-            if (prevTurn != null && turn != Turn.STRAIGHT && turn != prevTurn) {
+            if (prevTurn == null) {
+                prevTurn = turn;
+            } else if (turn != Turn.STRAIGHT && turn != prevTurn) {
                 // 旋回が逆転
                 prevTurn = turn;
-                if (turnNumCnt == 0) {
-                    firstTurnNumCnt++;
+                if (turnChangeCnt == 0) {
+                    firstTurnChangeTurnNum++;
                 }
-                turnNumCnt++;
+                turnChangeCnt++;
             }
-            if (turnNumCnt >= 3) {
-                // 旋回方向が3回逆転したらジグザクに動いていると仮定しそこまでの動きを記録
+            if (turnChangeCnt >= DETECT_ZIGZAG_TURN_CHANGE_NUM) {
+                // 旋回方向が DETECT_ZIGZAG_TURN_CHANGE_NUM 回逆転したらジグザクに動いていると仮定しそこまでの動きを記録
                 break;
             }
             history.addFirst(state);
         }
         // 最初の旋回が始まるまでと同じターン数historyの末尾を削除
-        for (int i = 0; i < firstTurnNumCnt; i++) {
+        for (int i = 0; i < firstTurnChangeTurnNum; i++) {
             history.removeFirst();
         }
         caches.put("moveHistories" + enemyId, history);
@@ -79,28 +91,26 @@ public class HistoryPredictModel extends PredictModel {
     }
 
     public static boolean canUse(OkuRunBot bot, Deque<EnemyState> stateHistory) {
-        if (stateHistory.size() > 3) {
-            int prevScandTurnNum = bot.getTurnNumber();
+        if (stateHistory.size() > DETECT_ZIGZAG_TURN_CHANGE_NUM) {
             Turn prevTurn = null; // 前回の旋回方向
-            int turnNumCnt = 0; // 旋回が逆転した回数
+            int turnChangeCnt = 0; // 旋回が逆転した回数
             for (EnemyState state: stateHistory) {
-                if (state.scandTurnNum == prevScandTurnNum) {
-                    continue;
-                }
-                if (state.scandTurnNum + 1 != prevScandTurnNum) {
+                if (bot.getTurnNumber() - state.scandTurnNum > LIMIT_TURN_NUM) {
+                    // LIMIT_TURN_NUM ターン以上昔の状態は考慮しない
                     return false;
                 }
                 final Turn turn = Turn.get(state.turnDegree);
-                if (prevTurn != null && turn != Turn.STRAIGHT && turn != prevTurn) {
-                    // 旋回が逆転
+                if (prevTurn == null) {
                     prevTurn = turn;
-                    turnNumCnt++;
+                } else if (turn != Turn.STRAIGHT && turn != prevTurn) {
+                    // 旋回方向が逆転
+                    prevTurn = turn;
+                    turnChangeCnt++;
                 }
-                if (turnNumCnt >= 3) {
-                    // 旋回方向が3回逆転したらジグザクに動いていると仮定
+                if (turnChangeCnt >= DETECT_ZIGZAG_TURN_CHANGE_NUM) {
+                    // 旋回方向が DETECT_ZIGZAG_TURN_CHANGE_NUM 回逆転したらジグザクに動いていると判断
                     return true;
                 }
-                prevScandTurnNum = state.scandTurnNum;
             }
             return false;
         }

@@ -9,7 +9,7 @@ import okurun.commander.Commander;
 import okurun.predictor.Predictor;
 
 /**
- * 連射
+ * 最大パワーで連射します
  */
 public class RapidFireGunAction implements GunAction {
 
@@ -36,7 +36,7 @@ public class RapidFireGunAction implements GunAction {
             }
         }
 
-        double bulletPower = 1;
+        double bulletPower = 3;
 
         // 射撃目標位置を計算します
         EnemyState fireTarget = GunAction.getFireTarget(bot, targetEnemyProfile, bulletPower);
@@ -57,17 +57,9 @@ public class RapidFireGunAction implements GunAction {
         bot.setAdjustGunForBodyTurn(true);
         bot.setTurnGunLeft(bearingTo);
 
-        if (bot.getGunHeat() > 0) {
+        if (bot.getGunHeat() > bot.getGunCoolingRate()) {
             // 砲がクールダウン中の場合は発射しません
             return null;
-        }
-
-        // 威力を上げても当たると判断出来る場合は威力を上げる
-        final double distance = bot.distanceTo(fireTarget.x, fireTarget.y);
-        if (distance <= bot.calcBulletSpeed(3)) {
-            bulletPower = 3;
-        } else if (distance <= bot.calcBulletSpeed(2)) {
-            bulletPower = 2;
         }
 
         bot.setFire(bulletPower);

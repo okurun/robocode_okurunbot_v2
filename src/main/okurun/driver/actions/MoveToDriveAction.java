@@ -50,7 +50,7 @@ public class MoveToDriveAction implements DriveAction {
             case AccelePriority.AVOID_BULLET:
                 // 予測を外すためにランダムでブレーキをかける
                 speed = Constants.MAX_SPEED;
-                if (Math.abs(bearingTo) <= Constants.MAX_TURN_RATE && bot.getSpeed() > commander.getMinSpeed(bot)) {
+                if (bot.getSpeed() > commander.getMinSpeed(bot)) {
                     final BattleManager battleManager = bot.getBattleManager();
                     final EnemyState enemyState = battleManager.getLatestEnemyState(commander.getTargetEnemyId(bot));
                     int randNum = 10;
@@ -58,8 +58,8 @@ public class MoveToDriveAction implements DriveAction {
                         // 敵との距離によってブレーキの頻度を変える
                         final double enemyDistance = bot.distanceTo(enemyState.x, enemyState.y);
                         randNum = Math.max(randNum,
-                                Math.min((int) (Constants.MAX_SPEED - commander.getMinSpeed(bot) + 1),
-                                        (int) Math.ceil(enemyDistance / bot.calcBulletSpeed(1))));
+                                (int) Math.min(commander.getMinSpeed(bot) + 1,
+                                        Math.ceil(enemyDistance / bot.calcBulletSpeed(1))));
                     }
                     final Random random = new Random();
                     if (random.nextInt(randNum) == 0) {

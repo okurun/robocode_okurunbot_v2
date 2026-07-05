@@ -62,7 +62,7 @@ public class Commander {
                 currentTactic = tactics.get(OneOnOneNegativeTactic.class.getName());
                 return;
             }
-            if (bot.getEnergy() - latestEnemyState.energy < 0) {
+            if (bot.getEnergy() - latestEnemyState.energy < -30) {
                 currentTactic = tactics.get(OneOnOneNegativeTactic.class.getName());
                 return;
             }

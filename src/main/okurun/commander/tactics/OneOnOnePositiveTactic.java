@@ -17,6 +17,7 @@ import okurun.radaroperator.actions.*;
  * 1v1の状況で積極的に攻める戦略
  */
 public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
+    private static final double LOW_ENERGY_THRESHOLD = 20;
 
     @Override
     protected void setTargetEnemyId(OkuRunBot bot) {
@@ -59,16 +60,23 @@ public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
             predictedEnemyState = latestEnemyState;
         }
 
-        // 敵位置の少し横を目指します
-        // 距離は自分と敵のエネルギー差を考慮して調整します
-        final double distance = Math.max(0, 200 - ((bot.getEnergy() - latestEnemyState.energy) * 5));
-        final boolean clockwise = true;
-        targetMovePosition = Tactic.calculatePointCUsingTrig(
-                bot.getPosition(), predictedEnemyState.getPosition(), distance, clockwise);
-        if (!bot.getArenaMap().isInsideArena(targetMovePosition)) {
+        if (bot.getEnergy() > LOW_ENERGY_THRESHOLD) {
+            // 敵位置の少し横を目指します
+            // 距離は自分と敵のエネルギー差を考慮して調整します
+            final double distance = Math.max(0, 200 - ((bot.getEnergy() - latestEnemyState.energy) * 5));
+            final boolean clockwise = true;
             targetMovePosition = Tactic.calculatePointCUsingTrig(
-                    bot.getPosition(), predictedEnemyState.getPosition(), distance, !clockwise);
+                    bot.getPosition(), predictedEnemyState.getPosition(), distance, clockwise);
+            if (!bot.getArenaMap().isInsideArena(targetMovePosition)) {
+                // 目標位置がアリーナの外なら逆サイドから回り込みます
+                targetMovePosition = Tactic.calculatePointCUsingTrig(
+                        bot.getPosition(), predictedEnemyState.getPosition(), distance, !clockwise);
+            }
+            return;
         }
+
+        // 残りエネルギーが少ない時は敵へ突撃します
+        targetMovePosition = predictedEnemyState.getPosition();
     }
 
     @Override
@@ -117,12 +125,12 @@ public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
 
         if (bot.getGunHeat() <= bot.getGunCoolingRate() * 2) {
             // 2ターン以内に射撃可能であれば射撃を行います
-            if (bot.getTurnNumber() - battleManager.getLastFiredTurnNum() > 100) {
-                // 射撃できない状態が続いていたら連射を選択する
-                gunActionName = RapidFireGunAction.class.getName();
+            if (bot.getEnergy() > LOW_ENERGY_THRESHOLD) {
+                gunActionName = NormalGunAction.class.getName();
                 return;
             }
-            gunActionName = NormalGunAction.class.getName();
+            // 残りエネルギーが少ない時は最大パワーで連射を選択する
+            gunActionName = RapidFireGunAction.class.getName();
             return;
         }
 

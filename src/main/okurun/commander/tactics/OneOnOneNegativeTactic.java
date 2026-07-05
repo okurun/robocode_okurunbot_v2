@@ -137,8 +137,8 @@ public class OneOnOneNegativeTactic extends AbstractOneOnOneTactic {
 
         if (bot.getGunHeat() <= bot.getGunCoolingRate() * 2) {
             // 2ターン以内に射撃可能であれば射撃を行います
-            if (bot.getTurnNumber() - battleManager.getLastFiredTurnNum() > 150) {
-                // 射撃できない状態が続いていたら連射を選択する
+            if (bot.getEnergy() < 30) {
+                // 逆転を目指して連射をする
                 gunActionName = RapidFireGunAction.class.getName();
                 return;
             }

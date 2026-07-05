@@ -151,6 +151,6 @@ public class SurvivalTactic extends AbstractTactic {
 
     @Override
     public double getMinSpeed(OkuRunBot bot) {
-        return 4;
+        return 2;
     }
 }

@@ -1,5 +1,6 @@
 package okurun.commander.tactics;
 
+import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.OkuRunBot;
 import okurun.battlemanager.BattleManager;
 import okurun.battlemanager.EnemyProfile;
@@ -17,11 +18,13 @@ public abstract class AbstractOneOnOneTactic extends AbstractTactic {
             final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
             if (targetEnemyProfile != null) {
                 if (HistoryPredictModel.canUse(bot, targetEnemyProfile.getStateHistory())) {
+                    bot.setGunColor(Color.BLUE);
                     predictorModelName = HistoryPredictModel.class.getName();
                     return;
                 }
             }
         }
+        bot.setGunColor(Color.RED);
         predictorModelName = SimplePredictModel.class.getName();
     }
 
