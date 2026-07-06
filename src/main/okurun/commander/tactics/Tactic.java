@@ -12,7 +12,7 @@ public interface Tactic {
 
     double[] getTargetMovePosition(OkuRunBot bot);
 
-    double getBaseBulletPower(OkuRunBot bot);
+    double getBaseFirePower(OkuRunBot bot);
 
     String getPredictorModelName(OkuRunBot bot);
 

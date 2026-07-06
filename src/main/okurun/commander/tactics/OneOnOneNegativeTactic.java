@@ -38,35 +38,25 @@ public class OneOnOneNegativeTactic extends AbstractOneOnOneTactic {
      */
     @Override
     protected void setTargetMovePosition(OkuRunBot bot) {
-        final ArenaMap.Area targetMoveArea = getTargetMoveArea(bot);
-        // 目的地で停止してしまわないように少しズラす
-        targetMovePosition = Tactic.calculatePointCUsingTrig(
-                bot.getPosition(), targetMoveArea.getCenter(), 30, false);
-    }
-
-    /**
-     * 目的地エリアを取得します
-     * 
-     * @param bot Bot
-     * @return 目的地のエリア
-     */
-    private ArenaMap.Area getTargetMoveArea(OkuRunBot bot) {
         final ArenaMap arenaMap = bot.getArenaMap();
         if (targetEnemyId == Commander.NO_TARGET) {
             // 隣のエリアへ向かう
-            return arenaMap.getArea(bot).getNeighboringArea(bot);
+            targetMovePosition = arenaMap.getArea(bot).getNeighboringArea(bot).getCenter();
+            return;
         }
 
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
         if (targetEnemyProfile == null) {
             // 隣のエリアへ向かう
-            return arenaMap.getArea(bot).getNeighboringArea(bot);
+            targetMovePosition = arenaMap.getArea(bot).getNeighboringArea(bot).getCenter();
+            return;
         }
         final EnemyState latestEnemyState = targetEnemyProfile.getLatestState();
         if (latestEnemyState == null) {
             // 隣のエリアへ向かう
-            return arenaMap.getArea(bot).getNeighboringArea(bot);
+            targetMovePosition = arenaMap.getArea(bot).getNeighboringArea(bot).getCenter();
+            return;
         }
 
         final Predictor predictor = bot.getPredictor();
@@ -75,20 +65,14 @@ public class OneOnOneNegativeTactic extends AbstractOneOnOneTactic {
             predictedEnemyState = latestEnemyState;
         }
 
-        final ArenaMap.Area enemyArea = arenaMap.getArea(predictedEnemyState.x, predictedEnemyState.y);
-        if (enemyArea == null) {
-            // 隣のエリアへ向かう
-            return arenaMap.getArea(bot).getNeighboringArea(bot);
+        final double degreesToEnemy = bot.bearingTo(predictedEnemyState.getPosition());
+        final double bearingTo = degreesToEnemy + ((degreesToEnemy < 0) ? 90 : +90);
+        targetMovePosition = Predictor.calcPosition(bot.getPosition(),
+                bot.normalizeAbsoluteAngle(bot.getDirection() + bearingTo), 200, 1);
+        if (!arenaMap.isInsideArena(targetMovePosition)) {
+            targetMovePosition = Predictor.calcPosition(bot.getPosition(),
+                    bot.normalizeAbsoluteAngle(bot.getDirection() + bearingTo + 180), 200, 1);
         }
-
-        // 敵の反対側のエリアへ移動する
-        final ArenaMap.Area oppositeArea = enemyArea.getOppositeArea();
-        final double[] oppositeAreaCenter = oppositeArea.getCenter();
-        if (Math.abs(bot.bearingTo(oppositeAreaCenter) - bot.bearingTo(predictedEnemyState.getPosition())) < 30) {
-            // 進路上に敵がいる場合は近傍のエリアへ移動する
-            return oppositeArea.getNeighboringArea(bot);
-        }
-        return oppositeArea;
     }
 
     @Override
@@ -121,6 +105,10 @@ public class OneOnOneNegativeTactic extends AbstractOneOnOneTactic {
             // 2ターン以内に射撃可能であれば射撃を行います
             if (bot.getEnergy() < 30) {
                 // 逆転を目指して連射をする
+                gunActionName = RapidFireGunAction.class.getName();
+                return;
+            } else if (Math.abs(bot.getCommander().getEnemyLateralAngle(bot, latesEnemyState)) > 160) {
+                // 相手がこちらを向いている時は連射する
                 gunActionName = RapidFireGunAction.class.getName();
                 return;
             }

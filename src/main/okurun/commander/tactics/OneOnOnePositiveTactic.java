@@ -17,7 +17,7 @@ import okurun.radaroperator.actions.*;
  * 1v1の状況で積極的に攻める戦略
  */
 public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
-    private static final double LOW_ENERGY_THRESHOLD = 20;
+    private static final double LOW_ENERGY_THRESHOLD = 10;
 
     @Override
     protected void setTargetEnemyId(OkuRunBot bot) {
@@ -107,6 +107,11 @@ public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
 
         if (bot.getGunHeat() <= bot.getGunCoolingRate() * 2) {
             // 2ターン以内に射撃可能であれば射撃を行います
+            if (Math.abs(bot.getCommander().getEnemyLateralAngle(bot, latesEnemyState)) > 160) {
+                // 相手がこちらを向いている時は連射する
+                gunActionName = RapidFireGunAction.class.getName();
+                return;
+            }
             gunActionName = NormalGunAction.class.getName();
             return;
         }

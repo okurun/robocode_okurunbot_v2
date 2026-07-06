@@ -40,9 +40,6 @@ public class HistoryPredictModel extends PredictModel {
                     enemyState.distance);
         }
         final int historyPos = (turnNumDiff - 1) % moveHistories.size();
-        for (int i = 0; i < turnNumDiff; i++) {
-            moveHistories.addFirst(moveHistories.removeLast());
-        }
         final EnemyState moveHistory = moveHistories.get(historyPos);
 
         final double[] predictedPos = Predictor.calcPosition(enemyState.x, enemyState.y, enemyState.heading,

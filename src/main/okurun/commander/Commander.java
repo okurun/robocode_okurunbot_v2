@@ -82,8 +82,8 @@ public class Commander {
         return currentTactic.getTargetMovePosition(bot);
     }
 
-    public double getBaseBulletPower(OkuRunBot bot) {
-        return currentTactic.getBaseBulletPower(bot);
+    public double getBaseFirePower(OkuRunBot bot) {
+        return currentTactic.getBaseFirePower(bot);
     }
 
     public String getPredictorModelName(OkuRunBot bot) {
@@ -115,11 +115,11 @@ public class Commander {
     }
 
     /**
-     * 相手の相対角度を計算します
+     * 自分から見て相手の相対角度を計算します
      * 
      * @param bot
      * @param enamyState 攻撃対象の現在の状態
-     * @return 相手の相対角度（-180度 〜 180度）
+     * @return 相手の相対角度（-180度 〜 180度）180度はこちらを向いている
      */
     public double getEnemyLateralAngle(OkuRunBot bot, EnemyState enamyState) {
         if (caches.containsKey("enemyLateralAngle" + enamyState.id)) {

@@ -24,7 +24,18 @@ public class MoveToDriveAction implements DriveAction {
         }
     }
 
+    private static class Accele {
+        public double distance = 0;
+        public double speed = Constants.MAX_SPEED;
+        public Accele(double distance, double speed) {
+            this.distance = distance;
+            this.speed = speed;
+        }
+    }
+
     private Turn avoidTurn = Turn.LEFT;
+    private Random random = new Random();
+    private int randNum = 0;
 
     @Override
     public String action(OkuRunBot bot) {
@@ -35,11 +46,27 @@ public class MoveToDriveAction implements DriveAction {
             return null;
         }
 
-        double bearingTo = bot.bearingTo(pos[0], pos[1]);
-        final int randNum = getRandNum(bot);
+        // 予測を外すための乱数を初期化
+        randNum = getRandNum(bot);
 
+        final double bearingTo = getBearingTo(bot, pos);
+        bot.setTurnLeft(bearingTo);
+
+        final Accele accele = getAccele(bot, pos, bearingTo);
+        bot.setForward(accele.distance);
+        bot.setMaxSpeed(accele.speed);
+
+        // 移動目標を描画します
+        draw(bot, pos, bearingTo, accele);
+
+        return null;
+    }
+
+    private double getBearingTo(OkuRunBot bot, double[] pos) {
+        double bearingTo = bot.bearingTo(pos[0], pos[1]);
         if (Math.abs(bearingTo) < bot.getMaxTurnRate()) {
             // 旋回に余裕がある（直進に近い状態）
+            final Commander commander = bot.getCommander();
             if (commander.getHandlePriority(bot) == HandlePriority.AVOID_BULLET) {
                 // 回避行動を行う
                 if (randNum == 0) {
@@ -56,57 +83,45 @@ public class MoveToDriveAction implements DriveAction {
                 }
             }
         }
-        bot.setTurnLeft(bearingTo);
+        return bearingTo;
+    }
 
-        double distance = bot.distanceTo(pos[0], pos[1]);
-        final double speed;
+    private Accele getAccele(OkuRunBot bot, double[] pos, double bearingTo) {
+        final Accele accele = new Accele(bot.distanceTo(pos[0], pos[1]), Constants.MAX_SPEED);
+        final Commander commander = bot.getCommander();
         switch (commander.getAccelePriority(bot)) {
             case AccelePriority.HANDLE:
                 // 旋回を優先するため、旋回角度がTURN_RATEより大きい場合は減速する
                 final double diffTurnRate = Math.abs(bearingTo) - Math.abs(bot.getTurnRate());
                 if (diffTurnRate > 90) {
-                    speed = Math.max(commander.getMinSpeed(bot), bot.getSpeed() - 2);
-                    distance = -1;
+                    accele.speed = Math.max(commander.getMinSpeed(bot), bot.getSpeed() - 2);
+                    accele.distance = -1;
                 } else if (diffTurnRate > 0) {
-                    speed = Math.max(commander.getMinSpeed(bot), bot.getSpeed() - 1);
+                    accele.speed = Math.max(commander.getMinSpeed(bot), bot.getSpeed() - 1);
                 } else {
-                    speed = Constants.MAX_SPEED;
+                    accele.speed = Constants.MAX_SPEED;
                 }
                 break;
             case AccelePriority.AVOID_BULLET:
                 // 予測を外すためにランダムでブレーキをかける
-                speed = Constants.MAX_SPEED;
+                accele.speed = Constants.MAX_SPEED;
                 if (bot.getSpeed() > commander.getMinSpeed(bot)) {
                     if (randNum == 0) {
                         // ブレーキ
-                        distance = -1;
+                        accele.distance = -1;
                     }
                 }
                 break;
             default:
-                speed = Constants.MAX_SPEED;
+                accele.speed = Constants.MAX_SPEED;
                 break;
         }
-        bot.setForward(distance);
-        bot.setMaxSpeed(speed);
-
-        // 移動目標を描画します
-        // ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
-        final Color color = Color.LIGHT_BLUE;
-        bot.drawCircle(pos[0], pos[1], 5, Color.fromRgba(color, 50));
-        bot.drawLine(bot.getX(), bot.getY(), pos[0], pos[1], Color.fromRgba(color, 50));
-
-        final double[] actualPos = Predictor.calcPosition(
-                bot.getPosition(), bot.getDirection() + bearingTo, distance, 1);
-        bot.drawLine(bot.getX(), bot.getY(), actualPos[0], actualPos[1], color);
-
-        return null;
+        return accele;
     }
 
     private int getRandNum(OkuRunBot bot) {
         final BattleManager battleManager = bot.getBattleManager();
         final Commander commander = bot.getCommander();
-        final Random random = new Random();
         int randBound = 10;
         final EnemyState enemyState = battleManager.getLatestEnemyState(commander.getTargetEnemyId(bot));
         if (enemyState != null) {
@@ -119,4 +134,15 @@ public class MoveToDriveAction implements DriveAction {
         return random.nextInt(randBound);
     }
 
+    private void draw(OkuRunBot bot, double[] pos, double bearingTo, Accele accele) {
+        // 移動目標を描画します
+        // ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
+        final Color color = Color.LIGHT_BLUE;
+        bot.drawCircle(pos[0], pos[1], 5, Color.fromRgba(color, 50));
+        bot.drawLine(bot.getX(), bot.getY(), pos[0], pos[1], Color.fromRgba(color, 50));
+
+        final double[] actualPos = Predictor.calcPosition(
+                bot.getPosition(), bot.getDirection() + bearingTo, accele.distance, 1);
+        bot.drawLine(bot.getX(), bot.getY(), actualPos[0], actualPos[1], color);
+    }
 }

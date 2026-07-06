@@ -37,10 +37,11 @@ public class RapidFireGunAction implements GunAction {
             }
         }
 
-        double bulletPower = Constants.MIN_FIREPOWER;
+        double firePower = Math.min(Math.max(commander.getBaseFirePower(bot), Constants.MIN_FIREPOWER),
+                Constants.MAX_FIREPOWER);
 
         // 射撃目標位置を計算します
-        EnemyState fireTarget = GunAction.getFireTarget(bot, targetEnemyProfile, bulletPower);
+        EnemyState fireTarget = GunAction.getFireTarget(bot, targetEnemyProfile, firePower);
         if (fireTarget == null) {
             // 予測できない場合は最新のステータスを使用します
             fireTarget = targetEnemyProfile.getLatestState();
@@ -51,7 +52,7 @@ public class RapidFireGunAction implements GunAction {
 
         // デバッグ用に射撃目標位置に円を描きます
         // ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
-        GunAction.drawTargetPoint(bot, fireTarget, bulletPower);
+        GunAction.drawTargetPoint(bot, fireTarget, firePower);
 
         // 射撃目標位置に砲頭を向けます
         final double bearingTo = bot.gunBearingTo(fireTarget.x, fireTarget.y);
@@ -63,7 +64,7 @@ public class RapidFireGunAction implements GunAction {
             return null;
         }
 
-        bot.setFire(bulletPower);
+        bot.setFire(firePower);
 
         // デバッグ用に弾丸の情報をスタックに保存します
         battleManager.bulletStack.addLast(

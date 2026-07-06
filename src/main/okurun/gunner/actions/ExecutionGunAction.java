@@ -32,8 +32,8 @@ public class ExecutionGunAction implements GunAction {
             return ScanGunAction.class.getName();
         }
 
-        final int bulletPower = 1;
-        GunAction.drawTargetPoint(bot, latestEnemyState, bulletPower);
+        final double firePower = Constants.MIN_FIREPOWER;
+        GunAction.drawTargetPoint(bot, latestEnemyState, firePower);
 
         // 射撃目標位置に砲頭を向けます
         final double bearingTo = bot.gunBearingTo(latestEnemyState.x, latestEnemyState.y);
@@ -50,12 +50,12 @@ public class ExecutionGunAction implements GunAction {
             return null;
         }
 
-        if (Math.abs(bearingTo) > Constants.MAX_GUN_TURN_RATE * 0.5) {
+        if (Math.abs(bearingTo) > Constants.MAX_GUN_TURN_RATE) {
             // 砲頭がまわり切らないなら発射しません
             return null;
         }
 
-        bot.setFire(bulletPower);
+        bot.setFire(firePower);
         battleManager.bulletStack.addLast(
                 new BulletHistory(this.getClass().getName(), latestEnemyState.x, latestEnemyState.y, targetEnemyId,
                         latestEnemyState.scannedTurnNum));

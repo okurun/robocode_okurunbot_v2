@@ -1,0 +1,38 @@
+package okurun.gunner;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import static org.mockito.Mockito.*;
+
+import okurun.OkuRunBot;
+import okurun.commander.Commander;
+
+@ExtendWith(MockitoExtension.class)
+class GunnerTest {
+    private Gunner gunner;
+
+    @Mock
+    private OkuRunBot bot;
+
+    @Mock
+    private Commander commander;
+
+    @BeforeEach
+    void setUp() {
+        gunner = new Gunner();
+        gunner.init(bot);
+    }
+
+    @Test
+    void testAction() {
+        when(bot.getCommander()).thenReturn(commander);
+        when(commander.getGunActionName(bot)).thenReturn(null);
+        
+        gunner.action(bot);
+        
+        verify(commander).getGunActionName(bot);
+    }
+}

@@ -7,7 +7,7 @@ import okurun.commander.Commander;
 public abstract class AbstractTactic implements Tactic {
     protected int targetEnemyId = Commander.NO_TARGET;
     protected double[] targetMovePosition = null;
-    protected double baseBulletPower = 1.5;
+    protected double baseFirePower = 1.5;
     protected String predictorModelName = null;
     protected String driveActionName = null;
     protected String gunActionName = null;
@@ -16,7 +16,7 @@ public abstract class AbstractTactic implements Tactic {
     @Override
     public void action(OkuRunBot bot) {
         setTargetEnemyId(bot);
-        setBaseBulletPower(bot);
+        setBaseFirePower(bot);
         setPredictorModelName(bot);
         setTargetMovePosition(bot);
         setDriveActionName(bot);
@@ -25,10 +25,15 @@ public abstract class AbstractTactic implements Tactic {
     }
 
     protected abstract void setTargetEnemyId(OkuRunBot bot);
+
     protected abstract void setPredictorModelName(OkuRunBot bot);
+
     protected abstract void setTargetMovePosition(OkuRunBot bot);
+
     protected abstract void setDriveActionName(OkuRunBot bot);
+
     protected abstract void setGunActionName(OkuRunBot bot);
+
     protected abstract void setRadarActionName(OkuRunBot bot);
 
     @Override
@@ -42,8 +47,8 @@ public abstract class AbstractTactic implements Tactic {
     }
 
     @Override
-    public double getBaseBulletPower(OkuRunBot bot) {
-        return baseBulletPower;
+    public double getBaseFirePower(OkuRunBot bot) {
+        return baseFirePower;
     }
 
     @Override
@@ -66,14 +71,14 @@ public abstract class AbstractTactic implements Tactic {
         return radarActionName;
     }
 
-    protected void setBaseBulletPower(OkuRunBot bot) {
-        baseBulletPower = 2;
+    protected void setBaseFirePower(OkuRunBot bot) {
+        baseFirePower = 2;
 
         // 自分のエネルギーが少ない時はパワーを下げる
         if (bot.getEnergy() < 60) {
-            baseBulletPower -= (60 - bot.getEnergy()) * 0.03;
+            baseFirePower -= (60 - bot.getEnergy()) * 0.03;
         } else if (bot.getEnergy() > 100) {
-            baseBulletPower += (bot.getEnergy() - 100) * 0.03;
+            baseFirePower += (bot.getEnergy() - 100) * 0.03;
         }
     }
 
