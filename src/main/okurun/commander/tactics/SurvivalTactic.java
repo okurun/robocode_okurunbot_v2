@@ -2,6 +2,7 @@ package okurun.commander.tactics;
 
 import java.util.List;
 
+import dev.robocode.tankroyale.botapi.events.HitByBulletEvent;
 import okurun.OkuRunBot;
 import okurun.arenamap.ArenaMap;
 import okurun.arenamap.ArenaMap.Area;
@@ -29,7 +30,7 @@ public class SurvivalTactic extends AbstractTactic {
         final EnemyProfile zeroEnergyEnemy = battleManager.getZeroEnergyEnemy(bot);
         if (zeroEnergyEnemy != null) {
             // エネルギーが0の敵をターゲットにします
-            targetEnemyId = zeroEnergyEnemy.getId();
+            targetEnemyId.set(zeroEnergyEnemy.getId());
             return;
         }
 
@@ -39,15 +40,15 @@ public class SurvivalTactic extends AbstractTactic {
             final EnemyState predictedEnemyState = predictor.predict(bot, nearestEnemy,
                     bot.getTurnNumber());
             if (predictedEnemyState != null) {
-                final double distance = bot.distanceTo(predictedEnemyState.x, predictedEnemyState.y);
-                if (distance < 200) {
+                final double distance = (nearestEnemy.getId() == targetEnemyId.get()) ? 300 : 200;
+                if (bot.distanceTo(predictedEnemyState.x, predictedEnemyState.y) < distance) {
                     // 近距離の敵がいたらターゲットにします
-                    targetEnemyId = nearestEnemy.getId();
+                    targetEnemyId.set(nearestEnemy.getId());
                     return;
                 }
             }
         }
-        targetEnemyId = Commander.NO_TARGET;
+        targetEnemyId.set(Commander.NO_TARGET);
     }
 
     @Override
@@ -80,9 +81,9 @@ public class SurvivalTactic extends AbstractTactic {
 
     @Override
     protected void setGunActionName(OkuRunBot bot) {
-        if (targetEnemyId != Commander.NO_TARGET) {
+        if (targetEnemyId.get() != Commander.NO_TARGET) {
             final BattleManager battleManager = bot.getBattleManager();
-            final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
+            final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
             if (targetEnemyProfile == null) {
                 // 全体スキャンを優先する
                 gunActionName = ScanGunAction.class.getName();
@@ -99,7 +100,7 @@ public class SurvivalTactic extends AbstractTactic {
                 gunActionName = ExecutionGunAction.class.getName();
                 return;
             }
-            gunActionName = NormalGunAction.class.getName();
+            gunActionName = AutoGunAction.class.getName();
             return;
         }
 
@@ -109,9 +110,9 @@ public class SurvivalTactic extends AbstractTactic {
 
     @Override
     protected void setRadarActionName(OkuRunBot bot) {
-        if (targetEnemyId != Commander.NO_TARGET) {
+        if (targetEnemyId.get() != Commander.NO_TARGET) {
             final BattleManager battleManager = bot.getBattleManager();
-            final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
+            final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
             if (targetEnemyProfile == null) {
                 // 全体スキャンをする
                 radarActionName = AllScanRadarAction.class.getName();
@@ -152,5 +153,16 @@ public class SurvivalTactic extends AbstractTactic {
     @Override
     public double getMinSpeed(OkuRunBot bot) {
         return 2;
+    }
+
+    /**
+     * 弾丸が自分に当たった時の処理
+     * 
+     * @param e   弾丸が自分に当たったイベント
+     * @param bot ボット
+     */
+    @Override
+    public void onHitByBullet(HitByBulletEvent e, OkuRunBot bot) {
+        targetEnemyId.set(e.getBullet().getOwnerId());
     }
 }

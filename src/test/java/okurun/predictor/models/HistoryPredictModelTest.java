@@ -16,14 +16,14 @@ import okurun.battlemanager.EnemyState;
 
 @ExtendWith(MockitoExtension.class)
 class HistoryPredictModelTest {
-    private HistoryPredictModel model;
+    // private HistoryPredictModel model;
 
     @Mock
     private OkuRunBot bot;
 
     @BeforeEach
     void setUp() {
-        model = new HistoryPredictModel();
+        // model = new HistoryPredictModel();
     }
 
     @Test

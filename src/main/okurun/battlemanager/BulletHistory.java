@@ -20,4 +20,8 @@ public class BulletHistory {
         this.targetEnemyId = targetEnemyId;
         this.predictTurnNum = predictTurnNum;
     }
+
+    public double[] getTargetPosition() {
+        return new double[] { targetX, targetY };
+    }
 }

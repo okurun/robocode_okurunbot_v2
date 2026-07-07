@@ -312,9 +312,8 @@ public class ArenaMap {
         if (caches.containsKey("potentialCollisionWalls")) {
             return (List<PotentialCollisionWall>) caches.get("potentialCollisionWalls");
         }
-        final List<PotentialCollisionWall> collisionWalls = getPotentialCollisionWalls(bot.getX(), bot.getY(),
-                bot.getDirection(),
-                Constants.MAX_SPEED);
+        final List<PotentialCollisionWall> collisionWalls = getPotentialCollisionWalls(
+                bot.getX(), bot.getY(), bot.getDirection(), Constants.MAX_SPEED);
         caches.put("potentialCollisionWalls", collisionWalls);
         return collisionWalls;
     }

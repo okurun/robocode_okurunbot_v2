@@ -19,6 +19,7 @@ public class Gunner {
         actions.put(NormalGunAction.class.getName(), new NormalGunAction());
         actions.put(RapidFireGunAction.class.getName(), new RapidFireGunAction());
         actions.put(ExecutionGunAction.class.getName(), new ExecutionGunAction());
+        actions.put(AutoGunAction.class.getName(), new AutoGunAction());
     }
 
     public void action(OkuRunBot bot) {

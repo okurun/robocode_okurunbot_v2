@@ -1,11 +1,13 @@
 package okurun.commander.tactics;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
 import okurun.commander.Commander;
 
 public abstract class AbstractTactic implements Tactic {
-    protected int targetEnemyId = Commander.NO_TARGET;
+    protected final AtomicInteger targetEnemyId = new AtomicInteger(Commander.NO_TARGET);
     protected double[] targetMovePosition = null;
     protected double baseFirePower = 1.5;
     protected String predictorModelName = null;
@@ -38,7 +40,7 @@ public abstract class AbstractTactic implements Tactic {
 
     @Override
     public int getTargetEnemyId(OkuRunBot bot) {
-        return targetEnemyId;
+        return targetEnemyId.get();
     }
 
     @Override

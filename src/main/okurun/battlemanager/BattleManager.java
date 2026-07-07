@@ -70,7 +70,7 @@ public class BattleManager {
             } else if (bulletHistory.predictTurnNum < bot.getTurnNumber()) {
                 color = Color.fromRgba(color, 255 - (bot.getTurnNumber() - bulletHistory.predictTurnNum) * 20);
             }
-            bot.drawTarget(bulletHistory.targetX, bulletHistory.targetY, color);
+            bot.drawTarget(bulletHistory.getTargetPosition(), color);
         }
     }
 

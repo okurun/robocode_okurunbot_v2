@@ -19,6 +19,7 @@ public class AvoidWallDriveAction implements DriveAction {
             return null;
         }
 
+        // 一番衝突までのターンが少ない壁を取得
         final ArenaMap.PotentialCollisionWall pcWall = pcWalls.get(0);
 
         // 壁に対して平行より10度だけ離れる方向に旋回

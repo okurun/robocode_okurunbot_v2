@@ -10,9 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import okurun.OkuRunBot;
 import okurun.battlemanager.BattleManager;
-import okurun.battlemanager.EnemyProfile;
 import okurun.commander.Commander;
-import okurun.predictor.Predictor;
 
 @ExtendWith(MockitoExtension.class)
 class NormalGunActionTest {

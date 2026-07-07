@@ -24,9 +24,13 @@ public class MoveToDriveAction implements DriveAction {
         }
     }
 
+    /**
+     * 加速情報
+     */
     private static class Accele {
         public double distance = 0;
         public double speed = Constants.MAX_SPEED;
+
         public Accele(double distance, double speed) {
             this.distance = distance;
             this.speed = speed;
@@ -62,6 +66,13 @@ public class MoveToDriveAction implements DriveAction {
         return null;
     }
 
+    /**
+     * 目標旋回角を取得する
+     * 
+     * @param bot
+     * @param pos 移動目標
+     * @return 目標旋回角
+     */
     private double getBearingTo(OkuRunBot bot, double[] pos) {
         double bearingTo = bot.bearingTo(pos[0], pos[1]);
         if (Math.abs(bearingTo) < bot.getMaxTurnRate()) {
@@ -86,6 +97,14 @@ public class MoveToDriveAction implements DriveAction {
         return bearingTo;
     }
 
+    /**
+     * 加速情報を取得する
+     * 
+     * @param bot       ロボット
+     * @param pos       移動目標
+     * @param bearingTo 移動目標への旋回角度
+     * @return 加速情報
+     */
     private Accele getAccele(OkuRunBot bot, double[] pos, double bearingTo) {
         final Accele accele = new Accele(bot.distanceTo(pos[0], pos[1]), Constants.MAX_SPEED);
         final Commander commander = bot.getCommander();
@@ -119,6 +138,12 @@ public class MoveToDriveAction implements DriveAction {
         return accele;
     }
 
+    /**
+     * 予測を外すための乱数を取得する
+     * 
+     * @param bot
+     * @return 予測を外すための乱数
+     */
     private int getRandNum(OkuRunBot bot) {
         final BattleManager battleManager = bot.getBattleManager();
         final Commander commander = bot.getCommander();
@@ -134,15 +159,23 @@ public class MoveToDriveAction implements DriveAction {
         return random.nextInt(randBound);
     }
 
+    /**
+     * 現在位置から移動目標までの移動目標を描画する
+     * 
+     * @param bot
+     * @param pos       移動目標
+     * @param bearingTo 移動目標への旋回角度
+     * @param accele    加速情報
+     */
     private void draw(OkuRunBot bot, double[] pos, double bearingTo, Accele accele) {
         // 移動目標を描画します
         // ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
         final Color color = Color.LIGHT_BLUE;
-        bot.drawCircle(pos[0], pos[1], 5, Color.fromRgba(color, 50));
-        bot.drawLine(bot.getX(), bot.getY(), pos[0], pos[1], Color.fromRgba(color, 50));
+        bot.drawFillCircle(pos, 5, Color.fromRgba(color, 50));
+        bot.drawLine(bot.getPosition(), pos, Color.fromRgba(color, 50));
 
         final double[] actualPos = Predictor.calcPosition(
                 bot.getPosition(), bot.getDirection() + bearingTo, accele.distance, 1);
-        bot.drawLine(bot.getX(), bot.getY(), actualPos[0], actualPos[1], color);
+        bot.drawLine(bot.getPosition(), actualPos, color);
     }
 }

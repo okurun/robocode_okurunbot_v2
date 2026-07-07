@@ -24,10 +24,10 @@ public class OneOnOneNegativeTactic extends AbstractOneOnOneTactic {
         final EnemyProfile aliveEnemy = battleManager.getAliveEnemy(bot);
         if (aliveEnemy != null && aliveEnemy.getLatestState() != null) {
             // 敵の位置を把握している
-            targetEnemyId = aliveEnemy.getId();
+            targetEnemyId.set(aliveEnemy.getId());
             return;
         }
-        targetEnemyId = Commander.NO_TARGET;
+        targetEnemyId.set(Commander.NO_TARGET);
     }
 
     /**
@@ -39,14 +39,14 @@ public class OneOnOneNegativeTactic extends AbstractOneOnOneTactic {
     @Override
     protected void setTargetMovePosition(OkuRunBot bot) {
         final ArenaMap arenaMap = bot.getArenaMap();
-        if (targetEnemyId == Commander.NO_TARGET) {
+        if (targetEnemyId.get() == Commander.NO_TARGET) {
             // 隣のエリアへ向かう
             targetMovePosition = arenaMap.getArea(bot).getNeighboringArea(bot).getCenter();
             return;
         }
 
         final BattleManager battleManager = bot.getBattleManager();
-        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
+        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
         if (targetEnemyProfile == null) {
             // 隣のエリアへ向かう
             targetMovePosition = arenaMap.getArea(bot).getNeighboringArea(bot).getCenter();
@@ -65,8 +65,21 @@ public class OneOnOneNegativeTactic extends AbstractOneOnOneTactic {
             predictedEnemyState = latestEnemyState;
         }
 
+        final double targetDistance = 200;
+        final double distanceToEnemy = bot.directionTo(predictedEnemyState.getPosition());
         final double degreesToEnemy = bot.bearingTo(predictedEnemyState.getPosition());
-        final double bearingTo = degreesToEnemy + ((degreesToEnemy < 0) ? 90 : +90);
+        final double a;
+        if (distanceToEnemy > targetDistance) {
+            a = 80;
+        } else {
+            a = 100;
+        }
+        double bearingTo = degreesToEnemy;
+        if (degreesToEnemy < 0) {
+            bearingTo += a;
+        } else  {
+            bearingTo -= a;
+        }
         targetMovePosition = Predictor.calcPosition(bot.getPosition(),
                 bot.normalizeAbsoluteAngle(bot.getDirection() + bearingTo), 200, 1);
         if (!arenaMap.isInsideArena(targetMovePosition)) {
@@ -77,14 +90,14 @@ public class OneOnOneNegativeTactic extends AbstractOneOnOneTactic {
 
     @Override
     protected void setGunActionName(OkuRunBot bot) {
-        if (targetEnemyId == Commander.NO_TARGET) {
+        if (targetEnemyId.get() == Commander.NO_TARGET) {
             // ターゲットが設定されていない場合はスキャンを行います
             gunActionName = ScanGunAction.class.getName();
             return;
         }
 
         final BattleManager battleManager = bot.getBattleManager();
-        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
+        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
         if (targetEnemyProfile == null) {
             gunActionName = ScanGunAction.class.getName();
             return;
@@ -101,8 +114,8 @@ public class OneOnOneNegativeTactic extends AbstractOneOnOneTactic {
             return;
         }
 
-        if (bot.getGunHeat() <= bot.getGunCoolingRate() * 2) {
-            // 2ターン以内に射撃可能であれば射撃を行います
+        if (bot.getGunHeat() <= bot.getGunCoolingRate() * 3) {
+            // 3ターン以内に射撃可能であれば射撃を行います
             if (bot.getEnergy() < 30) {
                 // 逆転を目指して連射をする
                 gunActionName = RapidFireGunAction.class.getName();
@@ -116,7 +129,7 @@ public class OneOnOneNegativeTactic extends AbstractOneOnOneTactic {
             return;
         }
 
-        if (targetEnemyId != Commander.NO_TARGET) {
+        if (targetEnemyId.get() != Commander.NO_TARGET) {
             // ターゲットが設定されている場合は砲頭を敵に向けます
             gunActionName = TrackingGunAction.class.getName();
             return;
@@ -128,13 +141,13 @@ public class OneOnOneNegativeTactic extends AbstractOneOnOneTactic {
 
     @Override
     protected void setRadarActionName(OkuRunBot bot) {
-        if (targetEnemyId == Commander.NO_TARGET) {
+        if (targetEnemyId.get() == Commander.NO_TARGET) {
             radarActionName = AllScanRadarAction.class.getName();
             return;
         }
 
         final BattleManager battleManager = bot.getBattleManager();
-        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
+        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
         if (targetEnemyProfile == null) {
             radarActionName = AllScanRadarAction.class.getName();
             return;

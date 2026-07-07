@@ -25,23 +25,23 @@ public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
         final EnemyProfile alivalEnemy = battleManager.getAliveEnemy(bot);
         if (alivalEnemy != null && alivalEnemy.getLatestState() != null) {
             // 敵の位置を把握している
-            targetEnemyId = alivalEnemy.getId();
+            targetEnemyId.set(alivalEnemy.getId());
             return;
         }
-        targetEnemyId = Commander.NO_TARGET;
+        targetEnemyId.set(Commander.NO_TARGET);
     }
 
     @Override
     protected void setTargetMovePosition(OkuRunBot bot) {
         final ArenaMap arenaMap = bot.getArenaMap();
-        if (targetEnemyId == Commander.NO_TARGET) {
+        if (targetEnemyId.get() == Commander.NO_TARGET) {
             // 隣のエリアへ向かう
             targetMovePosition = arenaMap.getArea(bot).getNeighboringArea(bot).getCenter();
             return;
         }
 
         final BattleManager battleManager = bot.getBattleManager();
-        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
+        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
         if (targetEnemyProfile == null) {
             // 隣のエリアへ向かう
             targetMovePosition = arenaMap.getArea(bot).getNeighboringArea(bot).getCenter();
@@ -81,14 +81,14 @@ public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
 
     @Override
     protected void setGunActionName(OkuRunBot bot) {
-        if (targetEnemyId == Commander.NO_TARGET) {
+        if (targetEnemyId.get() == Commander.NO_TARGET) {
             // ターゲットが設定されていない場合はスキャンを行います
             gunActionName = ScanGunAction.class.getName();
             return;
         }
 
         final BattleManager battleManager = bot.getBattleManager();
-        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
+        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
         if (targetEnemyProfile == null) {
             gunActionName = ScanGunAction.class.getName();
             return;
@@ -105,18 +105,13 @@ public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
             return;
         }
 
-        if (bot.getGunHeat() <= bot.getGunCoolingRate() * 2) {
-            // 2ターン以内に射撃可能であれば射撃を行います
-            if (Math.abs(bot.getCommander().getEnemyLateralAngle(bot, latesEnemyState)) > 160) {
-                // 相手がこちらを向いている時は連射する
-                gunActionName = RapidFireGunAction.class.getName();
-                return;
-            }
-            gunActionName = NormalGunAction.class.getName();
+        if (bot.getGunHeat() <= bot.getGunCoolingRate() * 3) {
+            // 3ターン以内に射撃可能であれば射撃を行います
+            gunActionName = AutoGunAction.class.getName();
             return;
         }
 
-        if (targetEnemyId != Commander.NO_TARGET) {
+        if (targetEnemyId.get() != Commander.NO_TARGET) {
             // ターゲットが設定されている場合は砲頭を敵に向けます
             gunActionName = TrackingGunAction.class.getName();
             return;
@@ -128,13 +123,13 @@ public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
 
     @Override
     protected void setRadarActionName(OkuRunBot bot) {
-        if (targetEnemyId == Commander.NO_TARGET) {
+        if (targetEnemyId.get() == Commander.NO_TARGET) {
             radarActionName = AllScanRadarAction.class.getName();
             return;
         }
 
         final BattleManager battleManager = bot.getBattleManager();
-        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
+        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
         if (targetEnemyProfile == null) {
             radarActionName = AllScanRadarAction.class.getName();
             return;
