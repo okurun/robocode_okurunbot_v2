@@ -10,7 +10,7 @@ import okurun.predictor.Predictor;
 
 public class HistoryPredictModel extends PredictModel {
     private static final int LIMIT_TURN_NUM = 20;
-    private static final int DETECT_ZIGZAG_TURN_CHANGE_NUM = 3;
+    private static final int DETECT_ZIGZAG_TURN_CHANGE_NUM = 5;
 
     private static enum Turn {
         LEFT, RIGHT, STRAIGHT;
@@ -46,7 +46,7 @@ public class HistoryPredictModel extends PredictModel {
                 moveHistory.velocity, moveHistory.turnDegree, 1);
         return new EnemyState(enemyState.id, enemyState.scannedTurnNum + 1, predictedPos[0], predictedPos[1],
                 enemyState.heading + enemyState.turnDegree, moveHistory.velocity, enemyState.energy,
-                enemyState.turnDegree, moveHistory.velocity - enemyState.velocity, -1);
+                enemyState.turnDegree, moveHistory.velocity - enemyState.velocity, enemyState.distance);
     }
 
     @SuppressWarnings("unchecked")

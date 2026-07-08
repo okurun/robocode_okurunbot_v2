@@ -5,10 +5,28 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * 予測モデルの命中精度を管理するクラス
  */
-public class PredictionAccuracy {
+public class PredictModelAccuracy {
     private final AtomicInteger fireCount = new AtomicInteger(0);
     private final AtomicInteger hitCount = new AtomicInteger(0);
     private final AtomicInteger missCount = new AtomicInteger(0);
+
+    public void reset() {
+        fireCount.set(0);
+        hitCount.set(0);
+        missCount.set(0);
+    }
+
+    public int getFireCount() {
+        return fireCount.get();
+    }
+
+    public int getHitCount() {
+        return hitCount.get();
+    }
+
+    public int getMissCount() {
+        return missCount.get();
+    }
 
     /**
      * 発射回数をインクリメントします
@@ -29,6 +47,27 @@ public class PredictionAccuracy {
      */
     public void incrementMissCount() {
         missCount.incrementAndGet();
+    }
+
+    /**
+     * 発射回数を加算します
+     */
+    public void addFireCount(int count) {
+        fireCount.addAndGet(count);
+    }
+
+    /**
+     * ヒット回数を加算します
+     */
+    public void addHitCount(int count) {
+        hitCount.addAndGet(count);
+    }
+
+    /**
+     * ミス回数を加算します
+     */
+    public void addMissCount(int count) {
+        missCount.addAndGet(count);
     }
 
     /**

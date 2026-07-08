@@ -11,14 +11,16 @@ public class BulletHistory {
     public final double targetY;
     public final int targetEnemyId;
     public final int predictTurnNum;
+    public final double distance;
     public BulletState bulletState;
 
-    public BulletHistory(String predictModel, double targetX, double targetY, int targetEnemyId, int predictTurnNum) {
+    public BulletHistory(String predictModel, double targetX, double targetY, int targetEnemyId, int predictTurnNum, double distance) {
         this.predictModel = predictModel;
         this.targetX = targetX;
         this.targetY = targetY;
         this.targetEnemyId = targetEnemyId;
         this.predictTurnNum = predictTurnNum;
+        this.distance = distance;
     }
 
     public double[] getTargetPosition() {

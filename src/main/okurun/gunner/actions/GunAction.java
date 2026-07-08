@@ -2,8 +2,11 @@ package okurun.gunner.actions;
 
 import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.OkuRunBot;
+import okurun.battlemanager.BattleManager;
+import okurun.battlemanager.BulletHistory;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
+import okurun.gunner.Gunner;
 import okurun.predictor.Predictor;
 
 public interface GunAction {
@@ -27,23 +30,12 @@ public interface GunAction {
      * 画面に射撃目標位置を描画します
      * ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
      * 
-     * @param bot         ボット
-     * @param fireTarget  射撃目標位置
-     * @param bulletPower 弾丸のパワー
+     * @param bot        ボット
+     * @param fireTarget 射撃目標位置
+     * @param firePower  弾丸のパワー
      */
-    public static void drawTargetPoint(OkuRunBot bot, EnemyState fireTarget, double bulletPower) {
-        // 弾丸のパワーに応じて色分け
-        final Color color;
-        if (bulletPower >= 3) {
-            color = Color.RED;
-        } else if (bulletPower >= 2) {
-            color = Color.ORANGE;
-        } else if (bulletPower >= 1) {
-            color = Color.YELLOW;
-        } else {
-            color = Color.WHITE;
-        }
-        drawTargetPoint(bot, fireTarget, Color.fromRgba(color, 150));
+    public static void drawTargetPoint(OkuRunBot bot, EnemyState fireTarget, double firePower) {
+        drawTargetPoint(bot, fireTarget, Color.fromRgba(Gunner.getBulletColor(firePower), 150));
     }
 
     /**
@@ -103,5 +95,21 @@ public interface GunAction {
             return null;
         }
         return predictedState;
+    }
+
+    /**
+     * 弾丸履歴を保存します
+     * 弾丸の履歴が2個以上存在する場合は、最も古いものを削除します
+     * 
+     * @param bot           ボット
+     * @param bulletHistory 弾丸履歴
+     */
+    public static void stackBulletHistory(OkuRunBot bot, BulletHistory bulletHistory) {
+        final BattleManager battleManager = bot.getBattleManager();
+        battleManager.bulletStack.addLast(bulletHistory);
+        if (battleManager.bulletStack.size() >= 2) {
+            System.out.println("Warning: stackBulletHistory() : bulletStack.size() = " + battleManager.bulletStack.size());
+            battleManager.bulletStack.pollFirst();
+        }
     }
 }

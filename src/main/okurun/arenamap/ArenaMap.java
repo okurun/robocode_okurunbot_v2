@@ -213,9 +213,9 @@ public class ArenaMap {
     private Map<AreaId, Area> areas;
     private final Map<String, Object> caches = new ConcurrentHashMap<>();
 
-    public void init(int height, int width) {
-        this.height = height;
-        this.width = width;
+    public void init(OkuRunBot bot) {
+        this.height = bot.getArenaHeight();
+        this.width = bot.getArenaWidth();
         walls = Map.of(
                 WallId.LEFT, new Wall(WallId.LEFT, 0, -1),
                 WallId.TOP, new Wall(WallId.TOP, -1, height),

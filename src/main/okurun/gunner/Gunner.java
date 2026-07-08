@@ -3,6 +3,7 @@ package okurun.gunner;
 import java.util.HashMap;
 import java.util.Map;
 
+import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.OkuRunBot;
 import okurun.commander.Commander;
 import okurun.gunner.actions.*;
@@ -30,4 +31,16 @@ public class Gunner {
         }
     }
 
+
+    public static Color getBulletColor(double power) {
+        // 弾丸のパワーに応じて色分け
+        if (power >= 3) {
+            return Color.RED;
+        } else if (power >= 2) {
+            return Color.ORANGE;
+        } else if (power >= 1) {
+            return Color.YELLOW;
+        }
+        return Color.WHITE;
+    }
 }

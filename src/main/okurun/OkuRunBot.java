@@ -34,7 +34,7 @@ public class OkuRunBot extends Bot {
         commander = new Commander();
         driver = new Driver();
         gunner = new Gunner();
-        predictor = new Predictor(arenaMap);
+        predictor = new Predictor();
         radarOperator = new RadarOperator();
     }
 
@@ -52,7 +52,7 @@ public class OkuRunBot extends Bot {
     }
 
     private void init() {
-        arenaMap.init(getArenaHeight(), getArenaWidth());
+        arenaMap.init(this);
         battleManager.init(this);
         predictor.init(this);
         commander.init(this);
@@ -255,7 +255,7 @@ public class OkuRunBot extends Bot {
      */
     @Override
     public void onGameEnded(GameEndedEvent e) {
-        System.out.println("onGameEnded()");
+        predictor.onGameEnded(e);
     }
 
     /**
@@ -413,7 +413,7 @@ public class OkuRunBot extends Bot {
      */
     @Override
     public void onWonRound(WonRoundEvent e) {
-        System.out.println("onWonRound()");
+        System.out.println("--- onWonRound() ---");
     }
 
     /**

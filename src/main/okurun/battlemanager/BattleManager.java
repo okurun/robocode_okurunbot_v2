@@ -11,6 +11,7 @@ import dev.robocode.tankroyale.botapi.BulletState;
 import dev.robocode.tankroyale.botapi.events.*;
 import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.OkuRunBot;
+import okurun.gunner.Gunner;
 
 /**
  * 戦闘管理クラス
@@ -50,21 +51,7 @@ public class BattleManager {
         // デバッグ用に射撃目標位置を描きます
         // ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
         for (final BulletHistory bulletHistory : bulletHistories.values()) {
-            Color color;
-            switch ((int) bulletHistory.bulletState.getPower()) {
-                case 1:
-                    color = Color.YELLOW;
-                    break;
-                case 2:
-                    color = Color.ORANGE;
-                    break;
-                case 3:
-                    color = Color.RED;
-                    break;
-                default:
-                    color = Color.WHITE;
-                    break;
-            }
+            Color color = Gunner.getBulletColor(bulletHistory.bulletState.getPower());
             if (bulletHistory.predictTurnNum > bot.getTurnNumber()) {
                 color = Color.fromRgba(color, 200);
             } else if (bulletHistory.predictTurnNum < bot.getTurnNumber()) {
@@ -211,7 +198,7 @@ public class BattleManager {
     public int getLastFiredTurnNum() {
         return lastFiredTurnNum.get();
     }
-
+    
     /**
      * ラウンド終了時の処理
      * 
@@ -258,10 +245,12 @@ public class BattleManager {
     public void onBulletFired(BulletFiredEvent e, OkuRunBot bot) {
         setLastFiredTurnNum(e.getTurnNumber());
         final BulletHistory bulletHistory = bulletStack.pollFirst();
-        if (bulletHistory != null) {
-            bulletHistory.bulletState = e.getBullet();
-            bulletHistories.put(bulletHistory.bulletState.getBulletId(), bulletHistory);
+        if (bulletHistory == null) {
+            System.out.println("Warning: onBulletFired(): bulletHistory is null");
+            return;
         }
+        bulletHistory.bulletState = e.getBullet();
+        bulletHistories.put(bulletHistory.bulletState.getBulletId(), bulletHistory);
     }
 
     /**

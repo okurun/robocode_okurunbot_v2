@@ -25,8 +25,10 @@ class ArenaMapTest {
 
     @BeforeEach
     void setUp() {
+        when(bot.getArenaHeight()).thenReturn(600);
+        when(bot.getArenaWidth()).thenReturn(800);
         arenaMap = new ArenaMap();
-        arenaMap.init(600, 800);
+        arenaMap.init(bot);
     }
 
     @Test

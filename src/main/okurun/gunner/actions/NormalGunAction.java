@@ -53,7 +53,7 @@ public class NormalGunAction implements GunAction {
         bot.setAdjustGunForBodyTurn(true);
         bot.setTurnGunLeft(bearingTo);
 
-        if (bot.getGunHeat() > bot.getGunCoolingRate()) {
+        if (bot.getGunHeat() > 0) {
             // 砲がクールダウン中の場合は発射しません
             return null;
         }
@@ -76,9 +76,9 @@ public class NormalGunAction implements GunAction {
         bot.setFire(firePower);
 
         // デバッグ用に弾丸の情報をスタックに保存します
-        battleManager.bulletStack.addLast(
+        GunAction.stackBulletHistory(bot,
                 new BulletHistory(commander.getPredictorModelName(bot), fireTarget.x, fireTarget.y, targetEnemyId,
-                        fireTarget.scannedTurnNum));
+                        fireTarget.scannedTurnNum, fireTarget.distance));
         return null;
     }
 

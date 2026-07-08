@@ -42,6 +42,6 @@ public class SimplePredictModel extends PredictModel {
                 velocity, enemyState.turnDegree, 1);
         return new EnemyState(enemyState.id, enemyState.scannedTurnNum + 1, predictedPos[0], predictedPos[1],
                 enemyState.heading + enemyState.turnDegree, velocity, enemyState.energy,
-                enemyState.turnDegree, velocity - enemyState.velocity, -1);
+                enemyState.turnDegree, velocity - enemyState.velocity, enemyState.distance);
     }
 }

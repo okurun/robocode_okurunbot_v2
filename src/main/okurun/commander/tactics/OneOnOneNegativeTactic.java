@@ -65,7 +65,7 @@ public class OneOnOneNegativeTactic extends AbstractOneOnOneTactic {
             predictedEnemyState = latestEnemyState;
         }
 
-        final double targetDistance = 200;
+        final double targetDistance = 125;
         final double distanceToEnemy = bot.directionTo(predictedEnemyState.getPosition());
         final double degreesToEnemy = bot.bearingTo(predictedEnemyState.getPosition());
         final double a;

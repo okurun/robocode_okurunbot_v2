@@ -56,9 +56,9 @@ public class ExecutionGunAction implements GunAction {
         }
 
         bot.setFire(firePower);
-        battleManager.bulletStack.addLast(
+        GunAction.stackBulletHistory(bot,
                 new BulletHistory(this.getClass().getName(), latestEnemyState.x, latestEnemyState.y, targetEnemyId,
-                        latestEnemyState.scannedTurnNum));
+                        latestEnemyState.scannedTurnNum, latestEnemyState.distance));
         return null;
 
     }
