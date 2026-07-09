@@ -12,25 +12,33 @@ import okurun.gunner.actions.*;
  * 砲撃手クラス
  */
 public class Gunner {
-    private final Map<String, GunAction> actions = new HashMap<>();
+    public static enum Action {
+        SCAN,
+        TRACKING,
+        NORMAL,
+        RAPID_FIRE,
+        EXECUTION,
+        AUTO;
+    }
+
+    private final Map<Action, GunAction> actions = new HashMap<>();
 
     public void init(OkuRunBot bot) {
-        actions.put(ScanGunAction.class.getName(), new ScanGunAction());
-        actions.put(TrackingGunAction.class.getName(), new TrackingGunAction());
-        actions.put(NormalGunAction.class.getName(), new NormalGunAction());
-        actions.put(RapidFireGunAction.class.getName(), new RapidFireGunAction());
-        actions.put(ExecutionGunAction.class.getName(), new ExecutionGunAction());
-        actions.put(AutoGunAction.class.getName(), new AutoGunAction());
+        actions.put(Action.SCAN, new ScanGunAction());
+        actions.put(Action.TRACKING, new TrackingGunAction());
+        actions.put(Action.NORMAL, new NormalGunAction());
+        actions.put(Action.RAPID_FIRE, new RapidFireGunAction());
+        actions.put(Action.EXECUTION, new ExecutionGunAction());
+        actions.put(Action.AUTO, new AutoGunAction());
     }
 
     public void action(OkuRunBot bot) {
         final Commander commander = bot.getCommander();
-        String gunActionName = commander.getGunActionName(bot);
-        while (gunActionName != null) {
-            gunActionName = actions.get(gunActionName).action(bot);
+        Action action = commander.getGunActionName(bot);
+        while (action != null) {
+            action = actions.get(action).action(bot);
         }
     }
-
 
     public static Color getBulletColor(double power) {
         // 弾丸のパワーに応じて色分け

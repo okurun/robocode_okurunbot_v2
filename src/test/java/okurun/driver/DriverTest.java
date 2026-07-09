@@ -33,12 +33,13 @@ class DriverTest {
     @Test
     void testActionDelegatesToCommander() {
         when(bot.getCommander()).thenReturn(commander);
-        when(commander.getDriveActionName(bot)).thenReturn(null);
-        
+        when(commander.getDriveAction(bot)).thenReturn(null);
+
         try {
             driver.action(bot);
-        } catch (Exception e) {}
-        
-        verify(commander).getDriveActionName(bot);
+        } catch (Exception e) {
+        }
+
+        verify(commander).getDriveAction(bot);
     }
 }

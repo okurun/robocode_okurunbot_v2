@@ -1,12 +1,13 @@
 package okurun.battlemanager;
 
 import dev.robocode.tankroyale.botapi.BulletState;
+import okurun.predictor.Predictor.Model;
 
 /**
  * 発射された弾丸の情報を保持するクラス
  */
 public class BulletHistory {
-    public final String predictModel;
+    public final Model predictModel;
     public final double targetX;
     public final double targetY;
     public final int targetEnemyId;
@@ -14,7 +15,7 @@ public class BulletHistory {
     public final double distance;
     public BulletState bulletState;
 
-    public BulletHistory(String predictModel, double targetX, double targetY, int targetEnemyId, int predictTurnNum, double distance) {
+    public BulletHistory(Model predictModel, double targetX, double targetY, int targetEnemyId, int predictTurnNum, double distance) {
         this.predictModel = predictModel;
         this.targetX = targetX;
         this.targetY = targetY;

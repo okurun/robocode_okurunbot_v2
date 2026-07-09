@@ -7,6 +7,7 @@ import okurun.battlemanager.BulletHistory;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
+import okurun.gunner.Gunner;
 
 /**
  * エネルギーが０になった敵に止めを刺すガンアクション
@@ -14,22 +15,22 @@ import okurun.commander.Commander;
 public class ExecutionGunAction implements GunAction {
 
     @Override
-    public String action(OkuRunBot bot) {
+    public Gunner.Action action(OkuRunBot bot) {
         final Commander commander = bot.getCommander();
         final int targetEnemyId = commander.getTargetEnemyId(bot);
         if (targetEnemyId == Commander.NO_TARGET) {
-            return ScanGunAction.class.getName();
+            return Gunner.Action.SCAN;
         }
 
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
         if (targetEnemyProfile == null) {
-            return ScanGunAction.class.getName();
+            return Gunner.Action.SCAN;
         }
 
         final EnemyState latestEnemyState = targetEnemyProfile.getLatestState();
         if (latestEnemyState == null) {
-            return ScanGunAction.class.getName();
+            return Gunner.Action.SCAN;
         }
 
         final double firePower = Constants.MIN_FIREPOWER;
@@ -57,7 +58,7 @@ public class ExecutionGunAction implements GunAction {
 
         bot.setFire(firePower);
         GunAction.stackBulletHistory(bot,
-                new BulletHistory(this.getClass().getName(), latestEnemyState.x, latestEnemyState.y, targetEnemyId,
+                new BulletHistory(commander.getPredictModel(bot), latestEnemyState.x, latestEnemyState.y, targetEnemyId,
                         latestEnemyState.scannedTurnNum, latestEnemyState.distance));
         return null;
 

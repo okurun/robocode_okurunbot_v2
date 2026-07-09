@@ -5,6 +5,7 @@ import okurun.battlemanager.BattleManager;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
+import okurun.gunner.Gunner;
 import okurun.predictor.Predictor;
 
 /**
@@ -13,17 +14,17 @@ import okurun.predictor.Predictor;
 public class TrackingGunAction implements GunAction {
 
     @Override
-    public String action(OkuRunBot bot) {
+    public Gunner.Action action(OkuRunBot bot) {
         final Commander commander = bot.getCommander();
         final int targetEnemyId = commander.getTargetEnemyId(bot);
         if (targetEnemyId == Commander.NO_TARGET) {
-            return ScanGunAction.class.getName();
+            return Gunner.Action.SCAN;
         }
 
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
         if (targetEnemyProfile == null) {
-            return ScanGunAction.class.getName();
+            return Gunner.Action.SCAN;
         }
 
         // 敵の次の位置を予測します
@@ -33,7 +34,7 @@ public class TrackingGunAction implements GunAction {
             // 予測できない場合は最新のステータスを使用します
             nextEnemyState = targetEnemyProfile.getLatestState();
             if (nextEnemyState == null) {
-                return ScanGunAction.class.getName();
+                return Gunner.Action.SCAN;
             }
         }
 

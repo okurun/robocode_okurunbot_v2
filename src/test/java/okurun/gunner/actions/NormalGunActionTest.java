@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import okurun.OkuRunBot;
 import okurun.battlemanager.BattleManager;
 import okurun.commander.Commander;
+import okurun.gunner.Gunner;
 
 @ExtendWith(MockitoExtension.class)
 class NormalGunActionTest {
@@ -35,8 +36,8 @@ class NormalGunActionTest {
         when(bot.getCommander()).thenReturn(commander);
         when(commander.getTargetEnemyId(bot)).thenReturn(Commander.NO_TARGET);
 
-        String result = action.action(bot);
-        assertEquals(ScanGunAction.class.getName(), result);
+        Gunner.Action result = action.action(bot);
+        assertEquals(Gunner.Action.SCAN, result);
     }
 
     @Test
@@ -46,7 +47,7 @@ class NormalGunActionTest {
         when(bot.getBattleManager()).thenReturn(battleManager);
         when(battleManager.getEnemyProfile(1)).thenReturn(null);
 
-        String result = action.action(bot);
-        assertEquals(ScanGunAction.class.getName(), result);
+        Gunner.Action result = action.action(bot);
+        assertEquals(Gunner.Action.SCAN, result);
     }
 }

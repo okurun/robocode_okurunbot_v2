@@ -13,6 +13,7 @@ import okurun.battlemanager.BattleManager;
 import okurun.commander.Commander;
 import okurun.commander.Commander.AccelePriority;
 import okurun.commander.Commander.HandlePriority;
+import okurun.driver.Driver;
 
 @ExtendWith(MockitoExtension.class)
 class MoveToDriveActionTest {
@@ -37,7 +38,7 @@ class MoveToDriveActionTest {
         when(bot.getCommander()).thenReturn(commander);
         when(commander.getTargetMovePosition(bot)).thenReturn(null);
 
-        String result = action.action(bot);
+        Driver.Action result = action.action(bot);
         assertNull(result);
     }
 
@@ -56,7 +57,7 @@ class MoveToDriveActionTest {
         lenient().when(bot.getBattleManager()).thenReturn(battleManager);
         lenient().when(battleManager.getLatestEnemyState(anyInt())).thenReturn(null);
 
-        String result = action.action(bot);
+        Driver.Action result = action.action(bot);
         
         assertNull(result);
         verify(bot).setTurnLeft(45.0);

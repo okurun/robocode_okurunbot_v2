@@ -1,7 +1,8 @@
 package okurun.driver.actions;
 
 import okurun.OkuRunBot;
+import okurun.driver.Driver;
 
 public interface DriveAction {
-    String action(OkuRunBot bot);
+    Driver.Action action(OkuRunBot bot);
 }

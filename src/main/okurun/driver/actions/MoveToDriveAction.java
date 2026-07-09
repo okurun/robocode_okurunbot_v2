@@ -10,6 +10,7 @@ import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
 import okurun.commander.Commander.AccelePriority;
 import okurun.commander.Commander.HandlePriority;
+import okurun.driver.Driver;
 import okurun.predictor.Predictor;
 
 /**
@@ -42,7 +43,7 @@ public class MoveToDriveAction implements DriveAction {
     private int randNum = 0;
 
     @Override
-    public String action(OkuRunBot bot) {
+    public Driver.Action action(OkuRunBot bot) {
         final Commander commander = bot.getCommander();
         final double[] pos = commander.getTargetMovePosition(bot);
         if (pos == null) {

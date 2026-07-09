@@ -1,7 +1,8 @@
 package okurun.radaroperator.actions;
 
 import okurun.OkuRunBot;
+import okurun.radaroperator.RadarOperator;
 
 public interface RadarAction {
-    public String action(OkuRunBot bot);
+    public RadarOperator.Action action(OkuRunBot bot);
 }

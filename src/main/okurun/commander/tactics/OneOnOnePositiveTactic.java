@@ -8,10 +8,10 @@ import okurun.battlemanager.BattleManager;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
-import okurun.driver.actions.*;
-import okurun.gunner.actions.*;
+import okurun.driver.Driver;
+import okurun.gunner.Gunner;
 import okurun.predictor.Predictor;
-import okurun.radaroperator.actions.*;
+import okurun.radaroperator.RadarOperator;
 
 /**
  * 1v1の状況で積極的に攻める戦略
@@ -83,64 +83,64 @@ public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
     protected void setGunActionName(OkuRunBot bot) {
         if (targetEnemyId.get() == Commander.NO_TARGET) {
             // ターゲットが設定されていない場合はスキャンを行います
-            gunActionName = ScanGunAction.class.getName();
+            gunAction = Gunner.Action.SCAN;
             return;
         }
 
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
         if (targetEnemyProfile == null) {
-            gunActionName = ScanGunAction.class.getName();
+            gunAction = Gunner.Action.SCAN;
             return;
         }
         final EnemyState latesEnemyState = targetEnemyProfile.getLatestState();
         if (latesEnemyState == null) {
             // 敵のステータスが取得できない場合はスキャンを行います
-            gunActionName = ScanGunAction.class.getName();
+            gunAction = Gunner.Action.SCAN;
             return;
         }
         if (latesEnemyState.energy <= 0) {
             // 敵のエネルギーが0以下なら止めを刺します
-            gunActionName = ExecutionGunAction.class.getName();
+            gunAction = Gunner.Action.EXECUTION;
             return;
         }
 
         if (bot.getGunHeat() <= bot.getGunCoolingRate() * 3) {
             // 3ターン以内に射撃可能であれば射撃を行います
-            gunActionName = AutoGunAction.class.getName();
+            gunAction = Gunner.Action.NORMAL;
             return;
         }
 
         if (targetEnemyId.get() != Commander.NO_TARGET) {
             // ターゲットが設定されている場合は砲頭を敵に向けます
-            gunActionName = TrackingGunAction.class.getName();
+            gunAction = Gunner.Action.TRACKING;
             return;
         }
 
         // 上記意外はスキャンを行います
-        gunActionName = ScanGunAction.class.getName();
+        gunAction = Gunner.Action.SCAN;
     }
 
     @Override
     protected void setRadarActionName(OkuRunBot bot) {
         if (targetEnemyId.get() == Commander.NO_TARGET) {
-            radarActionName = AllScanRadarAction.class.getName();
+            radarAction = RadarOperator.Action.ALL_SCAN;
             return;
         }
 
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
         if (targetEnemyProfile == null) {
-            radarActionName = AllScanRadarAction.class.getName();
+            radarAction = RadarOperator.Action.ALL_SCAN;
             return;
         }
         final EnemyState latestEnemyState = targetEnemyProfile.getLatestState();
         if (latestEnemyState == null || latestEnemyState.scannedTurnNum < bot.getTurnNumber() - 5) {
-            radarActionName = AllScanRadarAction.class.getName();
+            radarAction = RadarOperator.Action.ALL_SCAN;
             return;
         }
 
-        radarActionName = TargetScanRadarAction.class.getName();
+        radarAction = RadarOperator.Action.TARGET_SCAN;
     }
 
     @Override
@@ -148,10 +148,10 @@ public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
         final ArenaMap arenaMap = bot.getArenaMap();
         final List<ArenaMap.PotentialCollisionWall> collisionWalls = arenaMap.getPotentialCollisionWalls(bot);
         if (!collisionWalls.isEmpty()) {
-            driveActionName = AvoidWallDriveAction.class.getName();
+            driveAction = Driver.Action.AVOID_WALL;
             return;
         }
-        driveActionName = MoveToDriveAction.class.getName();
+        driveAction = Driver.Action.MOVE_TO;
     }
 
     @Override

@@ -12,11 +12,11 @@ import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
 import okurun.commander.Commander.AccelePriority;
 import okurun.commander.Commander.HandlePriority;
-import okurun.driver.actions.*;
-import okurun.gunner.actions.*;
+import okurun.driver.Driver;
+import okurun.gunner.Gunner;
 import okurun.predictor.Predictor;
-import okurun.predictor.models.*;
-import okurun.radaroperator.actions.*;
+import okurun.predictor.Predictor.Model;
+import okurun.radaroperator.RadarOperator;
 
 /**
  * 敵が複数いる時の生存戦略
@@ -75,8 +75,8 @@ public class SurvivalTactic extends AbstractTactic {
     }
 
     @Override
-    protected void setPredictorModelName(OkuRunBot bot) {
-        predictorModelName = SimplePredictModel.class.getName();
+    protected void setPredictModel(OkuRunBot bot) {
+        predictModel = Model.SIMPLE;
     }
 
     @Override
@@ -86,26 +86,26 @@ public class SurvivalTactic extends AbstractTactic {
             final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
             if (targetEnemyProfile == null) {
                 // 全体スキャンを優先する
-                gunActionName = ScanGunAction.class.getName();
+                gunAction = Gunner.Action.SCAN;
                 return;
             }
             final EnemyState latesEnemyState = targetEnemyProfile.getLatestState();
             if (latesEnemyState == null) {
                 // 全体スキャンを優先する
-                gunActionName = ScanGunAction.class.getName();
+                gunAction = Gunner.Action.SCAN;
                 return;
             }
             if (latesEnemyState.energy <= 0) {
                 // 敵のエネルギーが0以下なら止めを刺します
-                gunActionName = ExecutionGunAction.class.getName();
+                gunAction = Gunner.Action.EXECUTION;
                 return;
             }
-            gunActionName = AutoGunAction.class.getName();
+            gunAction = Gunner.Action.AUTO;
             return;
         }
 
         // 全体スキャンを行う
-        gunActionName = ScanGunAction.class.getName();
+        gunAction = Gunner.Action.SCAN;
     }
 
     @Override
@@ -115,18 +115,18 @@ public class SurvivalTactic extends AbstractTactic {
             final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
             if (targetEnemyProfile == null) {
                 // 全体スキャンをする
-                radarActionName = AllScanRadarAction.class.getName();
+                radarAction = RadarOperator.Action.ALL_SCAN;
                 return;
             }
             final Predictor predictor = bot.getPredictor();
             final EnemyState predictedEnemyState = predictor.predict(bot, targetEnemyProfile, bot.getTurnNumber());
             if (predictedEnemyState != null) {
                 // ターゲットの位置を探る
-                radarActionName = TargetScanRadarAction.class.getName();
+                radarAction = RadarOperator.Action.TARGET_SCAN;
                 return;
             }
         }
-        radarActionName = AllScanRadarAction.class.getName();
+        radarAction = RadarOperator.Action.ALL_SCAN;
     }
 
     @Override
@@ -134,10 +134,10 @@ public class SurvivalTactic extends AbstractTactic {
         final ArenaMap arenaMap = bot.getArenaMap();
         final List<ArenaMap.PotentialCollisionWall> collisionWalls = arenaMap.getPotentialCollisionWalls(bot);
         if (!collisionWalls.isEmpty()) {
-            driveActionName = AvoidWallDriveAction.class.getName();
+            driveAction = Driver.Action.AVOID_WALL;
             return;
         }
-        driveActionName = MoveToDriveAction.class.getName();
+        driveAction = Driver.Action.MOVE_TO;
     }
 
     @Override

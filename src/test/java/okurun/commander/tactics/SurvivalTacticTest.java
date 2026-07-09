@@ -14,8 +14,8 @@ import okurun.battlemanager.BattleManager;
 import okurun.commander.Commander;
 import okurun.commander.Commander.AccelePriority;
 import okurun.commander.Commander.HandlePriority;
-import okurun.gunner.actions.ScanGunAction;
-import okurun.radaroperator.actions.AllScanRadarAction;
+import okurun.gunner.Gunner;
+import okurun.radaroperator.RadarOperator;
 
 @ExtendWith(MockitoExtension.class)
 class SurvivalTacticTest {
@@ -41,7 +41,7 @@ class SurvivalTacticTest {
         assertEquals(Commander.NO_TARGET, tactic.getTargetEnemyId(bot));
         assertEquals(HandlePriority.AVOID_BULLET, tactic.getHandlePriority(bot));
         assertEquals(AccelePriority.MAX_SPEED, tactic.getAccelePriority(bot));
-        assertNull(tactic.getPredictorModelName(bot));
+        assertNull(tactic.getPredictModel(bot));
         assertTrue(tactic.getMinSpeed(bot) > 0);
     }
 
@@ -50,16 +50,16 @@ class SurvivalTacticTest {
         when(bot.getBattleManager()).thenReturn(battleManager);
         when(battleManager.getZeroEnergyEnemy(bot)).thenReturn(null);
         when(battleManager.getNearestAliveEnemy(bot)).thenReturn(null);
-        
+
         when(bot.getArenaMap()).thenReturn(arenaMap);
         ArenaMap.Area safeArea = mock(ArenaMap.Area.class);
         when(arenaMap.getSafeArea(bot)).thenReturn(safeArea);
-        when(safeArea.getCenter()).thenReturn(new double[]{100.0, 100.0});
-        when(bot.getPosition()).thenReturn(new double[]{200.0, 200.0});
-        
+        when(safeArea.getCenter()).thenReturn(new double[] { 100.0, 100.0 });
+        when(bot.getPosition()).thenReturn(new double[] { 200.0, 200.0 });
+
         tactic.action(bot);
-        
-        assertEquals(AllScanRadarAction.class.getName(), tactic.getRadarActionName(bot));
-        assertEquals(ScanGunAction.class.getName(), tactic.getGunActionName(bot));
+
+        assertEquals(RadarOperator.Action.ALL_SCAN, tactic.getRadarAction(bot));
+        assertEquals(Gunner.Action.SCAN, tactic.getGunActionName(bot));
     }
 }

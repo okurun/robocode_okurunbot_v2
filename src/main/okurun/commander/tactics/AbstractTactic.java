@@ -5,21 +5,25 @@ import java.util.concurrent.atomic.AtomicInteger;
 import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
 import okurun.commander.Commander;
+import okurun.driver.Driver;
+import okurun.gunner.Gunner;
+import okurun.predictor.Predictor.Model;
+import okurun.radaroperator.RadarOperator;
 
 public abstract class AbstractTactic implements Tactic {
     protected final AtomicInteger targetEnemyId = new AtomicInteger(Commander.NO_TARGET);
     protected double[] targetMovePosition = null;
     protected double baseFirePower = 1.5;
-    protected String predictorModelName = null;
-    protected String driveActionName = null;
-    protected String gunActionName = null;
-    protected String radarActionName = null;
+    protected Model predictModel = null;
+    protected Driver.Action driveAction = null;
+    protected Gunner.Action gunAction = null;
+    protected RadarOperator.Action radarAction = null;
 
     @Override
     public void action(OkuRunBot bot) {
         setTargetEnemyId(bot);
         setBaseFirePower(bot);
-        setPredictorModelName(bot);
+        setPredictModel(bot);
         setTargetMovePosition(bot);
         setDriveActionName(bot);
         setGunActionName(bot);
@@ -28,7 +32,7 @@ public abstract class AbstractTactic implements Tactic {
 
     protected abstract void setTargetEnemyId(OkuRunBot bot);
 
-    protected abstract void setPredictorModelName(OkuRunBot bot);
+    protected abstract void setPredictModel(OkuRunBot bot);
 
     protected abstract void setTargetMovePosition(OkuRunBot bot);
 
@@ -54,23 +58,23 @@ public abstract class AbstractTactic implements Tactic {
     }
 
     @Override
-    public String getPredictorModelName(OkuRunBot bot) {
-        return predictorModelName;
+    public Model getPredictModel(OkuRunBot bot) {
+        return predictModel;
     }
 
     @Override
-    public String getDriveActionName(OkuRunBot bot) {
-        return driveActionName;
+    public Driver.Action getDriveAction(OkuRunBot bot) {
+        return driveAction;
     }
 
     @Override
-    public String getGunActionName(OkuRunBot bot) {
-        return gunActionName;
+    public Gunner.Action getGunActionName(OkuRunBot bot) {
+        return gunAction;
     }
 
     @Override
-    public String getRadarActionName(OkuRunBot bot) {
-        return radarActionName;
+    public RadarOperator.Action getRadarAction(OkuRunBot bot) {
+        return radarAction;
     }
 
     protected void setBaseFirePower(OkuRunBot bot) {

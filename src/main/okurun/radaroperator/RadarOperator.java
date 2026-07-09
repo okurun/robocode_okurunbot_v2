@@ -10,17 +10,21 @@ import okurun.radaroperator.actions.*;
  * レーダー技士クラス
  */
 public class RadarOperator {
-    private Map<String, RadarAction> actions = new HashMap<>();
+    public static enum Action {
+        ALL_SCAN, TARGET_SCAN
+    }
+
+    private Map<Action, RadarAction> actions = new HashMap<>();
 
     public void init(OkuRunBot bot) {
-        actions.put(AllScanRadarAction.class.getName(), new AllScanRadarAction());
-        actions.put(TargetScanRadarAction.class.getName(), new TargetScanRadarAction());
+        actions.put(Action.ALL_SCAN, new AllScanRadarAction());
+        actions.put(Action.TARGET_SCAN, new TargetScanRadarAction());
     }
 
     public void action(OkuRunBot bot) {
-        String radarActionName = bot.getCommander().getRadarActionName(bot);
-        while (radarActionName != null) {
-            radarActionName = actions.get(radarActionName).action(bot);
+        Action action = bot.getCommander().getRadarAction(bot);
+        while (action != null) {
+            action = actions.get(action).action(bot);
         }
     }
 }

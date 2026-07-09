@@ -76,7 +76,11 @@ public class PredictModelAccuracy {
      * @return Accuracy
      */
     public String getAccuracyString() {
-        return "fireCount: " + fireCount.get() + ", hitRate: " + getHitRate() + "%, missRate: " + getMissRate() + "%";
+        final double hitRate = getHitRate();
+        final double missRate = getMissRate();
+        final double unknownRate = 1 - (hitRate + missRate);
+        return String.format("fireCount: %d, hitRate: %.1f%%, missRate: %.1f%%, unknownRate: %.1f%%",
+                fireCount.get(), hitRate * 100, missRate * 100, unknownRate * 100);
     }
 
     /**
@@ -88,7 +92,7 @@ public class PredictModelAccuracy {
         if (fireCount.get() == 0 || hitCount.get() == 0) {
             return 0;
         }
-        return roundRate((double) hitCount.get() / fireCount.get());
+        return (double) hitCount.get() / (double) fireCount.get();
     }
 
     /**
@@ -100,20 +104,7 @@ public class PredictModelAccuracy {
         if (fireCount.get() == 0 || missCount.get() == 0) {
             return 0;
         }
-        return roundRate((double) missCount.get() / fireCount.get());
-    }
-
-    /**
-     * 確率を丸めます
-     * 
-     * @param rate 確率
-     * @return 丸めた確率
-     */
-    private static double roundRate(double rate) {
-        if (rate < 0) {
-            return 0;
-        }
-        return Math.round(rate * 1000) / 10.0;
+        return (double) missCount.get() / (double) fireCount.get();
     }
 
 }

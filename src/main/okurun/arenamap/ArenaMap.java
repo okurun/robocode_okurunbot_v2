@@ -106,16 +106,18 @@ public class ArenaMap {
          * @return 壁と平行になるために左にきるべき角度（-90 〜 90）
          */
         public double getLeftTurnAngleToParallel(IBot bot) {
-            double h = bot.getDirection();
+            if (bot.getSpeed() < 0) {
+                System.out.println("Backword");
+            }
             switch (id) {
                 case LEFT, RIGHT -> {
-                    double diff90 = bot.normalizeRelativeAngle(90 - h);
-                    double diff270 = bot.normalizeRelativeAngle(270 - h);
+                    final double diff90 = bot.normalizeRelativeAngle(90 - bot.getDirection());
+                    final double diff270 = bot.normalizeRelativeAngle(270 - bot.getDirection());
                     return (Math.abs(diff90) <= Math.abs(diff270)) ? diff90 : diff270;
                 }
                 case TOP, BOTTOM -> {
-                    double diff0 = bot.normalizeRelativeAngle(0 - h);
-                    double diff180 = bot.normalizeRelativeAngle(180 - h);
+                    final double diff0 = bot.normalizeRelativeAngle(0 - bot.getDirection());
+                    final double diff180 = bot.normalizeRelativeAngle(180 - bot.getDirection());
                     return (Math.abs(diff0) <= Math.abs(diff180)) ? diff0 : diff180;
                 }
                 default -> throw new IllegalStateException("Unknown wall id: " + id);

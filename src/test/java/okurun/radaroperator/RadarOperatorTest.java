@@ -30,13 +30,13 @@ class RadarOperatorTest {
     void testAction() {
         // actionメソッド内でCommanderからRadarActionNameを取得し実行する処理のモック
         when(bot.getCommander()).thenReturn(commander);
-        
+
         // アクションを要求しない (nullを返す) 場合に正常に終了するか確認する
-        when(commander.getRadarActionName(bot)).thenReturn(null);
-        
+        when(commander.getRadarAction(bot)).thenReturn(null);
+
         radarOperator.action(bot);
-        
+
         // getRadarActionName が1回呼ばれたことを検証
-        verify(commander).getRadarActionName(bot);
+        verify(commander).getRadarAction(bot);
     }
 }

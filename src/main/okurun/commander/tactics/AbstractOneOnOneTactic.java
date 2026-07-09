@@ -8,6 +8,7 @@ import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
 import okurun.commander.Commander.AccelePriority;
 import okurun.commander.Commander.HandlePriority;
+import okurun.predictor.Predictor.Model;
 import okurun.predictor.models.*;
 
 public abstract class AbstractOneOnOneTactic extends AbstractTactic {
@@ -37,19 +38,19 @@ public abstract class AbstractOneOnOneTactic extends AbstractTactic {
     }
 
     @Override
-    protected void setPredictorModelName(OkuRunBot bot) {
+    protected void setPredictModel(OkuRunBot bot) {
         if (targetEnemyId.get() != Commander.NO_TARGET) {
             final BattleManager battleManager = bot.getBattleManager();
             final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
             if (targetEnemyProfile != null) {
                 if (HistoryPredictModel.canUse(bot, targetEnemyProfile.getStateHistory())) {
                     bot.setScanColor(Color.fromRgba(Color.LIGHT_BLUE, 2));
-                    predictorModelName = HistoryPredictModel.class.getName();
+                    predictModel = Model.HISTORY;
                     return;
                 }
             }
         }
-        predictorModelName = SimplePredictModel.class.getName();
+        predictModel = Model.SIMPLE;
     }
 
     @Override

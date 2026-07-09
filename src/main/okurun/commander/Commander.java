@@ -11,6 +11,10 @@ import okurun.battlemanager.BattleManager;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.commander.tactics.*;
+import okurun.driver.Driver;
+import okurun.gunner.Gunner;
+import okurun.predictor.Predictor.Model;
+import okurun.radaroperator.RadarOperator;
 
 /**
  * 指揮官クラス
@@ -86,20 +90,20 @@ public class Commander {
         return currentTactic.getBaseFirePower(bot);
     }
 
-    public String getPredictorModelName(OkuRunBot bot) {
-        return currentTactic.getPredictorModelName(bot);
+    public Model getPredictModel(OkuRunBot bot) {
+        return currentTactic.getPredictModel(bot);
     }
 
-    public String getGunActionName(OkuRunBot bot) {
+    public Gunner.Action getGunActionName(OkuRunBot bot) {
         return currentTactic.getGunActionName(bot);
     }
 
-    public String getRadarActionName(OkuRunBot bot) {
-        return currentTactic.getRadarActionName(bot);
+    public RadarOperator.Action getRadarAction(OkuRunBot bot) {
+        return currentTactic.getRadarAction(bot);
     }
 
-    public String getDriveActionName(OkuRunBot bot) {
-        return currentTactic.getDriveActionName(bot);
+    public Driver.Action getDriveAction(OkuRunBot bot) {
+        return currentTactic.getDriveAction(bot);
     }
 
     public AccelePriority getAccelePriority(OkuRunBot bot) {

@@ -19,18 +19,22 @@ import okurun.predictor.models.*;
  * 予測士クラス
  */
 public class Predictor {
-    private final Map<String, PredictModel> predictModels = new HashMap<>();
-    private final Map<Integer, Map<String, Map<Integer, EnemyState>>> predictedDataCache = new HashMap<>();
+    public static enum Model {
+        SIMPLE, HISTORY
+    }
+
+    private final Map<Model, PredictModel> predictModels = new HashMap<>();
+    private final Map<Integer, Map<Model, Map<Integer, EnemyState>>> predictedDataCache = new HashMap<>();
     private final Deque<Double> hitDistanceHistory = new ConcurrentLinkedDeque<>();
 
-    public final Map<String, PredictModelAccuracy> modelAccuracies = new HashMap<>();
-    public final Map<String, PredictModelAccuracy> modelTotalAccuracies = new HashMap<>();
+    public final Map<Model, PredictModelAccuracy> modelAccuracies = new HashMap<>();
+    public final Map<Model, PredictModelAccuracy> modelTotalAccuracies = new HashMap<>();
 
     public void init(OkuRunBot bot) {
         predictedDataCache.clear();
-        predictModels.put(SimplePredictModel.class.getName(), new SimplePredictModel());
-        predictModels.put(HistoryPredictModel.class.getName(), new HistoryPredictModel());
-        for (final String modelName : predictModels.keySet()) {
+        predictModels.put(Model.SIMPLE, new SimplePredictModel());
+        predictModels.put(Model.HISTORY, new HistoryPredictModel());
+        for (final Model modelName : predictModels.keySet()) {
             modelAccuracies.put(modelName, new PredictModelAccuracy());
         }
     }
@@ -51,7 +55,7 @@ public class Predictor {
      * @return 予測した敵の状態
      */
     public EnemyState predict(OkuRunBot bot, EnemyProfile enemyProfile, int targetTurnNum) {
-        return predict(bot, enemyProfile, targetTurnNum, bot.getCommander().getPredictorModelName(bot));
+        return predict(bot, enemyProfile, targetTurnNum, bot.getCommander().getPredictModel(bot));
     }
 
     /**
@@ -60,11 +64,11 @@ public class Predictor {
      * @param bot           ボット
      * @param enemyProfile  敵プロファイル
      * @param targetTurnNum 予測するターン数
-     * @param modelName     使用するモデルの名前
+     * @param model         使用するモデル
      * @return 予測した敵の状態
      */
-    private EnemyState predict(OkuRunBot bot, EnemyProfile enemyProfile, int targetTurnNum, String modelName) {
-        final PredictModel predictModel = predictModels.get(modelName);
+    private EnemyState predict(OkuRunBot bot, EnemyProfile enemyProfile, int targetTurnNum, Model model) {
+        final PredictModel predictModel = predictModels.get(model);
         if (predictModel == null) {
             return null;
         }
@@ -83,15 +87,15 @@ public class Predictor {
         }
 
         // キャッシュがない場合は作成します
-        Map<String, Map<Integer, EnemyState>> modelPredictedDataCache = predictedDataCache.get(enemyProfile.getId());
+        Map<Model, Map<Integer, EnemyState>> modelPredictedDataCache = predictedDataCache.get(enemyProfile.getId());
         if (modelPredictedDataCache == null) {
             modelPredictedDataCache = new HashMap<>();
             predictedDataCache.put(enemyProfile.getId(), modelPredictedDataCache);
         }
-        Map<Integer, EnemyState> cache = modelPredictedDataCache.get(modelName);
+        Map<Integer, EnemyState> cache = modelPredictedDataCache.get(model);
         if (cache == null) {
             cache = new HashMap<>();
-            modelPredictedDataCache.put(modelName, cache);
+            modelPredictedDataCache.put(model, cache);
         }
 
         final ArenaMap arenaMap = bot.getArenaMap();
@@ -119,8 +123,8 @@ public class Predictor {
         return cache.get(targetTurnNum);
     }
 
-    public PredictModel getPredictModel(String modelName) {
-        return predictModels.get(modelName);
+    public PredictModel getPredictModel(Model model) {
+        return predictModels.get(model);
     }
 
     /**
@@ -129,9 +133,9 @@ public class Predictor {
      * @param e ゲーム終了イベント
      */
     public void onGameEnded(GameEndedEvent e) {
-        for (final String modelName : modelTotalAccuracies.keySet()) {
-            final PredictModelAccuracy totalAccuracy = modelTotalAccuracies.get(modelName);
-            System.out.println("Total accuracy: " + modelName + "(" + totalAccuracy.getAccuracyString() + ")");
+        for (final Model model : modelTotalAccuracies.keySet()) {
+            final PredictModelAccuracy totalAccuracy = modelTotalAccuracies.get(model);
+            System.out.println("Total accuracy: " + model + "(" + totalAccuracy.getAccuracyString() + ")");
             totalAccuracy.reset();
         }
     }
@@ -143,16 +147,16 @@ public class Predictor {
      * @param bot ボット
      */
     public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
-        for (final String modelName : predictModels.keySet()) {
-            final PredictModelAccuracy predictionAccuracy = modelAccuracies.get(modelName);
-            System.out.println(modelName + "(" + predictionAccuracy.getAccuracyString() + ")");
-            if (modelTotalAccuracies.containsKey(modelName)) {
-                final PredictModelAccuracy totalAccuracy = modelTotalAccuracies.get(modelName);
+        for (final Model model : predictModels.keySet()) {
+            final PredictModelAccuracy predictionAccuracy = modelAccuracies.get(model);
+            System.out.println(model + "(" + predictionAccuracy.getAccuracyString() + ")");
+            if (modelTotalAccuracies.containsKey(model)) {
+                final PredictModelAccuracy totalAccuracy = modelTotalAccuracies.get(model);
                 totalAccuracy.addFireCount(predictionAccuracy.getFireCount());
                 totalAccuracy.addHitCount(predictionAccuracy.getHitCount());
                 totalAccuracy.addMissCount(predictionAccuracy.getMissCount());
             } else {
-                modelTotalAccuracies.put(modelName, predictionAccuracy);
+                modelTotalAccuracies.put(model, predictionAccuracy);
             }
         }
         int count = 0;

@@ -4,6 +4,10 @@ import dev.robocode.tankroyale.botapi.events.HitByBulletEvent;
 import okurun.OkuRunBot;
 import okurun.commander.Commander.AccelePriority;
 import okurun.commander.Commander.HandlePriority;
+import okurun.driver.Driver;
+import okurun.gunner.Gunner;
+import okurun.predictor.Predictor.Model;
+import okurun.radaroperator.RadarOperator;
 
 public interface Tactic {
     void action(OkuRunBot bot);
@@ -14,13 +18,13 @@ public interface Tactic {
 
     double getBaseFirePower(OkuRunBot bot);
 
-    String getPredictorModelName(OkuRunBot bot);
+    Model getPredictModel(OkuRunBot bot);
 
-    String getGunActionName(OkuRunBot bot);
+    Gunner.Action getGunActionName(OkuRunBot bot);
 
-    String getRadarActionName(OkuRunBot bot);
+    RadarOperator.Action getRadarAction(OkuRunBot bot);
 
-    String getDriveActionName(OkuRunBot bot);
+    Driver.Action getDriveAction(OkuRunBot bot);
 
     HandlePriority getHandlePriority(OkuRunBot bot);
 

@@ -1,6 +1,7 @@
 package okurun.gunner.actions;
 
 import okurun.OkuRunBot;
+import okurun.gunner.Gunner;
 
 /**
  * レーダーを早く回すための砲頭を回すアクション
@@ -8,7 +9,7 @@ import okurun.OkuRunBot;
 public class ScanGunAction implements GunAction {
 
     @Override
-    public String action(OkuRunBot bot) {
+    public Gunner.Action action(OkuRunBot bot) {
         bot.setAdjustGunForBodyTurn(false);
         bot.setTurnGunLeft(360);
 

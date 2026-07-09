@@ -5,6 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import dev.robocode.tankroyale.botapi.Constants;
+
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -76,5 +79,117 @@ class ArenaMapTest {
         List<ArenaMap.PotentialCollisionWall> walls = arenaMap.getPotentialCollisionWalls(bot);
         assertFalse(walls.isEmpty());
         assertEquals(ArenaMap.WallId.TOP, walls.get(0).wall.id);
+    }
+
+    @Test
+    void testGetLeftTurnAngleToParallelForward() {
+        when(bot.getSpeed()).thenReturn((double) Constants.MAX_SPEED);
+        when(bot.normalizeRelativeAngle(anyDouble())).thenAnswer(invocation -> {
+            double angle = invocation.getArgument(0);
+            while (angle <= -180) angle += 360;
+            while (angle > 180) angle -= 360;
+            return angle;
+        });
+
+        // LEFT wall (parallel to 90 or 270)
+        ArenaMap.Wall leftWall = arenaMap.getWall(ArenaMap.WallId.LEFT);
+        
+        when(bot.getDirection()).thenReturn(30.0);
+        assertEquals(60.0, leftWall.getLeftTurnAngleToParallel(bot), 0.001);
+
+        when(bot.getDirection()).thenReturn(150.0);
+        assertEquals(-60.0, leftWall.getLeftTurnAngleToParallel(bot), 0.001);
+
+        when(bot.getDirection()).thenReturn(330.0);
+        assertEquals(-60.0, leftWall.getLeftTurnAngleToParallel(bot), 0.001);
+
+        when(bot.getDirection()).thenReturn(210.0);
+        assertEquals(60.0, leftWall.getLeftTurnAngleToParallel(bot), 0.001);
+
+        // RIGHT wall (parallel to 90 or 270)
+        ArenaMap.Wall rightWall = arenaMap.getWall(ArenaMap.WallId.RIGHT);
+        
+        when(bot.getDirection()).thenReturn(30.0);
+        assertEquals(60.0, rightWall.getLeftTurnAngleToParallel(bot), 0.001);
+
+        when(bot.getDirection()).thenReturn(150.0);
+        assertEquals(-60.0, rightWall.getLeftTurnAngleToParallel(bot), 0.001);
+
+        when(bot.getDirection()).thenReturn(330.0);
+        assertEquals(-60.0, rightWall.getLeftTurnAngleToParallel(bot), 0.001);
+
+        when(bot.getDirection()).thenReturn(210.0);
+        assertEquals(60.0, rightWall.getLeftTurnAngleToParallel(bot), 0.001);
+
+        // TOP wall (parallel to 0 or 180)
+        ArenaMap.Wall topWall = arenaMap.getWall(ArenaMap.WallId.TOP);
+
+        when(bot.getDirection()).thenReturn(30.0);
+        assertEquals(-30.0, topWall.getLeftTurnAngleToParallel(bot), 0.001);
+
+        when(bot.getDirection()).thenReturn(150.0);
+        assertEquals(30.0, topWall.getLeftTurnAngleToParallel(bot), 0.001);
+
+        when(bot.getDirection()).thenReturn(210.0);
+        assertEquals(-30.0, topWall.getLeftTurnAngleToParallel(bot), 0.001);
+        
+        when(bot.getDirection()).thenReturn(330.0);
+        assertEquals(30.0, topWall.getLeftTurnAngleToParallel(bot), 0.001);
+
+        // BOTTOM wall (parallel to 0 or 180)
+        ArenaMap.Wall bottomWall = arenaMap.getWall(ArenaMap.WallId.BOTTOM);
+
+        when(bot.getDirection()).thenReturn(30.0);
+        assertEquals(-30.0, bottomWall.getLeftTurnAngleToParallel(bot), 0.001);
+
+        when(bot.getDirection()).thenReturn(150.0);
+        assertEquals(30.0, bottomWall.getLeftTurnAngleToParallel(bot), 0.001);
+
+        when(bot.getDirection()).thenReturn(210.0);
+        assertEquals(-30.0, bottomWall.getLeftTurnAngleToParallel(bot), 0.001);
+        
+        when(bot.getDirection()).thenReturn(330.0);
+        assertEquals(30.0, bottomWall.getLeftTurnAngleToParallel(bot), 0.001);
+    }
+
+    @Test
+    void testGetLeftTurnAngleToParallelBackward() {
+        when(bot.getSpeed()).thenReturn((double) -Constants.MAX_SPEED);
+        when(bot.normalizeRelativeAngle(anyDouble())).thenAnswer(invocation -> {
+            double angle = invocation.getArgument(0);
+            while (angle <= -180) angle += 360;
+            while (angle > 180) angle -= 360;
+            return angle;
+        });
+
+        // LEFT, RIGHT wall (parallel to 90 or 270)
+        ArenaMap.Wall leftWall = arenaMap.getWall(ArenaMap.WallId.LEFT);
+        
+        when(bot.getDirection()).thenReturn(30.0);
+        assertEquals(60.0, leftWall.getLeftTurnAngleToParallel(bot), 0.001);
+
+        when(bot.getDirection()).thenReturn(150.0);
+        assertEquals(-60.0, leftWall.getLeftTurnAngleToParallel(bot), 0.001);
+
+        when(bot.getDirection()).thenReturn(330.0);
+        assertEquals(-60.0, leftWall.getLeftTurnAngleToParallel(bot), 0.001);
+
+        when(bot.getDirection()).thenReturn(210.0);
+        assertEquals(60.0, leftWall.getLeftTurnAngleToParallel(bot), 0.001);
+
+        // TOP, BOTTOM wall (parallel to 0 or 180)
+        ArenaMap.Wall topWall = arenaMap.getWall(ArenaMap.WallId.TOP);
+
+        when(bot.getDirection()).thenReturn(30.0);
+        assertEquals(-30.0, topWall.getLeftTurnAngleToParallel(bot), 0.001);
+
+        when(bot.getDirection()).thenReturn(150.0);
+        assertEquals(30.0, topWall.getLeftTurnAngleToParallel(bot), 0.001);
+
+        when(bot.getDirection()).thenReturn(210.0);
+        assertEquals(-30.0, topWall.getLeftTurnAngleToParallel(bot), 0.001);
+        
+        when(bot.getDirection()).thenReturn(330.0);
+        assertEquals(30.0, topWall.getLeftTurnAngleToParallel(bot), 0.001);
     }
 }

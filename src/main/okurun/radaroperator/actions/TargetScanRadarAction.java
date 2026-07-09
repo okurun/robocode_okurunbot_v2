@@ -6,6 +6,7 @@ import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
 import okurun.predictor.Predictor;
+import okurun.radaroperator.RadarOperator;
 
 /**
  * ターゲットを常に追うアクション
@@ -13,27 +14,27 @@ import okurun.predictor.Predictor;
 public class TargetScanRadarAction implements RadarAction {
 
     @Override
-    public String action(OkuRunBot bot) {
+    public RadarOperator.Action action(OkuRunBot bot) {
         final Commander commander = bot.getCommander();
         final int targetEnemyId = commander.getTargetEnemyId(bot);
         if (targetEnemyId == Commander.NO_TARGET) {
-            return AllScanRadarAction.class.getName();
+            return RadarOperator.Action.ALL_SCAN;
         }
 
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
         if (targetEnemyProfile == null) {
-            return AllScanRadarAction.class.getName();
+            return RadarOperator.Action.ALL_SCAN;
         }
 
         final EnemyState latestEnemyState = targetEnemyProfile.getLatestState();
         if (latestEnemyState == null) {
-            return AllScanRadarAction.class.getName();
+            return RadarOperator.Action.ALL_SCAN;
         }
 
         if (bot.getTurnNumber() - latestEnemyState.scannedTurnNum > 3) {
             // 見失ったら全周スキャンに戻ります
-            return AllScanRadarAction.class.getName();
+            return RadarOperator.Action.ALL_SCAN;
         }
 
         final Predictor predictor = bot.getPredictor();
