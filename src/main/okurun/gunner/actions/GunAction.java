@@ -99,7 +99,6 @@ public interface GunAction {
 
     /**
      * 弾丸履歴を保存します
-     * 弾丸の履歴が2個以上存在する場合は、最も古いものを削除します
      * 
      * @param bot           ボット
      * @param bulletHistory 弾丸履歴
@@ -107,9 +106,5 @@ public interface GunAction {
     public static void stackBulletHistory(OkuRunBot bot, BulletHistory bulletHistory) {
         final BattleManager battleManager = bot.getBattleManager();
         battleManager.bulletStack.addLast(bulletHistory);
-        if (battleManager.bulletStack.size() >= 2) {
-            System.out.println("Warning: stackBulletHistory() : bulletStack.size() = " + battleManager.bulletStack.size());
-            battleManager.bulletStack.pollFirst();
-        }
     }
 }

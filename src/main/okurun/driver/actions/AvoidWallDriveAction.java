@@ -27,18 +27,23 @@ public class AvoidWallDriveAction implements DriveAction {
 
         // 一番衝突までのターンが少ない壁を取得
         final ArenaMap.PotentialCollisionWall pcWall = pcWalls.get(0);
-        final DriveActionParam driveActionParam;
-        if (bot.getSpeed() < 0) {
-            driveActionParam = backwardAction(bot, pcWall);
-        } else {
-            driveActionParam = forwardAction(bot, pcWall);
-        }
+        final DriveActionParam driveActionParam = (bot.getSpeed() < 0)
+                ? backwardAction(bot, pcWall)
+                : forwardAction(bot, pcWall);
+
         bot.setTurnLeft(driveActionParam.leftTurnAngle);
         bot.setMaxSpeed(driveActionParam.maxSpeed);
         bot.setForward(driveActionParam.distance);
         return null;
     }
 
+    /**
+     * 前進時の壁回避アクション
+     * 
+     * @param bot    ボット
+     * @param pcWall 衝突壁
+     * @return DriveActionParam
+     */
     private DriveActionParam forwardAction(OkuRunBot bot, ArenaMap.PotentialCollisionWall pcWall) {
         final DriveActionParam driveActionParam = new DriveActionParam();
 
@@ -54,12 +59,19 @@ public class AvoidWallDriveAction implements DriveAction {
                 turnsToCollision * Math.abs(Constants.DECELERATION));
         driveActionParam.distance = 100;
         if (driveActionParam.maxSpeed < Constants.MAX_SPEED && bot.getSpeed() > driveActionParam.maxSpeed) {
-            driveActionParam.distance = -10;
+            driveActionParam.distance = -driveActionParam.distance;
         }
 
         return driveActionParam;
     }
 
+    /**
+     * 後退時の壁回避アクション
+     * 
+     * @param bot    ボット
+     * @param pcWall 衝突壁
+     * @return DriveActionParam
+     */
     private DriveActionParam backwardAction(OkuRunBot bot, ArenaMap.PotentialCollisionWall pcWall) {
         final DriveActionParam driveActionParam = new DriveActionParam();
 
@@ -72,10 +84,10 @@ public class AvoidWallDriveAction implements DriveAction {
         // 減速しないと衝突する場合は減速する
         final double turnsToCollision = pcWall.turnsToCollision;
         driveActionParam.maxSpeed = Math.min(Constants.MAX_SPEED,
-                turnsToCollision * Math.abs(Constants.DECELERATION)) * -1;
+                turnsToCollision * Math.abs(Constants.DECELERATION));
         driveActionParam.distance = -100;
-        if (driveActionParam.maxSpeed < Constants.MAX_SPEED && bot.getSpeed() > driveActionParam.maxSpeed) {
-            driveActionParam.distance = 10;
+        if (driveActionParam.maxSpeed < Constants.MAX_SPEED && bot.getSpeed() < -driveActionParam.maxSpeed) {
+            driveActionParam.distance = -driveActionParam.distance;
         }
 
         return driveActionParam;
