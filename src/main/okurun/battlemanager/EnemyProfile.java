@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import okurun.OkuRunBot;
+import okurun.commander.Commander;
 
 /**
  * 敵ボットのプロファイル
@@ -17,9 +18,19 @@ public class EnemyProfile {
 
     private final AtomicBoolean isAlive = new AtomicBoolean(true);
     private final AtomicInteger lastConfirmedTurn = new AtomicInteger(0);
+    private Commander.TacticName tacticName = Commander.TacticName.ONE_ON_ONE_POSITIVE;
 
     public EnemyProfile(int id) {
         this.id = id;
+    }
+
+    /**
+     * 情報をリセットします
+     */
+    public void reset() {
+        isAlive.set(true);
+        lastConfirmedTurn.set(0);
+        stateHistory.clear();
     }
 
     /**
@@ -122,5 +133,23 @@ public class EnemyProfile {
             return null;
         }
         return stateHistory.getFirst();
+    }
+
+    /**
+     * 戦術名を返します
+     * 
+     * @return 戦術名
+     */
+    public Commander.TacticName getTacticName() {
+        return tacticName;
+    }
+
+    /**
+     * 戦術名を設定します
+     * 
+     * @param tacticName 戦術名
+     */
+    public void setTacticName(Commander.TacticName tacticName) {
+        this.tacticName = tacticName;
     }
 }

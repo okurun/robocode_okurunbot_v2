@@ -50,7 +50,6 @@ class CommanderTest {
         
         EnemyState mockState = new EnemyState(1, 10, 0, 0, 0, 0, 50.0, 0, 0, 0);
         when(enemyProfile.getLatestState()).thenReturn(mockState);
-        when(bot.getEnergy()).thenReturn(100.0);
 
         try {
             commander.action(bot);

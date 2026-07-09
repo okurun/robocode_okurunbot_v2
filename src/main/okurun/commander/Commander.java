@@ -3,8 +3,9 @@ package okurun.commander;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import dev.robocode.tankroyale.botapi.events.HitByBulletEvent;
+import dev.robocode.tankroyale.botapi.events.*;
 import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.OkuRunBot;
 import okurun.battlemanager.BattleManager;
@@ -21,6 +22,12 @@ import okurun.radaroperator.RadarOperator;
  * 戦況に応じて戦略を決定し、各コンポーネントに指示を出します。
  */
 public class Commander {
+    public static enum TacticName {
+        SURVIVAL,
+        ONE_ON_ONE_POSITIVE,
+        ONE_ON_ONE_NEGATIVE,
+    }
+
     public static final int NO_TARGET = -1;
 
     /**
@@ -37,14 +44,16 @@ public class Commander {
         MAX_SPEED, HANDLE, AVOID_BULLET
     }
 
-    private Map<String, Tactic> tactics = new HashMap<>();
+    private Map<TacticName, Tactic> tactics = new HashMap<>();
     private Tactic currentTactic = null;
     private final Map<String, Object> caches = new ConcurrentHashMap<>();
+    private AtomicBoolean isWon = new AtomicBoolean(false);
 
     public void init(OkuRunBot bot) {
-        tactics.put(OneOnOnePositiveTactic.class.getName(), new OneOnOnePositiveTactic());
-        tactics.put(OneOnOneNegativeTactic.class.getName(), new OneOnOneNegativeTactic());
-        tactics.put(SurvivalTactic.class.getName(), new SurvivalTactic());
+        tactics.put(TacticName.ONE_ON_ONE_POSITIVE, new OneOnOnePositiveTactic());
+        tactics.put(TacticName.ONE_ON_ONE_NEGATIVE, new OneOnOneNegativeTactic());
+        tactics.put(TacticName.SURVIVAL, new SurvivalTactic());
+        isWon.set(false);
     }
 
     public void action(OkuRunBot bot) {
@@ -60,22 +69,18 @@ public class Commander {
             // 生存している敵が1機のみ
             final EnemyProfile enemyProfile = battleManager.getAliveEnemy(bot);
             if (enemyProfile == null) {
-                currentTactic = tactics.get(OneOnOneNegativeTactic.class.getName());
+                currentTactic = tactics.get(TacticName.ONE_ON_ONE_NEGATIVE);
                 return;
             }
             final EnemyState latestEnemyState = enemyProfile.getLatestState();
             if (latestEnemyState == null) {
-                currentTactic = tactics.get(OneOnOneNegativeTactic.class.getName());
+                currentTactic = tactics.get(TacticName.ONE_ON_ONE_NEGATIVE);
                 return;
             }
-            if (bot.getEnergy() - latestEnemyState.energy < -30) {
-                currentTactic = tactics.get(OneOnOneNegativeTactic.class.getName());
-                return;
-            }
-            currentTactic = tactics.get(OneOnOnePositiveTactic.class.getName());
+            currentTactic = tactics.get(enemyProfile.getTacticName());
             return;
         }
-        currentTactic = tactics.get(SurvivalTactic.class.getName());
+        currentTactic = tactics.get(TacticName.SURVIVAL);
     }
 
     public int getTargetEnemyId(OkuRunBot bot) {
@@ -231,6 +236,31 @@ public class Commander {
     }
 
     /**
+     * ラウンドが終了した時の処理
+     * 
+     * @param e ラウンド終了イベント
+     * @param bot ボット
+     */
+    public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
+        if (!isWon.get()) {
+            if (getTargetEnemyId(bot) != Commander.NO_TARGET) {
+                // 敗北した場合、戦略を変更する
+                final BattleManager battleManager = bot.getBattleManager();
+                final EnemyProfile enemyProfile = battleManager.getEnemyProfile(getTargetEnemyId(bot));
+                if (enemyProfile != null) {
+                    TacticName tacticName = enemyProfile.getTacticName();
+                    if (tacticName == TacticName.ONE_ON_ONE_POSITIVE) {
+                        tacticName = TacticName.ONE_ON_ONE_NEGATIVE;
+                    } else {
+                        tacticName = TacticName.ONE_ON_ONE_POSITIVE;
+                    }
+                    enemyProfile.setTacticName(tacticName);
+                }
+            }
+        }
+    }
+
+    /**
      * 弾丸が自分に当たった時の処理
      * 
      * @param e   弾丸が自分に当たったイベント
@@ -238,5 +268,15 @@ public class Commander {
      */
     public void onHitByBullet(HitByBulletEvent e, OkuRunBot bot) {
         currentTactic.onHitByBullet(e, bot);
+    }
+
+    /**
+     * ラウンドで勝利した時の処理
+     * 
+     * @param e ラウンドで勝利したイベント
+     * @param bot ボット
+     */
+    public void onWonRound(WonRoundEvent e, OkuRunBot bot) {
+        isWon.set(true);
     }
 }

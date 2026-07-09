@@ -6,8 +6,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import dev.robocode.tankroyale.botapi.Constants;
-
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -83,7 +81,6 @@ class ArenaMapTest {
 
     @Test
     void testGetLeftTurnAngleToParallelForward() {
-        when(bot.getSpeed()).thenReturn((double) Constants.MAX_SPEED);
         when(bot.normalizeRelativeAngle(anyDouble())).thenAnswer(invocation -> {
             double angle = invocation.getArgument(0);
             while (angle <= -180) angle += 360;
@@ -154,7 +151,6 @@ class ArenaMapTest {
 
     @Test
     void testGetLeftTurnAngleToParallelBackward() {
-        when(bot.getSpeed()).thenReturn((double) -Constants.MAX_SPEED);
         when(bot.normalizeRelativeAngle(anyDouble())).thenAnswer(invocation -> {
             double angle = invocation.getArgument(0);
             while (angle <= -180) angle += 360;

@@ -35,13 +35,17 @@ public class BattleManager {
 
     private void init() {
         lastFiredTurnNum.set(0);
-        enemyProfiles.clear();
         bulletStack.clear();
         bulletHistories.clear();
         for (int i = 1; i <= enemyCount + 1; i++) {
-            if (i == myId)
+            if (i == myId) {
                 continue;
-            enemyProfiles.put(i, new EnemyProfile(i));
+            }
+            if (enemyProfiles.containsKey(i)) {
+                enemyProfiles.get(i).reset();
+            } else {
+                enemyProfiles.put(i, new EnemyProfile(i));
+            }
         }
     }
 
@@ -347,5 +351,4 @@ public class BattleManager {
                 acceleration,
                 bot.distanceTo(e.getX(), e.getY())));
     }
-
 }

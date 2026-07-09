@@ -11,7 +11,6 @@ import okurun.commander.Commander;
 import okurun.driver.Driver;
 import okurun.gunner.Gunner;
 import okurun.predictor.Predictor;
-import okurun.radaroperator.RadarOperator;
 
 /**
  * 1v1の状況で積極的に攻める戦略
@@ -107,7 +106,7 @@ public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
 
         if (bot.getGunHeat() <= bot.getGunCoolingRate() * 3) {
             // 3ターン以内に射撃可能であれば射撃を行います
-            gunAction = Gunner.Action.NORMAL;
+            gunAction = Gunner.Action.AUTO;
             return;
         }
 
@@ -119,28 +118,6 @@ public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
 
         // 上記意外はスキャンを行います
         gunAction = Gunner.Action.SCAN;
-    }
-
-    @Override
-    protected void setRadarActionName(OkuRunBot bot) {
-        if (targetEnemyId.get() == Commander.NO_TARGET) {
-            radarAction = RadarOperator.Action.ALL_SCAN;
-            return;
-        }
-
-        final BattleManager battleManager = bot.getBattleManager();
-        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
-        if (targetEnemyProfile == null) {
-            radarAction = RadarOperator.Action.ALL_SCAN;
-            return;
-        }
-        final EnemyState latestEnemyState = targetEnemyProfile.getLatestState();
-        if (latestEnemyState == null || latestEnemyState.scannedTurnNum < bot.getTurnNumber() - 5) {
-            radarAction = RadarOperator.Action.ALL_SCAN;
-            return;
-        }
-
-        radarAction = RadarOperator.Action.TARGET_SCAN;
     }
 
     @Override

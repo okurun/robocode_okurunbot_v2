@@ -166,7 +166,7 @@ public class Predictor {
             count++;
         }
         if (count > 0 && total > 0) {
-            System.out.println("Average hit distance: " + total / count);
+            System.out.println(String.format("Average hit distance: %.2f", total / count));
         }
     }
 

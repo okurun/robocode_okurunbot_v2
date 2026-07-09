@@ -10,6 +10,7 @@ import okurun.commander.Commander.AccelePriority;
 import okurun.commander.Commander.HandlePriority;
 import okurun.predictor.Predictor.Model;
 import okurun.predictor.models.*;
+import okurun.radaroperator.RadarOperator;
 
 public abstract class AbstractOneOnOneTactic extends AbstractTactic {
     @Override
@@ -35,6 +36,28 @@ public abstract class AbstractOneOnOneTactic extends AbstractTactic {
         } else if (diffEnergy < 0) {
             bot.setTurretColor(Color.BLUE);
         }
+    }
+
+    @Override
+    protected void setRadarActionName(OkuRunBot bot) {
+        if (targetEnemyId.get() == Commander.NO_TARGET) {
+            radarAction = RadarOperator.Action.ALL_SCAN;
+            return;
+        }
+
+        final BattleManager battleManager = bot.getBattleManager();
+        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
+        if (targetEnemyProfile == null) {
+            radarAction = RadarOperator.Action.ALL_SCAN;
+            return;
+        }
+        final EnemyState latestEnemyState = targetEnemyProfile.getLatestState();
+        if (latestEnemyState == null || latestEnemyState.scannedTurnNum < bot.getTurnNumber() - 5) {
+            radarAction = RadarOperator.Action.ALL_SCAN;
+            return;
+        }
+
+        radarAction = RadarOperator.Action.TARGET_SCAN;
     }
 
     @Override

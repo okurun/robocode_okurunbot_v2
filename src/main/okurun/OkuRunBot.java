@@ -276,6 +276,7 @@ public class OkuRunBot extends Bot {
     @Override
     public void onRoundEnded(RoundEndedEvent e) {
         System.out.println("onRoundEnded()");
+        commander.onRoundEnded(e, this);
         battleManager.onRoundEnded(e, this);
         predictor.onRoundEnded(e, this);
     }
@@ -414,6 +415,7 @@ public class OkuRunBot extends Bot {
     @Override
     public void onWonRound(WonRoundEvent e) {
         System.out.println("--- onWonRound() ---");
+        commander.onWonRound(e, this);
     }
 
     /**

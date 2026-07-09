@@ -106,9 +106,6 @@ public class ArenaMap {
          * @return 壁と平行になるために左にきるべき角度（-90 〜 90）
          */
         public double getLeftTurnAngleToParallel(IBot bot) {
-            if (bot.getSpeed() < 0) {
-                System.out.println("Backword");
-            }
             switch (id) {
                 case LEFT, RIGHT -> {
                     final double diff90 = bot.normalizeRelativeAngle(90 - bot.getDirection());
