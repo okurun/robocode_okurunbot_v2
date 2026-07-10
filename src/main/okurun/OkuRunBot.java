@@ -79,6 +79,10 @@ public class OkuRunBot extends Bot {
         return bearingTo(pos[0], pos[1]);
     }
 
+    public double gunBearingTo(double[] pos) {
+        return gunBearingTo(pos[0], pos[1]);
+    }
+
     public double directionTo(double[] pos) {
         return directionTo(pos[0], pos[1]);
     }
@@ -141,8 +145,8 @@ public class OkuRunBot extends Bot {
      */
     private void drawTarget(double x, double y, Color color) {
         var g = getGraphics();
-        g.setFillColor(Color.fromRgba(color, 30));
-        g.setStrokeColor(Color.fromRgba(color, 60));
+        g.setFillColor(Color.fromRgba(Color.WHITE, 30));
+        g.setStrokeColor(Color.fromRgba(color, 80));
         g.setStrokeWidth(1);
         g.fillCircle(x, y, 10);
         g.drawCircle(x, y, 6);
@@ -265,7 +269,7 @@ public class OkuRunBot extends Bot {
      */
     @Override
     public void onRoundStarted(RoundStartedEvent e) {
-        System.out.println("onRoundStarted()");
+        System.out.println("onRoundStarted(" + e.getRoundNumber() + "): ");
     }
 
     /**
@@ -275,7 +279,7 @@ public class OkuRunBot extends Bot {
      */
     @Override
     public void onRoundEnded(RoundEndedEvent e) {
-        System.out.println("onRoundEnded()");
+        System.out.println("onRoundEnded(" + e.getRoundNumber() + "): " + e.getTurnNumber());
         commander.onRoundEnded(e, this);
         battleManager.onRoundEnded(e, this);
         predictor.onRoundEnded(e, this);

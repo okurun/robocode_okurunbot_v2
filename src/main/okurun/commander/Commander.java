@@ -258,6 +258,9 @@ public class Commander {
                 }
             }
         }
+        for (Tactic tactic : tactics.values()) {
+            tactic.onRoundEnded(e, bot);
+        }
     }
 
     /**

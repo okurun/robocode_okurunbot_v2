@@ -2,7 +2,6 @@ package okurun.commander.tactics;
 
 import java.util.List;
 
-import dev.robocode.tankroyale.botapi.events.HitByBulletEvent;
 import okurun.OkuRunBot;
 import okurun.arenamap.ArenaMap;
 import okurun.arenamap.ArenaMap.Area;
@@ -95,12 +94,12 @@ public class SurvivalTactic extends AbstractTactic {
                 gunAction = Gunner.Action.SCAN;
                 return;
             }
-            if (latesEnemyState.energy <= 0) {
-                // 敵のエネルギーが0以下なら止めを刺します
+            if (latesEnemyState.energy <= 0 || targetEnemyProfile.isNoMove(bot)) {
+                // 敵のエネルギーが0以下もしくは3ターン以上動きがない場合は止めを刺します
                 gunAction = Gunner.Action.EXECUTION;
                 return;
             }
-            gunAction = Gunner.Action.AUTO;
+            gunAction = Gunner.Action.MAX_POWER;
             return;
         }
 
@@ -153,16 +152,5 @@ public class SurvivalTactic extends AbstractTactic {
     @Override
     public double getMinSpeed(OkuRunBot bot) {
         return 2;
-    }
-
-    /**
-     * 弾丸が自分に当たった時の処理
-     * 
-     * @param e   弾丸が自分に当たったイベント
-     * @param bot ボット
-     */
-    @Override
-    public void onHitByBullet(HitByBulletEvent e, OkuRunBot bot) {
-        targetEnemyId.set(e.getBullet().getOwnerId());
     }
 }

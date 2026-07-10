@@ -37,7 +37,7 @@ public class ExecutionGunAction implements GunAction {
         GunAction.drawTargetPoint(bot, latestEnemyState, firePower);
 
         // 射撃目標位置に砲頭を向けます
-        final double bearingTo = bot.gunBearingTo(latestEnemyState.x, latestEnemyState.y);
+        final double bearingTo = bot.gunBearingTo(latestEnemyState.getPosition());
         bot.setAdjustGunForBodyTurn(true);
         bot.setTurnGunLeft(bearingTo);
 

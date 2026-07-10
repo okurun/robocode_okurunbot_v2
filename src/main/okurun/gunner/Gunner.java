@@ -18,7 +18,7 @@ public class Gunner {
         NORMAL,
         RAPID_FIRE,
         EXECUTION,
-        AUTO;
+        MAX_POWER;
     }
 
     private final Map<Action, GunAction> actions = new HashMap<>();
@@ -29,7 +29,7 @@ public class Gunner {
         actions.put(Action.NORMAL, new NormalGunAction());
         actions.put(Action.RAPID_FIRE, new RapidFireGunAction());
         actions.put(Action.EXECUTION, new ExecutionGunAction());
-        actions.put(Action.AUTO, new AutoGunAction());
+        actions.put(Action.MAX_POWER, new MaxPowerGunAction());
     }
 
     public void action(OkuRunBot bot) {

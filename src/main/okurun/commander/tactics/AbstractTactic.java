@@ -18,6 +18,7 @@ public abstract class AbstractTactic implements Tactic {
     protected Driver.Action driveAction = null;
     protected Gunner.Action gunAction = null;
     protected RadarOperator.Action radarAction = null;
+    protected final AtomicInteger bulletHitCnt = new AtomicInteger(0);
 
     @Override
     public void action(OkuRunBot bot) {
@@ -89,6 +90,23 @@ public abstract class AbstractTactic implements Tactic {
     }
 
     /**
+     * ラウンドが終了した時の処理
+     * 
+     * @param e   ラウンド終了イベント
+     * @param bot ボット
+     */
+    public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
+        final int hitCount = bulletHitCnt.get();
+        final double hitPerTurn = (hitCount == 0) ? 0 : (double) hitCount / (double) e.getTurnNumber();
+        System.out.println(String.format(
+                "%s: hit count: %d, hit/turn: %.3f",
+                this.getClass().getSimpleName(),
+                hitCount,
+                hitPerTurn));
+        bulletHitCnt.set(0);
+    }
+
+    /**
      * 弾丸が自分に当たった時の処理
      * 
      * @param e   弾丸が自分に当たったイベント
@@ -96,5 +114,6 @@ public abstract class AbstractTactic implements Tactic {
      */
     @Override
     public void onHitByBullet(HitByBulletEvent e, OkuRunBot bot) {
+        bulletHitCnt.incrementAndGet();
     }
 }

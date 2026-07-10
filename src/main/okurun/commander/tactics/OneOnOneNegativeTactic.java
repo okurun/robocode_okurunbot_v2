@@ -45,7 +45,7 @@ public class OneOnOneNegativeTactic extends AbstractOneOnOneTactic {
 
     @Override
     protected void setBaseFirePower(OkuRunBot bot) {
-        baseFirePower = 2;
+        baseFirePower = 1.5;
     }
 
     @Override
@@ -68,8 +68,8 @@ public class OneOnOneNegativeTactic extends AbstractOneOnOneTactic {
             gunAction = Gunner.Action.SCAN;
             return;
         }
-        if (latesEnemyState.energy <= 0) {
-            // 敵のエネルギーが0以下なら止めを刺します
+        if (latesEnemyState.energy <= 0 || targetEnemyProfile.isNoMove(bot)) {
+            // 敵のエネルギーが0以下もしくは3ターン以上動きがない場合は止めを刺します
             gunAction = Gunner.Action.EXECUTION;
             return;
         }
@@ -108,7 +108,7 @@ public class OneOnOneNegativeTactic extends AbstractOneOnOneTactic {
 
     @Override
     public HandlePriority getHandlePriority(OkuRunBot bot) {
-        return HandlePriority.AVOID_BULLET;
+        return HandlePriority.TARGET;
     }
 
     @Override

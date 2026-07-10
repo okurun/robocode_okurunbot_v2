@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import okurun.OkuRunBot;
 import okurun.commander.Commander;
@@ -18,7 +19,8 @@ public class EnemyProfile {
 
     private final AtomicBoolean isAlive = new AtomicBoolean(true);
     private final AtomicInteger lastConfirmedTurn = new AtomicInteger(0);
-    private Commander.TacticName tacticName = Commander.TacticName.ONE_ON_ONE_POSITIVE;
+    private final AtomicReference<Commander.TacticName> tacticName = new AtomicReference<>(
+            Commander.TacticName.ONE_ON_ONE_POSITIVE);
 
     public EnemyProfile(int id) {
         this.id = id;
@@ -129,10 +131,15 @@ public class EnemyProfile {
      * @return 最新の敵ボットの状態
      */
     public EnemyState getLatestState() {
-        if (stateHistory.isEmpty()) {
+        try {
+            if (stateHistory.isEmpty() || stateHistory.size() <= 0) {
+                return null;
+            }
+            return stateHistory.getFirst();
+        } catch (Exception e) {
+            System.out.println("Exception in getLatestState: " + e.getMessage());
             return null;
         }
-        return stateHistory.getFirst();
     }
 
     /**
@@ -141,7 +148,7 @@ public class EnemyProfile {
      * @return 戦術名
      */
     public Commander.TacticName getTacticName() {
-        return tacticName;
+        return tacticName.get();
     }
 
     /**
@@ -150,6 +157,35 @@ public class EnemyProfile {
      * @param tacticName 戦術名
      */
     public void setTacticName(Commander.TacticName tacticName) {
-        this.tacticName = tacticName;
+        this.tacticName.set(tacticName);
+    }
+
+    /**
+     * 3ターン以上動きがないか判定します
+     * 
+     * @param bot Bot
+     * @return 3ターン以上動きがない場合 → true
+     */
+    public boolean isNoMove(OkuRunBot bot) {
+        if (stateHistory.isEmpty() || stateHistory.size() <= 1) {
+            return false;
+        }
+
+        EnemyState prevState = null;
+        boolean noMoveFlag = false;
+        for (EnemyState state : stateHistory) {
+            if (prevState != null) {
+                if (state.x == prevState.x && state.y == prevState.y) {
+                    if (noMoveFlag) {
+                        return true;
+                    }
+                    noMoveFlag = true;
+                } else {
+                    break;
+                }
+            }
+            prevState = state;
+        }
+        return false;
     }
 }

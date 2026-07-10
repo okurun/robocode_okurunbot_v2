@@ -8,6 +8,8 @@ import okurun.battlemanager.BattleManager;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
+import okurun.commander.Commander.AccelePriority;
+import okurun.commander.Commander.HandlePriority;
 import okurun.driver.Driver;
 import okurun.gunner.Gunner;
 import okurun.predictor.Predictor;
@@ -98,15 +100,15 @@ public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
             gunAction = Gunner.Action.SCAN;
             return;
         }
-        if (latesEnemyState.energy <= 0) {
-            // 敵のエネルギーが0以下なら止めを刺します
+        if (latesEnemyState.energy <= 0 || targetEnemyProfile.isNoMove(bot)) {
+            // 敵のエネルギーが0以下もしくは3ターン以上動きがない場合は止めを刺します
             gunAction = Gunner.Action.EXECUTION;
             return;
         }
 
         if (bot.getGunHeat() <= bot.getGunCoolingRate() * 3) {
             // 3ターン以内に射撃可能であれば射撃を行います
-            gunAction = Gunner.Action.AUTO;
+            gunAction = Gunner.Action.MAX_POWER;
             return;
         }
 
@@ -133,7 +135,50 @@ public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
 
     @Override
     public double getMinSpeed(OkuRunBot bot) {
-        return 6;
+        return 4;
     }
 
+    @Override
+    public HandlePriority getHandlePriority(OkuRunBot bot) {
+        final BattleManager battleManager = bot.getBattleManager();
+        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
+        if (targetEnemyProfile == null) {
+            return HandlePriority.TARGET;
+        }
+        final EnemyState enemyState = targetEnemyProfile.getLatestState();
+        if (enemyState == null) {
+            return HandlePriority.TARGET;
+        }
+
+        final Commander commander = bot.getCommander();
+        final double enemyLateralAngle = Math.abs(commander.getEnemyLateralAngle(bot, enemyState));
+        if (enemyLateralAngle <= 30 || enemyLateralAngle >= 120) {
+            // 敵が自分からみて縦方向にいる場合はジグザク走行する
+            return HandlePriority.AVOID_BULLET;
+        }
+
+        return HandlePriority.TARGET;
+    }
+
+    @Override
+    public AccelePriority getAccelePriority(OkuRunBot bot) {
+        final BattleManager battleManager = bot.getBattleManager();
+        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
+        if (targetEnemyProfile == null) {
+            return AccelePriority.MAX_SPEED;
+        }
+        final EnemyState enemyState = targetEnemyProfile.getLatestState();
+        if (enemyState == null) {
+            return AccelePriority.MAX_SPEED;
+        }
+
+        final Commander commander = bot.getCommander();
+        final double enemyLateralAngle = Math.abs(commander.getEnemyLateralAngle(bot, enemyState));
+        if (enemyLateralAngle >= 60 && enemyLateralAngle <= 120) {
+            // 敵が自分からみて横方向にいる場合はランダムにブレーキをかける
+            return AccelePriority.AVOID_BULLET;
+        }
+
+        return AccelePriority.MAX_SPEED;
+    }
 }

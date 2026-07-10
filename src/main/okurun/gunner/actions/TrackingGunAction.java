@@ -43,7 +43,7 @@ public class TrackingGunAction implements GunAction {
         GunAction.drawTargetPoint(bot, nextEnemyState, 0);
 
         bot.setAdjustGunForBodyTurn(true);
-        final double bearingTo = bot.gunBearingTo(nextEnemyState.x, nextEnemyState.y);
+        final double bearingTo = bot.gunBearingTo(nextEnemyState.getPosition());
         bot.setTurnGunLeft(bearingTo);
 
         return null;

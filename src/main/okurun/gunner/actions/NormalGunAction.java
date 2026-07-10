@@ -50,7 +50,7 @@ public class NormalGunAction implements GunAction {
         GunAction.drawTargetPoint(bot, fireTarget, firePower);
 
         // 射撃目標位置に砲頭を向けます
-        final double bearingTo = bot.gunBearingTo(fireTarget.x, fireTarget.y);
+        final double bearingTo = bot.gunBearingTo(fireTarget.getPosition());
         bot.setAdjustGunForBodyTurn(true);
         bot.setTurnGunLeft(bearingTo);
 

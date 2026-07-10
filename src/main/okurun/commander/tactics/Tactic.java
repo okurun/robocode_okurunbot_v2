@@ -1,6 +1,7 @@
 package okurun.commander.tactics;
 
 import dev.robocode.tankroyale.botapi.events.HitByBulletEvent;
+import dev.robocode.tankroyale.botapi.events.RoundEndedEvent;
 import okurun.OkuRunBot;
 import okurun.commander.Commander.AccelePriority;
 import okurun.commander.Commander.HandlePriority;
@@ -31,6 +32,14 @@ public interface Tactic {
     AccelePriority getAccelePriority(OkuRunBot bot);
 
     double getMinSpeed(OkuRunBot bot);
+
+        /**
+     * ラウンドが終了した時の処理
+     * 
+     * @param e ラウンド終了イベント
+     * @param bot ボット
+     */
+    void onRoundEnded(RoundEndedEvent e, OkuRunBot bot);
 
     /**
      * 弾丸が自分に当たった時の処理

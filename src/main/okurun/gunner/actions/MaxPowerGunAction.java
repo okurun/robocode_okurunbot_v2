@@ -10,7 +10,9 @@ import okurun.commander.Commander;
 import okurun.gunner.Gunner;
 import okurun.predictor.Predictor;
 
-public class AutoGunAction implements GunAction {
+public class MaxPowerGunAction implements GunAction {
+
+    private static final double FIREPOWER_SEARCH_STEP = 0.4;
 
     @Override
     public Gunner.Action action(OkuRunBot bot) {
@@ -33,7 +35,7 @@ public class AutoGunAction implements GunAction {
 
         double firePower;
         EnemyState fireTarget = null;
-        for (firePower = Constants.MAX_FIREPOWER; firePower > 0; firePower -= 0.4) {
+        for (firePower = Constants.MAX_FIREPOWER; firePower > 0; firePower -= FIREPOWER_SEARCH_STEP) {
             fireTarget = GunAction.getFireTarget(bot, targetEnemyProfile, firePower);
             if (fireTarget != null) {
                 break;
@@ -43,12 +45,28 @@ public class AutoGunAction implements GunAction {
             return Gunner.Action.TRACKING;
         }
 
+        double bearingTo = bot.gunBearingTo(fireTarget.getPosition());
+        while (Math.abs(bearingTo) > bot.getMaxGunTurnRate()) {
+            // 砲がまわり切らないなら早い弾丸（威力を下げる）に変更
+            if (firePower - FIREPOWER_SEARCH_STEP <= 0) {
+                // 0にはならないようにする
+                break;
+            }
+            final EnemyState prevTarget = fireTarget;
+            firePower -= FIREPOWER_SEARCH_STEP;
+            fireTarget = GunAction.getFireTarget(bot, targetEnemyProfile, firePower);
+            if (fireTarget == null) {
+                fireTarget = prevTarget;
+                break;
+            }
+            bearingTo = bot.gunBearingTo(fireTarget.getPosition());
+        }
+
         // デバッグ用に射撃目標位置に円を描きます
         // ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
         GunAction.drawTargetPoint(bot, fireTarget, firePower);
 
         // 射撃目標位置に砲頭を向けます
-        final double bearingTo = bot.gunBearingTo(fireTarget.x, fireTarget.y);
         bot.setAdjustGunForBodyTurn(true);
         bot.setTurnGunLeft(bearingTo);
 
