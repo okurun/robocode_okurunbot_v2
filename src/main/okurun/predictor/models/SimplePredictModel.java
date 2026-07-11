@@ -10,11 +10,16 @@ import okurun.predictor.Predictor;
 /**
  * 予測モデル：等速直線運動 + 定期的な旋回 + 加速/減速
  */
-public class SimplePredictModel extends PredictModel {
+public class SimplePredictModel extends AbstractPredictModel {
     @Override
     public EnemyState nextTurnState(OkuRunBot bot, EnemyState enemyState, Deque<EnemyState> stateHistory) {
         if (stateHistory.size() < 1) {
             return null;
+        }
+
+        final String cacheName = String.format("nextTurnState_%d_%d", enemyState.id, enemyState.scannedTurnNum);
+        if (caches.containsKey(cacheName)) {
+            return (EnemyState) caches.get(cacheName);
         }
 
         double velocity = enemyState.velocity;
@@ -40,8 +45,10 @@ public class SimplePredictModel extends PredictModel {
 
         final double[] predictedPos = Predictor.calcPosition(enemyState.x, enemyState.y, enemyState.heading,
                 velocity, enemyState.turnDegree, 1);
-        return new EnemyState(enemyState.id, enemyState.scannedTurnNum + 1, predictedPos[0], predictedPos[1],
+        final EnemyState predictedEnemyState = new EnemyState(enemyState.id, enemyState.scannedTurnNum + 1, predictedPos[0], predictedPos[1],
                 enemyState.heading + enemyState.turnDegree, velocity, enemyState.energy,
                 enemyState.turnDegree, velocity - enemyState.velocity, enemyState.distance);
+        caches.put(cacheName, predictedEnemyState);
+        return predictedEnemyState;
     }
 }

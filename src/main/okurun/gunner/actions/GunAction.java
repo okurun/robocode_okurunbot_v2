@@ -2,7 +2,6 @@ package okurun.gunner.actions;
 
 import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.OkuRunBot;
-import okurun.battlemanager.BattleManager;
 import okurun.battlemanager.BulletHistory;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
@@ -104,7 +103,6 @@ public interface GunAction {
      * @param bulletHistory 弾丸履歴
      */
     public static void stackBulletHistory(OkuRunBot bot, BulletHistory bulletHistory) {
-        final BattleManager battleManager = bot.getBattleManager();
-        battleManager.bulletStack.addLast(bulletHistory);
+        bot.getBattleManager().addBulletStack(bulletHistory);
     }
 }

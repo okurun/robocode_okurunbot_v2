@@ -11,7 +11,7 @@ import okurun.predictor.Predictor;
 /**
  * ジグザグ走行を再現して予測するモデル
  */
-public class ZigzagPredictModel extends PredictModel {
+public class ZigzagPredictModel extends AbstractPredictModel {
     private static final int LIMIT_TURN_NUM = 20;
     private static final int DETECT_ZIGZAG_TURN_CHANGE_NUM = 5;
 
@@ -35,6 +35,12 @@ public class ZigzagPredictModel extends PredictModel {
         if (moveHistories.size() < DETECT_ZIGZAG_TURN_CHANGE_NUM) {
             return null;
         }
+
+        final String cacheName = String.format("nextTurnState_%d_%d", enemyState.id, enemyState.scannedTurnNum);
+        if (caches.containsKey(cacheName)) {
+            return (EnemyState) caches.get(cacheName);
+        }
+
         final int turnNumDiff = enemyState.scannedTurnNum - moveHistories.getLast().scannedTurnNum;
         if (turnNumDiff <= 0) {
             return new EnemyState(enemyState.id, enemyState.scannedTurnNum + 1, enemyState.x, enemyState.y,
@@ -47,9 +53,11 @@ public class ZigzagPredictModel extends PredictModel {
 
         final double[] predictedPos = Predictor.calcPosition(enemyState.x, enemyState.y, enemyState.heading,
                 moveHistory.velocity, moveHistory.turnDegree, 1);
-        return new EnemyState(enemyState.id, enemyState.scannedTurnNum + 1, predictedPos[0], predictedPos[1],
+        final EnemyState predictedEnemyState = new EnemyState(enemyState.id, enemyState.scannedTurnNum + 1, predictedPos[0], predictedPos[1],
                 enemyState.heading + enemyState.turnDegree, moveHistory.velocity, enemyState.energy,
                 enemyState.turnDegree, moveHistory.velocity - enemyState.velocity, enemyState.distance);
+        caches.put(cacheName, predictedEnemyState);
+        return predictedEnemyState;
     }
 
     @SuppressWarnings("unchecked")

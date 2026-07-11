@@ -3,7 +3,6 @@ package okurun.commander.tactics;
 import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.OkuRunBot;
 import okurun.battlemanager.BattleManager;
-import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
 import okurun.predictor.Predictor.Model;
@@ -17,24 +16,25 @@ public abstract class AbstractOneOnOneTactic extends AbstractTactic {
     @Override
     public void action(OkuRunBot bot) {
         super.action(bot);
+
+        // 砲台の色を戦況によって変える
         final Commander commander = bot.getCommander();
         final int targetEnemyId = commander.getTargetEnemyId(bot);
         if (targetEnemyId == Commander.NO_TARGET) {
             return;
         }
         final BattleManager battleManager = bot.getBattleManager();
-        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
-        if (targetEnemyProfile == null) {
-            return;
-        }
-        final EnemyState enemyState = targetEnemyProfile.getLatestState();
+        final EnemyState enemyState = battleManager.getLatestEnemyState(targetEnemyId);
         if (enemyState == null) {
             return;
         }
+
         final double diffEnergy = bot.getEnergy() - enemyState.energy;
         if (diffEnergy > 0) {
+            // 勝っている
             bot.setTurretColor(Color.RED);
         } else if (diffEnergy < 0) {
+            // 負けている
             bot.setTurretColor(Color.BLUE);
         }
     }
@@ -47,12 +47,7 @@ public abstract class AbstractOneOnOneTactic extends AbstractTactic {
         }
 
         final BattleManager battleManager = bot.getBattleManager();
-        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
-        if (targetEnemyProfile == null) {
-            radarAction = RadarOperator.Action.ALL_SCAN;
-            return;
-        }
-        final EnemyState latestEnemyState = targetEnemyProfile.getLatestState();
+        final EnemyState latestEnemyState = battleManager.getLatestEnemyState(targetEnemyId.get());
         if (latestEnemyState == null || latestEnemyState.scannedTurnNum < bot.getTurnNumber() - 5) {
             radarAction = RadarOperator.Action.ALL_SCAN;
             return;
@@ -65,13 +60,10 @@ public abstract class AbstractOneOnOneTactic extends AbstractTactic {
     protected void setPredictModel(OkuRunBot bot) {
         if (targetEnemyId.get() != Commander.NO_TARGET) {
             final BattleManager battleManager = bot.getBattleManager();
-            final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
-            if (targetEnemyProfile != null) {
-                if (ZigzagPredictModel.canUse(bot, targetEnemyProfile.getStateHistory())) {
-                    bot.setScanColor(Color.fromRgba(Color.LIGHT_BLUE, 2));
-                    predictModel = Model.ZIGZAG;
-                    return;
-                }
+            if (ZigzagPredictModel.canUse(bot, battleManager.getEnemyProfile(targetEnemyId.get()).getStateHistory())) {
+                bot.setScanColor(Color.fromRgba(Color.LIGHT_BLUE, 2));
+                predictModel = Model.ZIGZAG;
+                return;
             }
         }
         predictModel = Model.SIMPLE;

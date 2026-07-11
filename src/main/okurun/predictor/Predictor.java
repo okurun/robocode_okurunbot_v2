@@ -3,9 +3,8 @@ package okurun.predictor;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentHashMap;
 
-import dev.robocode.tankroyale.botapi.BulletState;
 import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
 import okurun.arenamap.ArenaMap;
@@ -24,26 +23,20 @@ public class Predictor {
     }
 
     private final Map<Model, PredictModel> predictModels = new HashMap<>();
-    private final Map<Integer, Map<Model, Map<Integer, EnemyState>>> predictedDataCache = new HashMap<>();
-    private final Deque<Double> hitDistanceHistory = new ConcurrentLinkedDeque<>();
-
-    public final Map<Model, PredictModelAccuracy> modelAccuracies = new HashMap<>();
-    public final Map<Model, PredictModelAccuracy> modelTotalAccuracies = new HashMap<>();
+    private final Map<Integer, Model> bulletModels = new ConcurrentHashMap<>();
 
     public void init(OkuRunBot bot) {
-        predictedDataCache.clear();
         predictModels.put(Model.SIMPLE, new SimplePredictModel());
         predictModels.put(Model.ZIGZAG, new ZigzagPredictModel());
-        for (final Model modelName : predictModels.keySet()) {
-            modelAccuracies.put(modelName, new PredictModelAccuracy());
+    }
+
+    public void preAction(OkuRunBot bot) {
+        for (PredictModel model : predictModels.values()) {
+            model.preAction();
         }
     }
 
     public void action(OkuRunBot bot) {
-        predictedDataCache.clear();
-        for (PredictModel model : predictModels.values()) {
-            model.clearCache();
-        }
     }
 
     /**
@@ -86,41 +79,22 @@ public class Predictor {
             return latestEnemyState;
         }
 
-        // キャッシュがない場合は作成します
-        Map<Model, Map<Integer, EnemyState>> modelPredictedDataCache = predictedDataCache.get(enemyProfile.getId());
-        if (modelPredictedDataCache == null) {
-            modelPredictedDataCache = new HashMap<>();
-            predictedDataCache.put(enemyProfile.getId(), modelPredictedDataCache);
-        }
-        Map<Integer, EnemyState> cache = modelPredictedDataCache.get(model);
-        if (cache == null) {
-            cache = new HashMap<>();
-            modelPredictedDataCache.put(model, cache);
-        }
-
         final ArenaMap arenaMap = bot.getArenaMap();
         final Deque<EnemyState> statusHistory = enemyProfile.getStateHistory();
         EnemyState enemyState = latestEnemyState;
         while (enemyState.scannedTurnNum < targetTurnNum) {
-            if (!cache.containsKey(enemyState.scannedTurnNum + 1)) {
-                // キャッシュがない場合は予測モデルを使って次のターンの敵の状態を予測します
-                enemyState = predictModel.nextTurnState(bot, enemyState, statusHistory);
-                if (enemyState == null) {
-                    return null;
-                }
-                if (enemyState.x < 0 || enemyState.x > arenaMap.getWidth() || enemyState.y < 0
-                        || enemyState.y > arenaMap.getHeight()) {
-                    // アリーナの外側にはみ出してしまった場合は、予測を中止します
-                    return null;
-                }
-                // 予測結果をキャッシュします
-                cache.put(enemyState.scannedTurnNum, enemyState);
-            } else {
-                enemyState = cache.get(enemyState.scannedTurnNum + 1);
+            // キャッシュがない場合は予測モデルを使って次のターンの敵の状態を予測します
+            enemyState = predictModel.nextTurnState(bot, enemyState, statusHistory);
+            if (enemyState == null) {
+                return null;
+            }
+            if (enemyState.x < 0 || enemyState.x > arenaMap.getWidth() || enemyState.y < 0
+                    || enemyState.y > arenaMap.getHeight()) {
+                // アリーナの外側にはみ出してしまった場合は、予測を中止します
+                return null;
             }
         }
-
-        return cache.get(targetTurnNum);
+        return enemyState;
     }
 
     public PredictModel getPredictModel(Model model) {
@@ -131,12 +105,11 @@ public class Predictor {
      * ゲームが終了した時の処理
      * 
      * @param e ゲーム終了イベント
+     * @param bot ボット
      */
-    public void onGameEnded(GameEndedEvent e) {
-        for (final Model model : modelTotalAccuracies.keySet()) {
-            final PredictModelAccuracy totalAccuracy = modelTotalAccuracies.get(model);
-            System.out.println("Total accuracy(" + model + "): " + totalAccuracy.getAccuracyString());
-            totalAccuracy.reset();
+    public void onGameEnded(GameEndedEvent e, OkuRunBot bot) {
+        for (final Model model : predictModels.keySet()) {
+            predictModels.get(model).onGameEnded(e, bot);
         }
     }
 
@@ -147,26 +120,9 @@ public class Predictor {
      * @param bot ボット
      */
     public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
+        bulletModels.clear();
         for (final Model model : predictModels.keySet()) {
-            final PredictModelAccuracy predictionAccuracy = modelAccuracies.get(model);
-            System.out.println("PredictModelAccuracy(" + model + "): " + predictionAccuracy.getAccuracyString());
-            if (modelTotalAccuracies.containsKey(model)) {
-                final PredictModelAccuracy totalAccuracy = modelTotalAccuracies.get(model);
-                totalAccuracy.addFireCount(predictionAccuracy.getFireCount());
-                totalAccuracy.addHitCount(predictionAccuracy.getHitCount());
-                totalAccuracy.addMissCount(predictionAccuracy.getMissCount());
-            } else {
-                modelTotalAccuracies.put(model, predictionAccuracy);
-            }
-        }
-        int count = 0;
-        double total = 0;
-        for (double distance : hitDistanceHistory) {
-            total += distance;
-            count++;
-        }
-        if (count > 0 && total > 0) {
-            System.out.println(String.format("Average hit distance: %.2f", total / count));
+            predictModels.get(model).onRoundEnded(e, bot);
         }
     }
 
@@ -177,18 +133,15 @@ public class Predictor {
      * @param bot              ボット
      */
     public void onBulletFired(BulletFiredEvent e, OkuRunBot bot) {
+        final int bulletId = e.getBullet().getBulletId();
         final BattleManager battleManager = bot.getBattleManager();
-        final BulletHistory bulletHistory = battleManager.bulletHistories.get(e.getBullet().getBulletId());
+        final BulletHistory bulletHistory = battleManager.getBulletHistory(bulletId);
         if (bulletHistory == null) {
             System.out.println(e.getTurnNumber() + " onBulletFired: bulletHistory is null");
             return;
         }
-        final PredictModelAccuracy predictionAccuracy = modelAccuracies.get(bulletHistory.predictModel);
-        if (predictionAccuracy == null) {
-            System.out.println(e.getTurnNumber() + " onBulletFired: predictionAccuracy is null");
-            return;
-        }
-        predictionAccuracy.incrementFireCount();
+        bulletModels.put(bulletId, bulletHistory.predictModel);
+        predictModels.get(bulletHistory.predictModel).onBulletFired(e, bot);
     }
 
     /**
@@ -198,26 +151,13 @@ public class Predictor {
      * @param bot               ボット
      */
     public void onBulletHit(BulletHitBotEvent e, OkuRunBot bot) {
-        final BattleManager battleManager = bot.getBattleManager();
-        final BulletState bulletState = e.getBullet();
-        final int bulletId = bulletState.getBulletId();
-        final BulletHistory bulletHistory = battleManager.bulletHistories.get(bulletId);
-        if (bulletHistory == null) {
-            System.out.println("Warning: " + e.getTurnNumber() + " onBulletHit: bulletHistory is null");
+        final int bulletId = e.getBullet().getBulletId();
+        final Model model = bulletModels.remove(bulletId);
+        if (model == null) {
+            System.out.println("Warning: " + e.getTurnNumber() + " onBulletHit: model is null");
             return;
         }
-        final PredictModelAccuracy predictionAccuracy = modelAccuracies.get(bulletHistory.predictModel);
-        if (predictionAccuracy == null) {
-            System.out.println("Warning: " + e.getTurnNumber() + " onBulletHit: predictionAccuracy is null: "
-                    + bulletHistory.predictModel);
-            return;
-        }
-        if (e.getVictimId() == bulletHistory.targetEnemyId) {
-            predictionAccuracy.incrementHitCount();
-            hitDistanceHistory.add(bulletHistory.distance);
-        } else {
-            predictionAccuracy.incrementMissCount();
-        }
+        predictModels.get(model).onBulletHit(e, bot);
     }
 
     /**
@@ -227,20 +167,13 @@ public class Predictor {
      * @param bot                  ボット
      */
     public void onBulletHitBullet(BulletHitBulletEvent e, OkuRunBot bot) {
-        final BattleManager battleManager = bot.getBattleManager();
-        final BulletState bulletState = e.getBullet();
-        final int bulletId = bulletState.getBulletId();
-        final BulletHistory bulletHistory = battleManager.bulletHistories.get(bulletId);
-        if (bulletHistory == null) {
-            System.out.println(e.getTurnNumber() + " onBulletHitBullet: bulletHistory is null");
+        final int bulletId = e.getBullet().getBulletId();
+        final Model model = bulletModels.remove(bulletId);
+        if (model == null) {
+            System.out.println("Warning: " + e.getTurnNumber() + " onBulletHitBullet: model is null");
             return;
         }
-        final PredictModelAccuracy predictionAccuracy = modelAccuracies.get(bulletHistory.predictModel);
-        if (predictionAccuracy == null) {
-            System.out.println(e.getTurnNumber() + " onBulletHitBullet: predictionAccuracy is null");
-            return;
-        }
-        predictionAccuracy.incrementMissCount();
+        predictModels.get(model).onBulletHitBullet(e, bot);
     }
 
     /**
@@ -250,20 +183,13 @@ public class Predictor {
      * @param bot ボット
      */
     public void onBulletHitWall(BulletHitWallEvent e, OkuRunBot bot) {
-        final BattleManager battleManager = bot.getBattleManager();
-        final BulletState bulletState = e.getBullet();
-        final int bulletId = bulletState.getBulletId();
-        final BulletHistory bulletHistory = battleManager.bulletHistories.get(bulletId);
-        if (bulletHistory == null) {
-            System.out.println(e.getTurnNumber() + " onBulletHitWall: bulletHistory is null");
+        final int bulletId = e.getBullet().getBulletId();
+        final Model model = bulletModels.remove(bulletId);
+        if (model == null) {
+            System.out.println("Warning: " + e.getTurnNumber() + " onBulletHitWall: model is null");
             return;
         }
-        final PredictModelAccuracy predictionAccuracy = modelAccuracies.get(bulletHistory.predictModel);
-        if (predictionAccuracy == null) {
-            System.out.println(e.getTurnNumber() + " onBulletHitWall: predictionAccuracy is null");
-            return;
-        }
-        predictionAccuracy.incrementMissCount();
+        predictModels.get(model).onBulletHitWall(e, bot);
     }
 
     /**

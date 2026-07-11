@@ -21,6 +21,9 @@ public class Driver {
         actions.put(Action.AVOID_WALL, new AvoidWallDriveAction());
     }
 
+    public void preAction(OkuRunBot bot) {
+    }
+
     public void action(OkuRunBot bot) {
         Action action = bot.getCommander().getDriveAction(bot);
         while (action != null) {

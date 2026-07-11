@@ -23,9 +23,6 @@ public class TrackingGunAction implements GunAction {
 
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
-        if (targetEnemyProfile == null) {
-            return Gunner.Action.SCAN;
-        }
 
         // 敵の次の位置を予測します
         final Predictor predictor = bot.getPredictor();

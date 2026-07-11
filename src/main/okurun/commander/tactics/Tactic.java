@@ -12,6 +12,8 @@ import okurun.predictor.Predictor.Model;
 import okurun.radaroperator.RadarOperator;
 
 public interface Tactic {
+    void preAction(OkuRunBot bot);
+
     void action(OkuRunBot bot);
 
     int getTargetEnemyId(OkuRunBot bot);

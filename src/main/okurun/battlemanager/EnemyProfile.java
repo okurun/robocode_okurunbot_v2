@@ -112,7 +112,7 @@ public class EnemyProfile {
         if (stateHistory.size() > 30) {
             stateHistory.removeLast();
         }
-        lastConfirmedTurn.set(state.scannedTurnNum);
+        setLastConfirmedTurn(state.scannedTurnNum);
     }
 
     /**

@@ -3,55 +3,53 @@ package okurun.battlemanager;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import dev.robocode.tankroyale.botapi.BulletState;
 import dev.robocode.tankroyale.botapi.events.*;
 import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.OkuRunBot;
+import okurun.commander.Commander;
 import okurun.gunner.Gunner;
 
 /**
  * 戦闘管理クラス
  */
 public class BattleManager {
-    public final Deque<BulletHistory> bulletStack = new ConcurrentLinkedDeque<>();
-    public final Map<Integer, BulletHistory> bulletHistories = new ConcurrentHashMap<>();
-
+    private final Deque<BulletHistory> bulletStack = new ConcurrentLinkedDeque<>();
+    private final Map<Integer, BulletHistory> bulletHistories = new ConcurrentHashMap<>();
     private final Map<Integer, EnemyProfile> enemyProfiles = new ConcurrentHashMap<>();
     private final Map<String, Object> caches = new ConcurrentHashMap<>();
     private final AtomicInteger lastFiredTurnNum = new AtomicInteger(0);
 
     private int enemyCount;
-    private int myId;
+    private int myId = 0;
 
     public void init(OkuRunBot bot) {
-        enemyCount = bot.getEnemyCount();
         myId = bot.getMyId();
-        init();
-    }
-
-    private void init() {
+        enemyCount = bot.getEnemyCount();
         lastFiredTurnNum.set(0);
         bulletStack.clear();
         bulletHistories.clear();
-        for (int i = 1; i <= enemyCount + 1; i++) {
-            if (i == myId) {
-                continue;
-            }
-            if (enemyProfiles.containsKey(i)) {
-                enemyProfiles.get(i).reset();
-            } else {
-                enemyProfiles.put(i, new EnemyProfile(i));
+    }
+
+    public void preAction(OkuRunBot bot) {
+        caches.clear();
+        if (enemyProfiles.size() > enemyCount) {
+            System.out.println(String.format(
+                    "Warning enemyProfiles.size()=%d > enemyCount=%d",
+                    enemyProfiles.size(),
+                    enemyCount));
+            for (final Entry<Integer, EnemyProfile> entry : enemyProfiles.entrySet()) {
+                System.out.println(String.format(
+                        "Warning Key: %d, id: %d", entry.getKey(), entry.getValue().getId()));
             }
         }
     }
 
     public void action(OkuRunBot bot) {
-        caches.clear();
-
         // デバッグ用に射撃目標位置を描きます
         // ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
         for (final BulletHistory bulletHistory : bulletHistories.values()) {
@@ -87,11 +85,21 @@ public class BattleManager {
                 aliveEnemyCount++;
             }
         }
-        return aliveEnemyCount;
+        return Math.min(aliveEnemyCount, enemyCount);
     }
 
+    /**
+     * 指定したIDの敵ボットのプロファイルを取得します
+     * もしそのIDのプロファイルが存在しなければ新しく作成します
+     * 
+     * @param id 敵ボットのID
+     * @return 指定したIDの敵ボットのプロファイル
+     */
     public EnemyProfile getEnemyProfile(int id) {
-        return enemyProfiles.get(id);
+        if (id == Commander.NO_TARGET || id == myId) {
+            return null;
+        }
+        return enemyProfiles.computeIfAbsent(id, EnemyProfile::new);
     }
 
     /**
@@ -117,11 +125,10 @@ public class BattleManager {
      * @return 指定したIDの敵の最新の敵ボットの状態
      */
     public EnemyState getLatestEnemyState(int id) {
-        final EnemyProfile enemyProfile = enemyProfiles.get(id);
-        if (enemyProfile == null) {
+        if (id == Commander.NO_TARGET) {
             return null;
         }
-        return enemyProfile.getLatestState();
+        return getEnemyProfile(id).getLatestState();
     }
 
     /**
@@ -202,7 +209,35 @@ public class BattleManager {
     public int getLastFiredTurnNum() {
         return lastFiredTurnNum.get();
     }
-    
+
+    /**
+     * 弾丸履歴をスタックします
+     * 
+     * @param bulletHistory 弾丸履歴
+     */
+    public void addBulletStack(BulletHistory bulletHistory) {
+        bulletStack.addLast(bulletHistory);
+    }
+
+    /**
+     * 弾丸履歴をスタックから取得します
+     * @param bulletId 弾丸ID
+     * @return 弾丸履歴
+     */
+    public BulletHistory getBulletHistory(int bulletId) {
+        return bulletHistories.get(bulletId);
+    }
+
+    /**
+     * ゲームが終了した時の処理
+     * 
+     * @param e ゲーム終了イベント
+     * @param bot Bot
+     */
+    public void onGameEnded(GameEndedEvent e, OkuRunBot bot) {
+        enemyProfiles.clear();
+    }
+
     /**
      * ラウンド終了時の処理
      * 
@@ -210,7 +245,12 @@ public class BattleManager {
      * @param bot
      */
     public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
-        init();
+        lastFiredTurnNum.set(0);
+        bulletStack.clear();
+        bulletHistories.clear();
+        for (EnemyProfile profile : enemyProfiles.values()) {
+            profile.reset();
+        }
     }
 
     /**
@@ -220,11 +260,7 @@ public class BattleManager {
      * @param bot Bot
      */
     public void onBotDeath(BotDeathEvent e, OkuRunBot bot) {
-        final EnemyProfile enemyProfile = enemyProfiles.get(e.getVictimId());
-        if (enemyProfile == null) {
-            return;
-        }
-        enemyProfile.died();
+        getEnemyProfile(e.getVictimId()).died();
     }
 
     /**
@@ -234,10 +270,7 @@ public class BattleManager {
      * @param bot Bot
      */
     public void onHitBot(HitBotEvent e, OkuRunBot bot) {
-        final EnemyProfile enemyProfile = getEnemyProfile(e.getVictimId());
-        if (enemyProfile != null) {
-            enemyProfile.setLastConfirmedTurn(e.getTurnNumber());
-        }
+        getEnemyProfile(e.getVictimId()).setLastConfirmedTurn(e.getTurnNumber());
     }
 
     /**
@@ -264,11 +297,7 @@ public class BattleManager {
      * @param bot Bot
      */
     public void onHitByBullet(HitByBulletEvent e, OkuRunBot bot) {
-        final int ownerId = e.getBullet().getOwnerId();
-        final EnemyProfile enemyProfile = getEnemyProfile(ownerId);
-        if (enemyProfile != null) {
-            enemyProfile.setLastConfirmedTurn(e.getTurnNumber());
-        }
+        getEnemyProfile(e.getBullet().getOwnerId()).setLastConfirmedTurn(e.getTurnNumber());
     }
 
     /**
@@ -278,14 +307,8 @@ public class BattleManager {
      * @param bot Bot
      */
     public void onBulletHit(BulletHitBotEvent e, OkuRunBot bot) {
-        final EnemyProfile enemyProfile = getEnemyProfile(e.getVictimId());
-        if (enemyProfile != null) {
-            enemyProfile.setLastConfirmedTurn(e.getTurnNumber());
-        }
-
-        final BulletState bulletState = e.getBullet();
-        final int bulletId = bulletState.getBulletId();
-        bulletHistories.remove(bulletId);
+        getEnemyProfile(e.getVictimId()).setLastConfirmedTurn(e.getTurnNumber());
+        bulletHistories.remove(e.getBullet().getBulletId());
     }
 
     /**
@@ -296,14 +319,8 @@ public class BattleManager {
      */
     public void onBulletHitBullet(BulletHitBulletEvent e, OkuRunBot bot) {
         final int ownerId = e.getBullet().getOwnerId();
-        final EnemyProfile enemyProfile = getEnemyProfile(ownerId);
-        if (enemyProfile != null) {
-            enemyProfile.setLastConfirmedTurn(e.getTurnNumber());
-        }
-
-        final BulletState bulletState = e.getBullet();
-        final int bulletId = bulletState.getBulletId();
-        bulletHistories.remove(bulletId);
+        getEnemyProfile(ownerId).setLastConfirmedTurn(e.getTurnNumber());
+        bulletHistories.remove(e.getBullet().getBulletId());
     }
 
     /**
@@ -313,9 +330,7 @@ public class BattleManager {
      * @param bot Bot
      */
     public void onBulletHitWall(BulletHitWallEvent e, OkuRunBot bot) {
-        final BulletState bulletState = e.getBullet();
-        final int bulletId = bulletState.getBulletId();
-        bulletHistories.remove(bulletId);
+        bulletHistories.remove(e.getBullet().getBulletId());
     }
 
     /**
@@ -325,7 +340,7 @@ public class BattleManager {
      * @param bot Bot
      */
     public void onScannedBot(ScannedBotEvent e, OkuRunBot bot) {
-        final EnemyProfile enemyProfile = enemyProfiles.get(e.getScannedBotId());
+        final EnemyProfile enemyProfile = getEnemyProfile(e.getScannedBotId());
         final EnemyState enemyState = enemyProfile.getLatestState();
         double turnDegree = 0;
         double acceleration = 0;

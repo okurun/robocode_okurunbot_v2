@@ -80,45 +80,47 @@ public class SurvivalTactic extends AbstractTactic {
 
     @Override
     protected void setGunActionName(OkuRunBot bot) {
-        if (targetEnemyId.get() != Commander.NO_TARGET) {
-            final BattleManager battleManager = bot.getBattleManager();
-            final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
-            if (targetEnemyProfile == null) {
-                // 全体スキャンを優先する
-                gunAction = Gunner.Action.SCAN;
-                return;
-            }
-            final EnemyState latesEnemyState = targetEnemyProfile.getLatestState();
-            if (latesEnemyState == null) {
-                // 全体スキャンを優先する
-                gunAction = Gunner.Action.SCAN;
-                return;
-            }
-            if (latesEnemyState.energy <= 0 || targetEnemyProfile.isNoMove(bot)) {
-                // 敵のエネルギーが0以下もしくは3ターン以上動きがない場合は止めを刺します
-                gunAction = Gunner.Action.EXECUTION;
-                return;
-            }
-            gunAction = Gunner.Action.MAX_POWER;
+        if (targetEnemyId.get() == Commander.NO_TARGET) {
+            gunAction = Gunner.Action.SCAN;
             return;
         }
 
-        // 全体スキャンを行う
-        gunAction = Gunner.Action.SCAN;
+        final BattleManager battleManager = bot.getBattleManager();
+        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
+        final EnemyState latesEnemyState = targetEnemyProfile.getLatestState();
+        if (latesEnemyState == null) {
+            // 全体スキャンを優先する
+            gunAction = Gunner.Action.SCAN;
+            return;
+        }
+        if (latesEnemyState.energy <= 0) {
+            // 敵のエネルギーが0以下の場合は止めを刺します
+            gunAction = Gunner.Action.EXECUTION;
+            return;
+        }
+        if (targetEnemyProfile.isNoMove(bot) && latesEnemyState.distance > OkuRunBot.BODY_SIZE) {
+            // 敵が動いていない、かつ離れている場合は射撃します
+            gunAction = Gunner.Action.EXECUTION;
+            return;
+        }
+
+        if (bot.getGunHeat() <= bot.getGunCoolingRate() * 3) {
+            // 3ターン以内に射撃可能であれば射撃を行います
+            if (latesEnemyState.distance < OkuRunBot.BODY_SIZE + 10) {
+                gunAction = Gunner.Action.RAPID_FIRE;
+                return;
+            }
+        }
+        gunAction = Gunner.Action.MAX_POWER;
     }
 
     @Override
     protected void setRadarActionName(OkuRunBot bot) {
         if (targetEnemyId.get() != Commander.NO_TARGET) {
             final BattleManager battleManager = bot.getBattleManager();
-            final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
-            if (targetEnemyProfile == null) {
-                // 全体スキャンをする
-                radarAction = RadarOperator.Action.ALL_SCAN;
-                return;
-            }
             final Predictor predictor = bot.getPredictor();
-            final EnemyState predictedEnemyState = predictor.predict(bot, targetEnemyProfile, bot.getTurnNumber());
+            final EnemyState predictedEnemyState = predictor.predict(bot,
+                    battleManager.getEnemyProfile(targetEnemyId.get()), bot.getTurnNumber());
             if (predictedEnemyState != null) {
                 // ターゲットの位置を探る
                 radarAction = RadarOperator.Action.TARGET_SCAN;

@@ -32,6 +32,9 @@ public class Gunner {
         actions.put(Action.MAX_POWER, new MaxPowerGunAction());
     }
 
+    public void preAction(OkuRunBot bot) {
+    }
+
     public void action(OkuRunBot bot) {
         final Commander commander = bot.getCommander();
         Action action = commander.getGunActionName(bot);

@@ -43,11 +43,6 @@ public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
 
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
-        if (targetEnemyProfile == null) {
-            // 隣のエリアへ向かう
-            targetMovePosition = arenaMap.getArea(bot).getNeighboringArea(bot).getCenter();
-            return;
-        }
         final EnemyState latestEnemyState = targetEnemyProfile.getLatestState();
         if (latestEnemyState == null) {
             // 隣のエリアへ向かう
@@ -90,24 +85,29 @@ public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
 
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
-        if (targetEnemyProfile == null) {
-            gunAction = Gunner.Action.SCAN;
-            return;
-        }
         final EnemyState latesEnemyState = targetEnemyProfile.getLatestState();
         if (latesEnemyState == null) {
             // 敵のステータスが取得できない場合はスキャンを行います
             gunAction = Gunner.Action.SCAN;
             return;
         }
-        if (latesEnemyState.energy <= 0 || targetEnemyProfile.isNoMove(bot)) {
-            // 敵のエネルギーが0以下もしくは3ターン以上動きがない場合は止めを刺します
+        if (latesEnemyState.energy <= 0) {
+            // 敵のエネルギーが0以下の場合は止めを刺します
+            gunAction = Gunner.Action.EXECUTION;
+            return;
+        }
+        if (targetEnemyProfile.isNoMove(bot) && latesEnemyState.distance > OkuRunBot.BODY_SIZE) {
+            // 敵が動いていない、かつ離れている場合は射撃します
             gunAction = Gunner.Action.EXECUTION;
             return;
         }
 
         if (bot.getGunHeat() <= bot.getGunCoolingRate() * 3) {
             // 3ターン以内に射撃可能であれば射撃を行います
+            if (latesEnemyState.distance < OkuRunBot.BODY_SIZE + 10) {
+                gunAction = Gunner.Action.RAPID_FIRE;
+                return;
+            }
             gunAction = Gunner.Action.MAX_POWER;
             return;
         }
@@ -141,11 +141,7 @@ public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
     @Override
     public HandlePriority getHandlePriority(OkuRunBot bot) {
         final BattleManager battleManager = bot.getBattleManager();
-        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
-        if (targetEnemyProfile == null) {
-            return HandlePriority.TARGET;
-        }
-        final EnemyState enemyState = targetEnemyProfile.getLatestState();
+        final EnemyState enemyState = battleManager.getLatestEnemyState(targetEnemyId.get());
         if (enemyState == null) {
             return HandlePriority.TARGET;
         }
@@ -163,11 +159,7 @@ public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
     @Override
     public AccelePriority getAccelePriority(OkuRunBot bot) {
         final BattleManager battleManager = bot.getBattleManager();
-        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
-        if (targetEnemyProfile == null) {
-            return AccelePriority.MAX_SPEED;
-        }
-        final EnemyState enemyState = targetEnemyProfile.getLatestState();
+        final EnemyState enemyState = battleManager.getLatestEnemyState(targetEnemyId.get());
         if (enemyState == null) {
             return AccelePriority.MAX_SPEED;
         }

@@ -229,8 +229,11 @@ public class ArenaMap {
                 AreaId.BOTTOM_LEFT, new Area(AreaId.BOTTOM_LEFT, 0, 0, halfWidth, halfHeight));
     }
 
-    public void action(OkuRunBot bot) {
+    public void preAction(OkuRunBot bot) {
         caches.clear();
+    }
+
+    public void action(OkuRunBot bot) {
     }
 
     public Wall getWall(WallId id) {

@@ -21,6 +21,9 @@ public class RadarOperator {
         actions.put(Action.TARGET_SCAN, new TargetScanRadarAction());
     }
 
+    public void preAction(OkuRunBot bot) {
+    }
+
     public void action(OkuRunBot bot) {
         Action action = bot.getCommander().getRadarAction(bot);
         while (action != null) {

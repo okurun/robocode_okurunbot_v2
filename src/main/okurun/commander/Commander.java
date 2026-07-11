@@ -6,7 +6,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import dev.robocode.tankroyale.botapi.events.*;
-import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.OkuRunBot;
 import okurun.battlemanager.BattleManager;
 import okurun.battlemanager.EnemyProfile;
@@ -59,16 +58,23 @@ public class Commander {
         isWon.set(false);
     }
 
-    public void action(OkuRunBot bot) {
+    public void preAction(OkuRunBot bot) {
         caches.clear();
-        bot.setScanColor(Color.fromRgba(Color.WHITE, 30));
+        for (Tactic tactic : tactics.values()) {
+            tactic.preAction(bot);
+        }
+    }
+
+    public void action(OkuRunBot bot) {
         setCurrentTactic(bot);
-        currentTactic.action(bot);
+        if (currentTactic != null) {
+            currentTactic.action(bot);
+        }
     }
 
     private void setCurrentTactic(OkuRunBot bot) {
         final BattleManager battleManager = bot.getBattleManager();
-        if (battleManager.getAliveAndNotMissingEnemyCount(bot) < 2) {
+        if (battleManager.getAliveAndNotMissingEnemyCount(bot) <= 1) {
             // 生存している敵が1機のみ
             final EnemyProfile enemyProfile = battleManager.getAliveEnemy(bot);
             if (enemyProfile == null) {
@@ -262,28 +268,27 @@ public class Commander {
                 // 敗北した場合、戦略を変更する
                 final BattleManager battleManager = bot.getBattleManager();
                 final EnemyProfile enemyProfile = battleManager.getEnemyProfile(getTargetEnemyId(bot));
-                if (enemyProfile != null) {
-                    double minTotalHitPerTurn = Double.MAX_VALUE;
-                    for (Map.Entry<TacticName, Tactic> tacticEntry : tactics.entrySet()) {
-                        TacticName tacticName = tacticEntry.getKey();
-                        Tactic tactic = tacticEntry.getValue();
-                        if (!(tactic instanceof AbstractOneOnOneTactic)) {
-                            // 1v1の戦略でなければスキップ
-                            continue;
-                        }
-                        double totalHitPerTurn = tactic.getTotalHitPerTurn();
-                        if (totalHitPerTurn < minTotalHitPerTurn) {
-                            // ヒット率の低い戦略を選択する
-                            minTotalHitPerTurn = totalHitPerTurn;
-                            enemyProfile.setTacticName(tacticName);
-                        }
+                double minTotalHitPerTurn = Double.MAX_VALUE;
+                for (final Map.Entry<TacticName, Tactic> tacticEntry : tactics.entrySet()) {
+                    final TacticName tacticName = tacticEntry.getKey();
+                    final Tactic tactic = tacticEntry.getValue();
+                    if (!(tactic instanceof AbstractOneOnOneTactic)) {
+                        // 1v1の戦略でなければスキップ
+                        continue;
+                    }
+                    final double totalHitPerTurn = tactic.getTotalHitPerTurn();
+                    if (totalHitPerTurn < minTotalHitPerTurn) {
+                        // ヒット率の低い戦略を選択する
+                        minTotalHitPerTurn = totalHitPerTurn;
+                        enemyProfile.setTacticName(tacticName);
                     }
                 }
             }
         }
-        for (Tactic tactic : tactics.values()) {
+        for (final Tactic tactic : tactics.values()) {
             tactic.onRoundEnded(e, bot);
         }
+        isWon.set(false);
     }
 
     /**

@@ -25,9 +25,6 @@ public class NormalGunAction implements GunAction {
 
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
-        if (targetEnemyProfile == null) {
-            return Gunner.Action.SCAN;
-        }
         final Predictor predictor = bot.getPredictor();
         final EnemyState currentEnemyState = predictor.predict(bot, targetEnemyProfile, bot.getTurnNumber());
         if (currentEnemyState == null) {

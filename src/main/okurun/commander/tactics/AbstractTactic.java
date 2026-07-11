@@ -4,6 +4,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
+import okurun.battlemanager.BattleManager;
+import okurun.battlemanager.EnemyProfile;
+import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
 import okurun.driver.Driver;
 import okurun.gunner.Gunner;
@@ -21,6 +24,10 @@ public abstract class AbstractTactic implements Tactic {
     protected final AtomicInteger bulletHitCnt = new AtomicInteger(0);
     protected final AtomicInteger totalBulletHitCnt = new AtomicInteger(0);
     protected final AtomicInteger totalTurns = new AtomicInteger(0);
+
+    @Override
+    public void preAction(OkuRunBot bot) {
+    }
 
     @Override
     public void action(OkuRunBot bot) {
@@ -86,6 +93,16 @@ public abstract class AbstractTactic implements Tactic {
     }
 
     protected void setBaseFirePower(OkuRunBot bot) {
+        if (targetEnemyId.get() != Commander.NO_TARGET) {
+            final BattleManager battleManager = bot.getBattleManager();
+            final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
+            final EnemyState latesEnemyState = targetEnemyProfile.getLatestState();
+            if (latesEnemyState != null && latesEnemyState.distance < OkuRunBot.BODY_SIZE + 10) {
+                baseFirePower = 3;
+                return;
+            }
+        }
+
         baseFirePower = 2;
 
         // 自分のエネルギーが少ない時はパワーを下げる
@@ -130,7 +147,7 @@ public abstract class AbstractTactic implements Tactic {
      */
     public void onGameEnded(GameEndedEvent e, OkuRunBot bot) {
         System.out.println(String.format(
-                "Total Tactic summary(%s): hit count: %d, hit/turn: %.3f",
+                "## TotalTacticSummary(%s): hit count: %d, hit/turn: %.3f",
                 this.getClass().getSimpleName(),
                 totalBulletHitCnt.get(),
                 getTotalHitPerTurn()));
@@ -148,7 +165,7 @@ public abstract class AbstractTactic implements Tactic {
         totalBulletHitCnt.addAndGet(bulletHitCnt.get());
         totalTurns.addAndGet(e.getTurnNumber());
         System.out.println(String.format(
-                "Tactic summary(%s): hit count: %d, hit/turn: %.3f",
+                "== TacticSummary(%s): hit count: %d, hit/turn: %.3f",
                 this.getClass().getSimpleName(),
                 bulletHitCnt.get(),
                 getHitPerTurn(e.getTurnNumber())));

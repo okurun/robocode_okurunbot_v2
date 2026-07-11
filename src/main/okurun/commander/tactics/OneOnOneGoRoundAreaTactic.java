@@ -57,18 +57,19 @@ public class OneOnOneGoRoundAreaTactic extends AbstractOneOnOneTactic {
 
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
-        if (targetEnemyProfile == null) {
-            gunAction = Gunner.Action.SCAN;
-            return;
-        }
         final EnemyState latesEnemyState = targetEnemyProfile.getLatestState();
         if (latesEnemyState == null) {
             // 敵のステータスが取得できない場合はスキャンを行います
             gunAction = Gunner.Action.SCAN;
             return;
         }
-        if (latesEnemyState.energy <= 0 || targetEnemyProfile.isNoMove(bot)) {
-            // 敵のエネルギーが0以下もしくは3ターン以上動きがない場合は止めを刺します
+        if (latesEnemyState.energy <= 0) {
+            // 敵のエネルギーが0以下の場合は止めを刺します
+            gunAction = Gunner.Action.EXECUTION;
+            return;
+        }
+        if (targetEnemyProfile.isNoMove(bot) && latesEnemyState.distance > OkuRunBot.BODY_SIZE) {
+            // 敵が動いていない、かつ離れている場合は射撃します
             gunAction = Gunner.Action.EXECUTION;
             return;
         }

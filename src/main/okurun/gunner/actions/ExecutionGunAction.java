@@ -4,7 +4,6 @@ import dev.robocode.tankroyale.botapi.Constants;
 import okurun.OkuRunBot;
 import okurun.battlemanager.BattleManager;
 import okurun.battlemanager.BulletHistory;
-import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
 import okurun.gunner.Gunner;
@@ -23,12 +22,7 @@ public class ExecutionGunAction implements GunAction {
         }
 
         final BattleManager battleManager = bot.getBattleManager();
-        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
-        if (targetEnemyProfile == null) {
-            return Gunner.Action.SCAN;
-        }
-
-        final EnemyState latestEnemyState = targetEnemyProfile.getLatestState();
+        final EnemyState latestEnemyState = battleManager.getLatestEnemyState(targetEnemyId);
         if (latestEnemyState == null) {
             return Gunner.Action.SCAN;
         }

@@ -8,7 +8,7 @@ import java.util.Deque;
 /**
  * 予測を行わず、単純に最後の観測値を返すモデル
  */
-public class NoPredictPredictModel extends PredictModel {
+public class NoPredictPredictModel extends AbstractPredictModel {
 
     @Override
     public EnemyState nextTurnState(OkuRunBot bot, EnemyState enemyState, Deque<EnemyState> stateHistory) {

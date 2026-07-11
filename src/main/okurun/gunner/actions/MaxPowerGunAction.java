@@ -8,7 +8,6 @@ import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
 import okurun.gunner.Gunner;
-import okurun.predictor.Predictor;
 
 public class MaxPowerGunAction implements GunAction {
 
@@ -24,14 +23,6 @@ public class MaxPowerGunAction implements GunAction {
 
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
-        if (targetEnemyProfile == null) {
-            return Gunner.Action.SCAN;
-        }
-        final Predictor predictor = bot.getPredictor();
-        final EnemyState currentEnemyState = predictor.predict(bot, targetEnemyProfile, bot.getTurnNumber());
-        if (currentEnemyState == null) {
-            return Gunner.Action.TRACKING;
-        }
 
         double firePower;
         EnemyState fireTarget = null;

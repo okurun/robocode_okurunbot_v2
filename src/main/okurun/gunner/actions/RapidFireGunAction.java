@@ -8,7 +8,6 @@ import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
 import okurun.gunner.Gunner;
-import okurun.predictor.Predictor;
 
 /**
  * 連射します
@@ -23,25 +22,12 @@ public class RapidFireGunAction implements GunAction {
             return Gunner.Action.SCAN;
         }
 
-        final BattleManager battleManager = bot.getBattleManager();
-        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
-        if (targetEnemyProfile == null) {
-            return Gunner.Action.SCAN;
-        }
-        final Predictor predictor = bot.getPredictor();
-        EnemyState currentEnemyState = predictor.predict(bot, targetEnemyProfile, bot.getTurnNumber());
-        if (currentEnemyState == null) {
-            // 予測できない場合は最新のステータスを使用します
-            currentEnemyState = targetEnemyProfile.getLatestState();
-            if (currentEnemyState == null) {
-                return Gunner.Action.SCAN;
-            }
-        }
-
         final double firePower = Math.min(Math.max(commander.getBaseFirePower(bot), Constants.MIN_FIREPOWER),
                 Constants.MAX_FIREPOWER);
 
         // 射撃目標位置を計算します
+        final BattleManager battleManager = bot.getBattleManager();
+        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
         EnemyState fireTarget = GunAction.getFireTarget(bot, targetEnemyProfile, firePower);
         if (fireTarget == null) {
             // 予測できない場合は最新のステータスを使用します

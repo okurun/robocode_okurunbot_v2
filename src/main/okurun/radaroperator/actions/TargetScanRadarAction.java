@@ -23,10 +23,6 @@ public class TargetScanRadarAction implements RadarAction {
 
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
-        if (targetEnemyProfile == null) {
-            return RadarOperator.Action.ALL_SCAN;
-        }
-
         final EnemyState latestEnemyState = targetEnemyProfile.getLatestState();
         if (latestEnemyState == null) {
             return RadarOperator.Action.ALL_SCAN;

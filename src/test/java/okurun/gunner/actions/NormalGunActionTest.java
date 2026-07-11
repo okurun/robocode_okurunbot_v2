@@ -39,15 +39,4 @@ class NormalGunActionTest {
         Gunner.Action result = action.action(bot);
         assertEquals(Gunner.Action.SCAN, result);
     }
-
-    @Test
-    void testActionReturnsScanGunActionWhenTargetProfileNull() {
-        when(bot.getCommander()).thenReturn(commander);
-        when(commander.getTargetEnemyId(bot)).thenReturn(1);
-        when(bot.getBattleManager()).thenReturn(battleManager);
-        when(battleManager.getEnemyProfile(1)).thenReturn(null);
-
-        Gunner.Action result = action.action(bot);
-        assertEquals(Gunner.Action.SCAN, result);
-    }
 }
