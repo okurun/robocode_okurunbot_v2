@@ -25,7 +25,7 @@ public class Commander {
     public static enum TacticName {
         SURVIVAL,
         ONE_ON_ONE_POSITIVE,
-        ONE_ON_ONE_NEGATIVE,
+        ONE_ON_ONE_GO_ROUND_AREA,
     }
 
     public static final int NO_TARGET = -1;
@@ -51,7 +51,7 @@ public class Commander {
 
     public Commander() {
         tactics.put(TacticName.ONE_ON_ONE_POSITIVE, new OneOnOnePositiveTactic());
-        tactics.put(TacticName.ONE_ON_ONE_NEGATIVE, new OneOnOneNegativeTactic());
+        tactics.put(TacticName.ONE_ON_ONE_GO_ROUND_AREA, new OneOnOneGoRoundAreaTactic());
         tactics.put(TacticName.SURVIVAL, new SurvivalTactic());
     }
 
@@ -72,12 +72,12 @@ public class Commander {
             // 生存している敵が1機のみ
             final EnemyProfile enemyProfile = battleManager.getAliveEnemy(bot);
             if (enemyProfile == null) {
-                currentTactic = tactics.get(TacticName.ONE_ON_ONE_NEGATIVE);
+                currentTactic = tactics.get(TacticName.ONE_ON_ONE_GO_ROUND_AREA);
                 return;
             }
             final EnemyState latestEnemyState = enemyProfile.getLatestState();
             if (latestEnemyState == null) {
-                currentTactic = tactics.get(TacticName.ONE_ON_ONE_NEGATIVE);
+                currentTactic = tactics.get(TacticName.ONE_ON_ONE_GO_ROUND_AREA);
                 return;
             }
             currentTactic = tactics.get(enemyProfile.getTacticName());
@@ -241,7 +241,7 @@ public class Commander {
     /**
      * ゲームが終了した時の処理
      * 
-     * @param e ゲーム終了イベント
+     * @param e   ゲーム終了イベント
      * @param bot ボット
      */
     public void onGameEnded(GameEndedEvent e, OkuRunBot bot) {
@@ -253,7 +253,7 @@ public class Commander {
     /**
      * ラウンドが終了した時の処理
      * 
-     * @param e ラウンド終了イベント
+     * @param e   ラウンド終了イベント
      * @param bot ボット
      */
     public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
@@ -299,7 +299,7 @@ public class Commander {
     /**
      * ラウンドで勝利した時の処理
      * 
-     * @param e ラウンドで勝利したイベント
+     * @param e   ラウンドで勝利したイベント
      * @param bot ボット
      */
     public void onWonRound(WonRoundEvent e, OkuRunBot bot) {

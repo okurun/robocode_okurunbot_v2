@@ -14,9 +14,9 @@ import okurun.driver.Driver;
 import okurun.gunner.Gunner;
 
 /**
- * 1v1の状況で逃げながら逆転を狙う戦略
+ * 1v1の状況でエリアを巡回しながら戦う戦略
  */
-public class OneOnOneNegativeTactic extends AbstractOneOnOneTactic {
+public class OneOnOneGoRoundAreaTactic extends AbstractOneOnOneTactic {
 
     @Override
     protected void setTargetEnemyId(OkuRunBot bot) {
@@ -41,7 +41,6 @@ public class OneOnOneNegativeTactic extends AbstractOneOnOneTactic {
         final ArenaMap arenaMap = bot.getArenaMap();
         targetMovePosition = arenaMap.getArea(bot).getNeighboringArea(bot).getCenter();
     }
-
 
     @Override
     protected void setBaseFirePower(OkuRunBot bot) {

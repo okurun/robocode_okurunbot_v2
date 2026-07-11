@@ -15,7 +15,7 @@ import okurun.gunner.Gunner;
 import okurun.predictor.Predictor;
 
 /**
- * 1v1の状況で積極的に攻める戦略
+ * 1v1の状況で積極的に敵へ向かう戦略
  */
 public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
     private static final double LOW_ENERGY_THRESHOLD = 10;

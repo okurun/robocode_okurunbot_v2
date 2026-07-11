@@ -10,6 +10,9 @@ import okurun.predictor.Predictor.Model;
 import okurun.predictor.models.*;
 import okurun.radaroperator.RadarOperator;
 
+/**
+ * 1v1戦略の抽象クラス
+ */
 public abstract class AbstractOneOnOneTactic extends AbstractTactic {
     @Override
     public void action(OkuRunBot bot) {
