@@ -8,7 +8,10 @@ import okurun.OkuRunBot;
 import okurun.battlemanager.EnemyState;
 import okurun.predictor.Predictor;
 
-public class HistoryPredictModel extends PredictModel {
+/**
+ * ジグザグ走行を再現して予測するモデル
+ */
+public class ZigzagPredictModel extends PredictModel {
     private static final int LIMIT_TURN_NUM = 20;
     private static final int DETECT_ZIGZAG_TURN_CHANGE_NUM = 5;
 

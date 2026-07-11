@@ -67,9 +67,9 @@ public abstract class AbstractOneOnOneTactic extends AbstractTactic {
             final BattleManager battleManager = bot.getBattleManager();
             final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
             if (targetEnemyProfile != null) {
-                if (HistoryPredictModel.canUse(bot, targetEnemyProfile.getStateHistory())) {
+                if (ZigzagPredictModel.canUse(bot, targetEnemyProfile.getStateHistory())) {
                     bot.setScanColor(Color.fromRgba(Color.LIGHT_BLUE, 2));
-                    predictModel = Model.HISTORY;
+                    predictModel = Model.ZIGZAG;
                     return;
                 }
             }

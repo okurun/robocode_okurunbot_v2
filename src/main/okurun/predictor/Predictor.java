@@ -20,7 +20,7 @@ import okurun.predictor.models.*;
  */
 public class Predictor {
     public static enum Model {
-        SIMPLE, HISTORY
+        SIMPLE, ZIGZAG
     }
 
     private final Map<Model, PredictModel> predictModels = new HashMap<>();
@@ -33,7 +33,7 @@ public class Predictor {
     public void init(OkuRunBot bot) {
         predictedDataCache.clear();
         predictModels.put(Model.SIMPLE, new SimplePredictModel());
-        predictModels.put(Model.HISTORY, new HistoryPredictModel());
+        predictModels.put(Model.ZIGZAG, new ZigzagPredictModel());
         for (final Model modelName : predictModels.keySet()) {
             modelAccuracies.put(modelName, new PredictModelAccuracy());
         }
@@ -135,7 +135,7 @@ public class Predictor {
     public void onGameEnded(GameEndedEvent e) {
         for (final Model model : modelTotalAccuracies.keySet()) {
             final PredictModelAccuracy totalAccuracy = modelTotalAccuracies.get(model);
-            System.out.println("Total accuracy: " + model + "(" + totalAccuracy.getAccuracyString() + ")");
+            System.out.println("Total accuracy(" + model + "): " + totalAccuracy.getAccuracyString());
             totalAccuracy.reset();
         }
     }
@@ -149,7 +149,7 @@ public class Predictor {
     public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
         for (final Model model : predictModels.keySet()) {
             final PredictModelAccuracy predictionAccuracy = modelAccuracies.get(model);
-            System.out.println("PredictModelAccuracy(" + model + "): " + predictionAccuracy.getAccuracyString() );
+            System.out.println("PredictModelAccuracy(" + model + "): " + predictionAccuracy.getAccuracyString());
             if (modelTotalAccuracies.containsKey(model)) {
                 final PredictModelAccuracy totalAccuracy = modelTotalAccuracies.get(model);
                 totalAccuracy.addFireCount(predictionAccuracy.getFireCount());
