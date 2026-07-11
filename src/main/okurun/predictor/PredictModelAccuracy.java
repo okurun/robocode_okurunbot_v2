@@ -79,8 +79,12 @@ public class PredictModelAccuracy {
         final double hitRate = getHitRate();
         final double missRate = getMissRate();
         final double unknownRate = 1 - (hitRate + missRate);
-        return String.format("fireCount: %d, hitRate: %.1f%%, missRate: %.1f%%, unknownRate: %.1f%%",
-                fireCount.get(), hitRate * 100, missRate * 100, unknownRate * 100);
+        return String.format(
+                "fireCount: %d, hitRate: %.1f%%, missRate: %.1f%%, unknownRate: %.1f%%",
+                fireCount.get(),
+                hitRate * 100,
+                missRate * 100,
+                unknownRate * 100);
     }
 
     /**

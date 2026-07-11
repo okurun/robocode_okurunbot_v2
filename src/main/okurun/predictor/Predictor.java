@@ -149,7 +149,7 @@ public class Predictor {
     public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
         for (final Model model : predictModels.keySet()) {
             final PredictModelAccuracy predictionAccuracy = modelAccuracies.get(model);
-            System.out.println(model + "(" + predictionAccuracy.getAccuracyString() + ")");
+            System.out.println("PredictModelAccuracy(" + model + "): " + predictionAccuracy.getAccuracyString() );
             if (modelTotalAccuracies.containsKey(model)) {
                 final PredictModelAccuracy totalAccuracy = modelTotalAccuracies.get(model);
                 totalAccuracy.addFireCount(predictionAccuracy.getFireCount());

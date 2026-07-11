@@ -181,4 +181,5 @@ public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
 
         return AccelePriority.MAX_SPEED;
     }
+
 }

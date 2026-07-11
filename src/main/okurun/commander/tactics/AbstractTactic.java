@@ -19,6 +19,8 @@ public abstract class AbstractTactic implements Tactic {
     protected Gunner.Action gunAction = null;
     protected RadarOperator.Action radarAction = null;
     protected final AtomicInteger bulletHitCnt = new AtomicInteger(0);
+    protected final AtomicInteger totalBulletHitCnt = new AtomicInteger(0);
+    protected final AtomicInteger totalTurns = new AtomicInteger(0);
 
     @Override
     public void action(OkuRunBot bot) {
@@ -78,6 +80,11 @@ public abstract class AbstractTactic implements Tactic {
         return radarAction;
     }
 
+    protected void reset() {
+        bulletHitCnt.set(0);
+        targetEnemyId.set(Commander.NO_TARGET);
+    }
+
     protected void setBaseFirePower(OkuRunBot bot) {
         baseFirePower = 2;
 
@@ -90,20 +97,62 @@ public abstract class AbstractTactic implements Tactic {
     }
 
     /**
+     * ターン毎の命中弾数を計算します
+     * 
+     * @param turnNumber ターン番号
+     * @return ターン毎の命中弾数
+     */
+    private double getHitPerTurn(int turnNumber) {
+        if (bulletHitCnt.get() == 0) {
+            return 0;
+        }
+        return (double) bulletHitCnt.get() / (double) turnNumber;
+    }
+
+    /**
+     * トータルのターン毎の命中弾数を計算します
+     * 
+     * @return トータルのターン毎の命中弾数
+     */
+    @Override
+    public double getTotalHitPerTurn() {
+        if (totalBulletHitCnt.get() == 0) {
+            return 0;
+        }
+        return (double) totalBulletHitCnt.get() / (double) totalTurns.get();
+    }
+
+    /**
+     * ゲームが終了した時の処理
+     * 
+     * @param e   ゲーム終了イベント
+     * @param bot ボット
+     */
+    public void onGameEnded(GameEndedEvent e, OkuRunBot bot) {
+        System.out.println(String.format(
+                "Total Tactic summary(%s): hit count: %d, hit/turn: %.3f",
+                this.getClass().getSimpleName(),
+                totalBulletHitCnt.get(),
+                getTotalHitPerTurn()));
+        totalBulletHitCnt.set(0);
+        totalTurns.set(0);
+    }
+
+    /**
      * ラウンドが終了した時の処理
      * 
      * @param e   ラウンド終了イベント
      * @param bot ボット
      */
     public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
-        final int hitCount = bulletHitCnt.get();
-        final double hitPerTurn = (hitCount == 0) ? 0 : (double) hitCount / (double) e.getTurnNumber();
+        totalBulletHitCnt.addAndGet(bulletHitCnt.get());
+        totalTurns.addAndGet(e.getTurnNumber());
         System.out.println(String.format(
-                "%s: hit count: %d, hit/turn: %.3f",
+                "Tactic summary(%s): hit count: %d, hit/turn: %.3f",
                 this.getClass().getSimpleName(),
-                hitCount,
-                hitPerTurn));
-        bulletHitCnt.set(0);
+                bulletHitCnt.get(),
+                getHitPerTurn(e.getTurnNumber())));
+        reset();
     }
 
     /**

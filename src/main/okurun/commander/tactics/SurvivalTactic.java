@@ -153,4 +153,5 @@ public class SurvivalTactic extends AbstractTactic {
     public double getMinSpeed(OkuRunBot bot) {
         return 2;
     }
+
 }

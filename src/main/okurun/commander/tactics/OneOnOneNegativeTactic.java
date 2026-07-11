@@ -115,4 +115,5 @@ public class OneOnOneNegativeTactic extends AbstractOneOnOneTactic {
     public AccelePriority getAccelePriority(OkuRunBot bot) {
         return AccelePriority.HANDLE;
     }
+
 }

@@ -1,5 +1,6 @@
 package okurun.commander.tactics;
 
+import dev.robocode.tankroyale.botapi.events.GameEndedEvent;
 import dev.robocode.tankroyale.botapi.events.HitByBulletEvent;
 import dev.robocode.tankroyale.botapi.events.RoundEndedEvent;
 import okurun.OkuRunBot;
@@ -33,10 +34,25 @@ public interface Tactic {
 
     double getMinSpeed(OkuRunBot bot);
 
-        /**
+    /**
+     * トータルのターン毎の命中弾数を取得します
+     * 
+     * @return トータルのターン毎の命中弾数
+     */
+    double getTotalHitPerTurn();
+
+    /**
+     * ゲームが終了した時の処理
+     * 
+     * @param e   ゲーム終了イベント
+     * @param bot ボット
+     */
+    void onGameEnded(GameEndedEvent e, OkuRunBot bot);
+
+    /**
      * ラウンドが終了した時の処理
      * 
-     * @param e ラウンド終了イベント
+     * @param e   ラウンド終了イベント
      * @param bot ボット
      */
     void onRoundEnded(RoundEndedEvent e, OkuRunBot bot);

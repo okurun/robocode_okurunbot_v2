@@ -260,6 +260,7 @@ public class OkuRunBot extends Bot {
     @Override
     public void onGameEnded(GameEndedEvent e) {
         predictor.onGameEnded(e);
+        commander.onGameEnded(e, this);
     }
 
     /**
