@@ -85,7 +85,6 @@ public interface GunAction {
             if (predictedState == null) {
                 return null;
             }
-            drawPredictLine(bot, prevState, predictedState);
             prevState = predictedState;
             if (predictedState.scannedTurnNum <= bot.getTurnNumber()) {
                 continue;

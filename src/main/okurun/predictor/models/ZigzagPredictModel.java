@@ -124,7 +124,7 @@ public class ZigzagPredictModel extends AbstractPredictModel {
         return history;
     }
 
-    public static boolean canUse(OkuRunBot bot, Deque<EnemyState> stateHistory) {
+    public static boolean canPredict(OkuRunBot bot, Deque<EnemyState> stateHistory) {
         if (stateHistory.size() > DETECT_ZIGZAG_TURN_CHANGE_NUM) {
             Turn prevTurn = null; // 前回の旋回方向
             int turnChangeCnt = 0; // 旋回が逆転した回数

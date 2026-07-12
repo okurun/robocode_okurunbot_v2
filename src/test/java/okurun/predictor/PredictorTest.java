@@ -1,9 +1,47 @@
 package okurun.predictor;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import dev.robocode.tankroyale.botapi.events.GameStartedEvent;
+import okurun.OkuRunBot;
+import okurun.predictor.Predictor.Model;
+import okurun.predictor.models.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.BeforeEach;
+
+@ExtendWith(MockitoExtension.class)
 class PredictorTest {
+    private Predictor predictor;
+
+    @Mock
+    private OkuRunBot bot;
+
+    @Mock
+    private GameStartedEvent gameStartedEvent;
+
+    @BeforeEach
+    void setUp() {
+        predictor = new Predictor();
+        predictor.onGameStarted(gameStartedEvent, bot);
+    }
+
+    @Test
+    void testGetPredictModel() {
+        PredictModel model;
+
+        model = predictor.getPredictModel(Model.SIMPLE);
+        assertNotNull(model);
+        assertTrue(model instanceof SimplePredictModel);
+
+        model = predictor.getPredictModel(Model.ZIGZAG);
+        assertNotNull(model);
+        assertTrue(model instanceof ZigzagPredictModel);
+    }
 
     @Test
     void testCalcPositionLinear() {

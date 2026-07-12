@@ -15,25 +15,25 @@ import okurun.OkuRunBot;
 import okurun.battlemanager.EnemyState;
 
 @ExtendWith(MockitoExtension.class)
-class HistoryPredictModelTest {
-    // private HistoryPredictModel model;
+class ZigzagPredictModelTest {
+    // private ZigzagPredictModel model;
 
     @Mock
     private OkuRunBot bot;
 
     @BeforeEach
     void setUp() {
-        // model = new HistoryPredictModel();
+        // model = new ZigzagPredictModel();
     }
 
     @Test
-    void testCanUseReturnsFalseWhenNotEnoughHistory() {
+    void testCanPredictReturnsFalseWhenNotEnoughHistory() {
         Deque<EnemyState> history = new ArrayDeque<>();
-        assertFalse(ZigzagPredictModel.canUse(bot, history));
+        assertFalse(ZigzagPredictModel.canPredict(bot, history));
     }
 
     @Test
-    void testCanUseReturnsFalseWhenZigzagging() {
+    void testCanPredictReturnsFalseWhenZigzagging() {
         Deque<EnemyState> history = new ArrayDeque<>();
         when(bot.getTurnNumber()).thenReturn(13);
 
@@ -45,11 +45,11 @@ class HistoryPredictModelTest {
         history.add(new EnemyState(1, 8, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
         history.add(new EnemyState(1, 7, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
 
-        assertFalse(ZigzagPredictModel.canUse(bot, history));
+        assertFalse(ZigzagPredictModel.canPredict(bot, history));
     }
 
     @Test
-    void testCanUseReturnsFalseWhenZigzagging2() {
+    void testCanPredictReturnsFalseWhenZigzagging2() {
         Deque<EnemyState> history = new ArrayDeque<>();
         when(bot.getTurnNumber()).thenReturn(13);
 
@@ -61,11 +61,11 @@ class HistoryPredictModelTest {
         history.add(new EnemyState(1, 8, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
         history.add(new EnemyState(1, 7, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
 
-        assertFalse(ZigzagPredictModel.canUse(bot, history));
+        assertFalse(ZigzagPredictModel.canPredict(bot, history));
     }
 
     @Test
-    void testCanUseReturnsTrueWhenZigzagging() {
+    void testCanPredictReturnsTrueWhenZigzagging() {
         Deque<EnemyState> history = new ArrayDeque<>();
         when(bot.getTurnNumber()).thenReturn(13);
 
@@ -77,11 +77,11 @@ class HistoryPredictModelTest {
         history.add(new EnemyState(1, 8, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
         history.add(new EnemyState(1, 7, 0, 0, 0, 0, 100, -5.0, 0, 0)); // Turn RIGHT
 
-        assertTrue(ZigzagPredictModel.canUse(bot, history));
+        assertTrue(ZigzagPredictModel.canPredict(bot, history));
     }
 
     @Test
-    void testCanUseReturnsTrueWhenZigzagging2() {
+    void testCanPredictReturnsTrueWhenZigzagging2() {
         Deque<EnemyState> history = new ArrayDeque<>();
         when(bot.getTurnNumber()).thenReturn(15);
 
@@ -99,6 +99,6 @@ class HistoryPredictModelTest {
         history.add(new EnemyState(1, 4, 0, 0, 0, 0, 100, -5.0, 0, 0)); // Turn RIGHT
         history.add(new EnemyState(1, 3, 0, 0, 0, 0, 100, 0, 0, 0)); // Turn STRAIGHT
 
-        assertTrue(ZigzagPredictModel.canUse(bot, history));
+        assertTrue(ZigzagPredictModel.canPredict(bot, history));
     }
 }
