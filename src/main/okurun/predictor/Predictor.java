@@ -25,11 +25,6 @@ public class Predictor {
     private final Map<Model, PredictModel> predictModels = new HashMap<>();
     private final Map<Integer, Model> bulletModels = new ConcurrentHashMap<>();
 
-    public void init(OkuRunBot bot) {
-        predictModels.put(Model.SIMPLE, new SimplePredictModel());
-        predictModels.put(Model.ZIGZAG, new ZigzagPredictModel());
-    }
-
     public void preAction(OkuRunBot bot) {
         for (PredictModel model : predictModels.values()) {
             model.preAction();
@@ -102,97 +97,6 @@ public class Predictor {
     }
 
     /**
-     * ゲームが終了した時の処理
-     * 
-     * @param e ゲーム終了イベント
-     * @param bot ボット
-     */
-    public void onGameEnded(GameEndedEvent e, OkuRunBot bot) {
-        for (final Model model : predictModels.keySet()) {
-            predictModels.get(model).onGameEnded(e, bot);
-        }
-    }
-
-    /**
-     * ラウンドが終わった時の処理
-     * 
-     * @param e   ラウンドが終わったイベント
-     * @param bot ボット
-     */
-    public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
-        bulletModels.clear();
-        for (final Model model : predictModels.keySet()) {
-            predictModels.get(model).onRoundEnded(e, bot);
-        }
-    }
-
-    /**
-     * 弾丸が発射された時の処理
-     * 
-     * @param bulletFiredEvent 弾丸が発射されたイベント
-     * @param bot              ボット
-     */
-    public void onBulletFired(BulletFiredEvent e, OkuRunBot bot) {
-        final int bulletId = e.getBullet().getBulletId();
-        final BattleManager battleManager = bot.getBattleManager();
-        final BulletHistory bulletHistory = battleManager.getBulletHistory(bulletId);
-        if (bulletHistory == null) {
-            System.out.println(e.getTurnNumber() + " onBulletFired: bulletHistory is null");
-            return;
-        }
-        bulletModels.put(bulletId, bulletHistory.predictModel);
-        predictModels.get(bulletHistory.predictModel).onBulletFired(e, bot);
-    }
-
-    /**
-     * 弾丸が敵ボットに当たった時の処理
-     * 
-     * @param bulletHitBotEvent 弾丸が敵ボットに当たったイベント
-     * @param bot               ボット
-     */
-    public void onBulletHit(BulletHitBotEvent e, OkuRunBot bot) {
-        final int bulletId = e.getBullet().getBulletId();
-        final Model model = bulletModels.remove(bulletId);
-        if (model == null) {
-            System.out.println("Warning: " + e.getTurnNumber() + " onBulletHit: model is null");
-            return;
-        }
-        predictModels.get(model).onBulletHit(e, bot);
-    }
-
-    /**
-     * 弾丸が弾丸に当たった時の処理
-     * 
-     * @param bulletHitBulletEvent 弾丸が弾丸に当たったイベント
-     * @param bot                  ボット
-     */
-    public void onBulletHitBullet(BulletHitBulletEvent e, OkuRunBot bot) {
-        final int bulletId = e.getBullet().getBulletId();
-        final Model model = bulletModels.remove(bulletId);
-        if (model == null) {
-            System.out.println("Warning: " + e.getTurnNumber() + " onBulletHitBullet: model is null");
-            return;
-        }
-        predictModels.get(model).onBulletHitBullet(e, bot);
-    }
-
-    /**
-     * 弾丸が壁に当たった時の処理
-     * 
-     * @param e   弾丸が壁に当たったイベント
-     * @param bot ボット
-     */
-    public void onBulletHitWall(BulletHitWallEvent e, OkuRunBot bot) {
-        final int bulletId = e.getBullet().getBulletId();
-        final Model model = bulletModels.remove(bulletId);
-        if (model == null) {
-            System.out.println("Warning: " + e.getTurnNumber() + " onBulletHitWall: model is null");
-            return;
-        }
-        predictModels.get(model).onBulletHitWall(e, bot);
-    }
-
-    /**
      * 指定した状態から指定したターン後の敵の状態を計算します
      * 
      * @param pos         敵の現在の座標
@@ -260,5 +164,142 @@ public class Predictor {
             newHeading += turnDegree;
         }
         return new double[] { newX, newY };
+    }
+
+    /**
+     * ゲームが開始された時の処理
+     * 
+     * @param e ゲーム開始イベント
+     * @param bot Bot
+     */
+    public void onGameStarted(GameStartedEvent e, OkuRunBot bot) {
+        try {
+            predictModels.put(Model.SIMPLE, new SimplePredictModel());
+            predictModels.put(Model.ZIGZAG, new ZigzagPredictModel());
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
+    }
+
+    /**
+     * ゲームが終了した時の処理
+     * 
+     * @param e ゲーム終了イベント
+     * @param bot ボット
+     */
+    public void onGameEnded(GameEndedEvent e, OkuRunBot bot) {
+        try {
+            for (final Model model : predictModels.keySet()) {
+                predictModels.get(model).onGameEnded(e, bot);
+            }
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
+    }
+
+    /**
+     * ラウンドが終わった時の処理
+     * 
+     * @param e   ラウンドが終わったイベント
+     * @param bot ボット
+     */
+    public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
+        try {
+            bulletModels.clear();
+            for (final Model model : predictModels.keySet()) {
+                predictModels.get(model).onRoundEnded(e, bot);
+            }
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
+    }
+
+    /**
+     * 弾丸が発射された時の処理
+     * 
+     * @param bulletFiredEvent 弾丸が発射されたイベント
+     * @param bot              ボット
+     */
+    public void onBulletFired(BulletFiredEvent e, OkuRunBot bot) {
+        try {
+            final int bulletId = e.getBullet().getBulletId();
+            final BattleManager battleManager = bot.getBattleManager();
+            final BulletHistory bulletHistory = battleManager.getBulletHistory(bulletId);
+            if (bulletHistory == null) {
+                System.out.println(e.getTurnNumber() + " onBulletFired: bulletHistory is null");
+                return;
+            }
+            bulletModels.put(bulletId, bulletHistory.predictModel);
+            predictModels.get(bulletHistory.predictModel).onBulletFired(e, bot);
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
+    }
+
+    /**
+     * 弾丸が敵ボットに当たった時の処理
+     * 
+     * @param bulletHitBotEvent 弾丸が敵ボットに当たったイベント
+     * @param bot               ボット
+     */
+    public void onBulletHit(BulletHitBotEvent e, OkuRunBot bot) {
+        try {
+            final int bulletId = e.getBullet().getBulletId();
+            final Model model = bulletModels.remove(bulletId);
+            if (model == null) {
+                System.out.println("Warning: " + e.getTurnNumber() + " onBulletHit: model is null");
+                return;
+            }
+            predictModels.get(model).onBulletHit(e, bot);
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
+    }
+
+    /**
+     * 弾丸が弾丸に当たった時の処理
+     * 
+     * @param bulletHitBulletEvent 弾丸が弾丸に当たったイベント
+     * @param bot                  ボット
+     */
+    public void onBulletHitBullet(BulletHitBulletEvent e, OkuRunBot bot) {
+        try {
+            final int bulletId = e.getBullet().getBulletId();
+            final Model model = bulletModels.remove(bulletId);
+            if (model == null) {
+                System.out.println("Warning: " + e.getTurnNumber() + " onBulletHitBullet: model is null");
+                return;
+            }
+            predictModels.get(model).onBulletHitBullet(e, bot);
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
+    }
+
+    /**
+     * 弾丸が壁に当たった時の処理
+     * 
+     * @param e   弾丸が壁に当たったイベント
+     * @param bot ボット
+     */
+    public void onBulletHitWall(BulletHitWallEvent e, OkuRunBot bot) {
+        try {
+            final int bulletId = e.getBullet().getBulletId();
+            final Model model = bulletModels.remove(bulletId);
+            if (model == null) {
+                System.out.println("Warning: " + e.getTurnNumber() + " onBulletHitWall: model is null");
+                return;
+            }
+            predictModels.get(model).onBulletHitWall(e, bot);
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
     }
 }

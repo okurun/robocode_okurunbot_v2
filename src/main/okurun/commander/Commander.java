@@ -54,10 +54,6 @@ public class Commander {
         tactics.put(TacticName.SURVIVAL, new SurvivalTactic());
     }
 
-    public void init(OkuRunBot bot) {
-        isWon.set(false);
-    }
-
     public void preAction(OkuRunBot bot) {
         caches.clear();
         for (Tactic tactic : tactics.values()) {
@@ -245,6 +241,15 @@ public class Commander {
     }
 
     /**
+     * ゲームが開始された時の処理
+     * 
+     * @param e   ゲーム開始イベント
+     * @param bot Bot
+     */
+    public void onGameStarted(GameStartedEvent e, OkuRunBot bot) {
+    }
+
+    /**
      * ゲームが終了した時の処理
      * 
      * @param e   ゲーム終了イベント
@@ -263,11 +268,18 @@ public class Commander {
      * @param bot ボット
      */
     public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
+        final int targetEnemyId = getTargetEnemyId(bot);
+        for (final Tactic tactic : tactics.values()) {
+            tactic.onRoundEnded(e, bot);
+        }
+
         if (!isWon.get()) {
-            if (getTargetEnemyId(bot) != Commander.NO_TARGET) {
+            if (targetEnemyId != Commander.NO_TARGET) {
                 // 敗北した場合、戦略を変更する
+                System.out.println("*** I lost. I intend to consider changing my tactics.");
                 final BattleManager battleManager = bot.getBattleManager();
-                final EnemyProfile enemyProfile = battleManager.getEnemyProfile(getTargetEnemyId(bot));
+                final EnemyProfile enemyProfile = battleManager.getEnemyProfile(targetEnemyId);
+                final TacticName prevTacticName = enemyProfile.getTacticName();
                 double minTotalHitPerTurn = Double.MAX_VALUE;
                 for (final Map.Entry<TacticName, Tactic> tacticEntry : tactics.entrySet()) {
                     final TacticName tacticName = tacticEntry.getKey();
@@ -276,6 +288,11 @@ public class Commander {
                         // 1v1の戦略でなければスキップ
                         continue;
                     }
+                    System.out.println(String.format(
+                        "*** %s: hit/turn: %.3f",
+                        tacticName,
+                        tactic.getTotalHitPerTurn()
+                    ));
                     final double totalHitPerTurn = tactic.getTotalHitPerTurn();
                     if (totalHitPerTurn < minTotalHitPerTurn) {
                         // ヒット率の低い戦略を選択する
@@ -283,10 +300,10 @@ public class Commander {
                         enemyProfile.setTacticName(tacticName);
                     }
                 }
+                if (!prevTacticName.equals(enemyProfile.getTacticName())) {
+                    System.out.println("*** Change tactic: " + prevTacticName + " -> " + enemyProfile.getTacticName());
+                }
             }
-        }
-        for (final Tactic tactic : tactics.values()) {
-            tactic.onRoundEnded(e, bot);
         }
         isWon.set(false);
     }

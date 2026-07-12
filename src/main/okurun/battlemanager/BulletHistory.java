@@ -1,6 +1,5 @@
 package okurun.battlemanager;
 
-import dev.robocode.tankroyale.botapi.BulletState;
 import okurun.predictor.Predictor.Model;
 
 /**
@@ -13,7 +12,8 @@ public class BulletHistory {
     public final int targetEnemyId;
     public final int predictTurnNum;
     public final double distance;
-    public BulletState bulletState;
+    public int bulletId = 0;
+    public double power = 0;
 
     public BulletHistory(Model predictModel, double targetX, double targetY, int targetEnemyId, int predictTurnNum, double distance) {
         this.predictModel = predictModel;

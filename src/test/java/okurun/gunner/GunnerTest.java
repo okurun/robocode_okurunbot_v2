@@ -5,6 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import dev.robocode.tankroyale.botapi.events.GameStartedEvent;
+
 import static org.mockito.Mockito.*;
 
 import okurun.OkuRunBot;
@@ -20,10 +23,13 @@ class GunnerTest {
     @Mock
     private Commander commander;
 
+    @Mock
+    private GameStartedEvent gameStartedEvent;
+
     @BeforeEach
     void setUp() {
         gunner = new Gunner();
-        gunner.init(bot);
+        gunner.onGameStarted(gameStartedEvent, bot);
     }
 
     @Test

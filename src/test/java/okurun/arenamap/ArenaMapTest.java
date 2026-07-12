@@ -6,6 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import dev.robocode.tankroyale.botapi.events.GameStartedEvent;
+
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,12 +26,15 @@ class ArenaMapTest {
     @Mock
     private BattleManager battleManager;
 
+    @Mock
+    private GameStartedEvent gameStartedEvent;
+
     @BeforeEach
     void setUp() {
         when(bot.getArenaHeight()).thenReturn(600);
         when(bot.getArenaWidth()).thenReturn(800);
         arenaMap = new ArenaMap();
-        arenaMap.init(bot);
+        arenaMap.onGameStarted(gameStartedEvent, bot);
     }
 
     @Test

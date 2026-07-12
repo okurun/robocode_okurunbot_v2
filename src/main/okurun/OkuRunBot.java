@@ -40,22 +40,11 @@ public class OkuRunBot extends Bot {
 
     @Override
     public void run() {
-        init();
         while (isRunning()) {
             preAction();
             action();
             go();
         }
-    }
-
-    private void init() {
-        arenaMap.init(this);
-        battleManager.init(this);
-        predictor.init(this);
-        commander.init(this);
-        radarOperator.init(this);
-        gunner.init(this);
-        driver.init(this);
     }
 
     private void preAction() {
@@ -65,23 +54,33 @@ public class OkuRunBot extends Bot {
         setScanColor(Color.fromRgba(Color.WHITE, 30));
         clearGraphics();
 
-        arenaMap.preAction(this);
-        battleManager.preAction(this);
-        predictor.preAction(this);
-        commander.preAction(this);
-        radarOperator.preAction(this);
-        gunner.preAction(this);
-        driver.preAction(this);
+        try {
+            arenaMap.preAction(this);
+            battleManager.preAction(this);
+            predictor.preAction(this);
+            commander.preAction(this);
+            radarOperator.preAction(this);
+            gunner.preAction(this);
+            driver.preAction(this);
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
     }
 
     private void action() {
-        arenaMap.action(this);
-        battleManager.action(this);
-        predictor.action(this);
-        commander.action(this);
-        radarOperator.action(this);
-        gunner.action(this);
-        driver.action(this);
+        try {
+            arenaMap.action(this);
+            battleManager.action(this);
+            predictor.action(this);
+            commander.action(this);
+            radarOperator.action(this);
+            gunner.action(this);
+            driver.action(this);
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
     }
 
     public double[] getPosition() {
@@ -263,6 +262,18 @@ public class OkuRunBot extends Bot {
     @Override
     public void onGameStarted(GameStartedEvent e) {
         System.out.println("- onGameStarted()");
+        try {
+            arenaMap.onGameStarted(e, this);
+            battleManager.onGameStarted(e, this);
+            predictor.onGameStarted(e, this);
+            commander.onGameStarted(e, this);
+            radarOperator.onGameStarted(e, this);
+            gunner.onGameStarted(e, this);
+            driver.onGameStarted(e, this);
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
     }
 
     /**
@@ -272,8 +283,13 @@ public class OkuRunBot extends Bot {
      */
     @Override
     public void onGameEnded(GameEndedEvent e) {
-        predictor.onGameEnded(e, this);
-        commander.onGameEnded(e, this);
+        try {
+            predictor.onGameEnded(e, this);
+            commander.onGameEnded(e, this);
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
     }
 
     /**
@@ -283,7 +299,7 @@ public class OkuRunBot extends Bot {
      */
     @Override
     public void onRoundStarted(RoundStartedEvent e) {
-        System.out.println("- onRoundStarted(" + e.getRoundNumber() + "): ");
+        System.out.println("------ onRoundStarted(" + e.getRoundNumber() + ") ------");
     }
 
     /**
@@ -294,9 +310,14 @@ public class OkuRunBot extends Bot {
     @Override
     public void onRoundEnded(RoundEndedEvent e) {
         System.out.println("------ onRoundEnded(" + e.getRoundNumber() + "): " + e.getTurnNumber() + " -----");
-        commander.onRoundEnded(e, this);
-        battleManager.onRoundEnded(e, this);
-        predictor.onRoundEnded(e, this);
+        try {
+            commander.onRoundEnded(e, this);
+            battleManager.onRoundEnded(e, this);
+            predictor.onRoundEnded(e, this);
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
     }
 
     /**
@@ -306,7 +327,12 @@ public class OkuRunBot extends Bot {
      */
     @Override
     public void onTick(TickEvent e) {
-        // System.out.println(e.getTurnNumber() + ": onTick()");
+        try {
+            battleManager.onTick(e, this);
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
     }
 
     /**
@@ -317,7 +343,12 @@ public class OkuRunBot extends Bot {
     @Override
     public void onBotDeath(BotDeathEvent e) {
         System.out.println("- onBotDeath(" + e.getTurnNumber() + "): " + e.getVictimId());
-        battleManager.onBotDeath(e, this);
+        try {
+            battleManager.onBotDeath(e, this);
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
     }
 
     /**
@@ -337,7 +368,12 @@ public class OkuRunBot extends Bot {
      */
     @Override
     public void onHitBot(HitBotEvent e) {
-        battleManager.onHitBot(e, this);
+        try {
+            battleManager.onHitBot(e, this);
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
     }
 
     /**
@@ -357,8 +393,13 @@ public class OkuRunBot extends Bot {
      */
     @Override
     public void onBulletFired(BulletFiredEvent e) {
-        battleManager.onBulletFired(e, this);
-        predictor.onBulletFired(e, this);
+        try {
+            battleManager.onBulletFired(e, this);
+            predictor.onBulletFired(e, this);
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
     }
 
     /**
@@ -368,8 +409,13 @@ public class OkuRunBot extends Bot {
      */
     @Override
     public void onHitByBullet(HitByBulletEvent e) {
-        battleManager.onHitByBullet(e, this);
-        commander.onHitByBullet(e, this);
+        try {
+            battleManager.onHitByBullet(e, this);
+            commander.onHitByBullet(e, this);
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
     }
 
     /**
@@ -379,8 +425,13 @@ public class OkuRunBot extends Bot {
      */
     @Override
     public void onBulletHit(BulletHitBotEvent e) {
-        predictor.onBulletHit(e, this);
-        battleManager.onBulletHit(e, this);
+        try {
+            predictor.onBulletHit(e, this);
+            battleManager.onBulletHit(e, this);
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
     }
 
     /**
@@ -390,8 +441,13 @@ public class OkuRunBot extends Bot {
      */
     @Override
     public void onBulletHitBullet(BulletHitBulletEvent e) {
-        predictor.onBulletHitBullet(e, this);
-        battleManager.onBulletHitBullet(e, this);
+        try {
+            predictor.onBulletHitBullet(e, this);
+            battleManager.onBulletHitBullet(e, this);
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
     }
 
     /**
@@ -401,8 +457,13 @@ public class OkuRunBot extends Bot {
      */
     @Override
     public void onBulletHitWall(BulletHitWallEvent e) {
-        predictor.onBulletHitWall(e, this);
-        battleManager.onBulletHitWall(e, this);
+        try {
+            predictor.onBulletHitWall(e, this);
+            battleManager.onBulletHitWall(e, this);
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
     }
 
     /**
@@ -412,7 +473,12 @@ public class OkuRunBot extends Bot {
      */
     @Override
     public void onScannedBot(ScannedBotEvent e) {
-        battleManager.onScannedBot(e, this);
+        try {
+            battleManager.onScannedBot(e, this);
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
     }
 
     /**
@@ -433,7 +499,12 @@ public class OkuRunBot extends Bot {
     @Override
     public void onWonRound(WonRoundEvent e) {
         System.out.println("@=@=@ onWonRound() @=@=@");
-        commander.onWonRound(e, this);
+        try {
+            commander.onWonRound(e, this);
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
     }
 
     /**

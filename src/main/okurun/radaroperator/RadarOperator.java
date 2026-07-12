@@ -3,6 +3,7 @@ package okurun.radaroperator;
 import java.util.HashMap;
 import java.util.Map;
 
+import dev.robocode.tankroyale.botapi.events.GameStartedEvent;
 import okurun.OkuRunBot;
 import okurun.radaroperator.actions.*;
 
@@ -16,11 +17,6 @@ public class RadarOperator {
 
     private Map<Action, RadarAction> actions = new HashMap<>();
 
-    public void init(OkuRunBot bot) {
-        actions.put(Action.ALL_SCAN, new AllScanRadarAction());
-        actions.put(Action.TARGET_SCAN, new TargetScanRadarAction());
-    }
-
     public void preAction(OkuRunBot bot) {
     }
 
@@ -29,5 +25,16 @@ public class RadarOperator {
         while (action != null) {
             action = actions.get(action).action(bot);
         }
+    }
+
+    /**
+     * ゲームが開始された時の処理
+     * 
+     * @param e ゲーム開始イベント
+     * @param bot Bot
+     */
+    public void onGameStarted(GameStartedEvent e, OkuRunBot bot) {
+        actions.put(Action.ALL_SCAN, new AllScanRadarAction());
+        actions.put(Action.TARGET_SCAN, new TargetScanRadarAction());
     }
 }

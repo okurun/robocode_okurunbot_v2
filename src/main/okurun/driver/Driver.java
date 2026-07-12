@@ -3,6 +3,7 @@ package okurun.driver;
 import java.util.HashMap;
 import java.util.Map;
 
+import dev.robocode.tankroyale.botapi.events.GameStartedEvent;
 import okurun.OkuRunBot;
 import okurun.driver.actions.*;
 
@@ -16,11 +17,6 @@ public class Driver {
 
     private final Map<Action, DriveAction> actions = new HashMap<>();
 
-    public void init(OkuRunBot bot) {
-        actions.put(Action.MOVE_TO, new MoveToDriveAction());
-        actions.put(Action.AVOID_WALL, new AvoidWallDriveAction());
-    }
-
     public void preAction(OkuRunBot bot) {
     }
 
@@ -32,5 +28,16 @@ public class Driver {
 
         // actionが失敗した場合はとりあえず前進する
         actions.get(Action.MOVE_TO).action(bot);
+    }
+
+    /**
+     * ゲームが開始された時の処理
+     * 
+     * @param e ゲーム開始イベント
+     * @param bot Bot
+     */
+    public void onGameStarted(GameStartedEvent e, OkuRunBot bot) {
+        actions.put(Action.MOVE_TO, new MoveToDriveAction());
+        actions.put(Action.AVOID_WALL, new AvoidWallDriveAction());
     }
 }

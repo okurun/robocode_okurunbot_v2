@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import dev.robocode.tankroyale.botapi.Constants;
 import dev.robocode.tankroyale.botapi.IBot;
+import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
 import okurun.battlemanager.BattleManager;
 import okurun.battlemanager.EnemyState;
@@ -211,23 +212,6 @@ public class ArenaMap {
     private Map<WallId, Wall> walls;
     private Map<AreaId, Area> areas;
     private final Map<String, Object> caches = new ConcurrentHashMap<>();
-
-    public void init(OkuRunBot bot) {
-        this.height = bot.getArenaHeight();
-        this.width = bot.getArenaWidth();
-        walls = Map.of(
-                WallId.LEFT, new Wall(WallId.LEFT, 0, -1),
-                WallId.TOP, new Wall(WallId.TOP, -1, height),
-                WallId.RIGHT, new Wall(WallId.RIGHT, width, -1),
-                WallId.BOTTOM, new Wall(WallId.BOTTOM, -1, 0));
-        final double halfWidth = width * 0.5;
-        final double halfHeight = height * 0.5;
-        areas = Map.of(
-                AreaId.TOP_LEFT, new Area(AreaId.TOP_LEFT, 0, halfHeight, halfWidth, height),
-                AreaId.TOP_RIGHT, new Area(AreaId.TOP_RIGHT, halfWidth, halfHeight, width, height),
-                AreaId.BOTTOM_RIGHT, new Area(AreaId.BOTTOM_RIGHT, halfWidth, 0, width, halfHeight),
-                AreaId.BOTTOM_LEFT, new Area(AreaId.BOTTOM_LEFT, 0, 0, halfWidth, halfHeight));
-    }
 
     public void preAction(OkuRunBot bot) {
         caches.clear();
@@ -508,4 +492,26 @@ public class ArenaMap {
         caches.put("safeArea", minArea);
         return minArea;
     }
+
+    /**
+     * ゲームが開始された時の処理
+     * 
+     * @param e ゲーム開始イベント
+     * @param bot Bot
+     */
+    public void onGameStarted(GameStartedEvent e, OkuRunBot bot) {
+        this.height = bot.getArenaHeight();
+        this.width = bot.getArenaWidth();
+        walls = Map.of(
+                WallId.LEFT, new Wall(WallId.LEFT, 0, -1),
+                WallId.TOP, new Wall(WallId.TOP, -1, height),
+                WallId.RIGHT, new Wall(WallId.RIGHT, width, -1),
+                WallId.BOTTOM, new Wall(WallId.BOTTOM, -1, 0));
+        final double halfWidth = width * 0.5;
+        final double halfHeight = height * 0.5;
+        areas = Map.of(
+                AreaId.TOP_LEFT, new Area(AreaId.TOP_LEFT, 0, halfHeight, halfWidth, height),
+                AreaId.TOP_RIGHT, new Area(AreaId.TOP_RIGHT, halfWidth, halfHeight, width, height),
+                AreaId.BOTTOM_RIGHT, new Area(AreaId.BOTTOM_RIGHT, halfWidth, 0, width, halfHeight),
+                AreaId.BOTTOM_LEFT, new Area(AreaId.BOTTOM_LEFT, 0, 0, halfWidth, halfHeight));    }
 }

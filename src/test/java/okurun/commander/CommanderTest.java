@@ -28,7 +28,6 @@ class CommanderTest {
     @BeforeEach
     void setUp() {
         commander = new Commander();
-        commander.init(bot);
     }
 
     @Test
