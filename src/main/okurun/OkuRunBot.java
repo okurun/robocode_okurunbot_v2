@@ -15,7 +15,6 @@ public class OkuRunBot extends Bot {
     public static final double BODY_SIZE = 40;
 
     public static void main(String[] args) {
-        System.out.println("OkuRunBot.main() start");
         new OkuRunBot().start();
     }
 
@@ -26,6 +25,7 @@ public class OkuRunBot extends Bot {
     private final Gunner gunner;
     private final Predictor predictor;
     private final RadarOperator radarOperator;
+    private final Debugger debugger;
 
     public OkuRunBot() {
         super();
@@ -36,10 +36,12 @@ public class OkuRunBot extends Bot {
         gunner = new Gunner();
         predictor = new Predictor();
         radarOperator = new RadarOperator();
+        debugger = new Debugger();
     }
 
     @Override
     public void run() {
+        System.out.println("- run()");
         while (isRunning()) {
             preAction();
             action();
@@ -77,6 +79,7 @@ public class OkuRunBot extends Bot {
             radarOperator.action(this);
             gunner.action(this);
             driver.action(this);
+            debugger.action(this);
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();

@@ -2,6 +2,7 @@ package okurun.commander.tactics;
 
 import java.util.List;
 
+import dev.robocode.tankroyale.botapi.Constants;
 import okurun.OkuRunBot;
 import okurun.arenamap.ArenaMap;
 import okurun.battlemanager.BattleManager;
@@ -106,9 +107,11 @@ public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
             // 3ターン以内に射撃可能であれば射撃を行います
             if (latesEnemyState.distance < OkuRunBot.BODY_SIZE + 10) {
                 gunAction = Gunner.Action.RAPID_FIRE;
+                baseFirePower = Constants.MAX_FIREPOWER;
                 return;
             }
             gunAction = Gunner.Action.MAX_POWER;
+            baseFirePower = Constants.MAX_FIREPOWER;
             return;
         }
 

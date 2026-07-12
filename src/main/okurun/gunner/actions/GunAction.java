@@ -9,7 +9,7 @@ import okurun.gunner.Gunner;
 import okurun.predictor.Predictor;
 
 public interface GunAction {
-    public static final int LIMIT_TURNS = 100;
+    public static final int LIMIT_TURNS = 30;
 
     public Gunner.Action action(OkuRunBot bot);
 
@@ -22,7 +22,19 @@ public interface GunAction {
      * @param predictedState 予測後の状態
      */
     public static void drawPredictLine(OkuRunBot bot, EnemyState beforeState, EnemyState predictedState) {
-        bot.drawLine(beforeState.getPosition(), predictedState.getPosition(), Color.fromRgba(Color.WHITE, 100));
+        bot.drawLine(beforeState.getPosition(), predictedState.getPosition(),
+                Color.fromRgba(bot.getPredictor().getPredictModel(bot).getColor(), 100));
+    }
+
+    /**
+     * 画面に円を描画します
+     * ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
+     * 
+     * @param bot        ボット
+     * @param fireTarget 射撃目標位置
+     */
+    public static void drawCircle(OkuRunBot bot, EnemyState fireTarget) {
+        bot.drawFillCircle(fireTarget.getPosition(), 5, bot.getPredictor().getPredictModel(bot).getColor());
     }
 
     /**

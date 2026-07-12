@@ -2,15 +2,15 @@ package okurun.predictor.models;
 
 import java.util.Deque;
 
+import dev.robocode.tankroyale.botapi.Constants;
 import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.OkuRunBot;
 import okurun.battlemanager.EnemyState;
 import okurun.predictor.Predictor;
 
-/**
- * 予測モデル：等速直線運動のみ
- */
-public class SimplePredictModel extends AbstractPredictModel {
+public class HistoryPredictModel extends AbstractPredictModel {
+    public static final int HISTORY_POS = 30;
+
     /**
      * モデルの色を取得する
      * 
@@ -18,7 +18,7 @@ public class SimplePredictModel extends AbstractPredictModel {
      */
     @Override
     public Color getColor() {
-        return Color.BLUE;
+        return Color.YELLOW;
     }
 
     /**
@@ -31,7 +31,7 @@ public class SimplePredictModel extends AbstractPredictModel {
      */
     @Override
     public EnemyState nextTurnState(OkuRunBot bot, EnemyState enemyState, Deque<EnemyState> stateHistory) {
-        if (stateHistory.size() < 1) {
+        if (stateHistory.size() < HISTORY_POS) {
             return null;
         }
 
@@ -40,13 +40,19 @@ public class SimplePredictModel extends AbstractPredictModel {
             return (EnemyState) caches.get(cacheName);
         }
 
-        double velocity = enemyState.velocity;
-        
+        final int diff = enemyState.scannedTurnNum - stateHistory.getFirst().scannedTurnNum + 1;
+        final int pos = diff % HISTORY_POS;
+        final EnemyState[] historyArray = stateHistory.reversed().toArray(new EnemyState[0]);
+        EnemyState moveHistory = historyArray[pos];
         final double[] predictedPos = Predictor.calcPosition(enemyState.x, enemyState.y, enemyState.heading,
-                velocity, 0, 1);
-        final EnemyState predictedEnemyState = new EnemyState(enemyState.id, enemyState.scannedTurnNum + 1, predictedPos[0], predictedPos[1],
-                enemyState.heading, velocity, enemyState.energy,
-                0, 0, enemyState.distance);
+                moveHistory.velocity + moveHistory.acceleration, moveHistory.turnDegree, 1);
+        final EnemyState predictedEnemyState = new EnemyState(enemyState.id, enemyState.scannedTurnNum + 1,
+                predictedPos[0], predictedPos[1],
+                enemyState.heading + moveHistory.turnDegree,
+                Math.min(Math.min(moveHistory.acceleration + enemyState.velocity, Constants.MAX_SPEED),
+                        -Constants.MAX_SPEED),
+                enemyState.energy,
+                moveHistory.turnDegree, moveHistory.acceleration, enemyState.distance);
         caches.put(cacheName, predictedEnemyState);
         return predictedEnemyState;
     }

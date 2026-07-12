@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
+import dev.robocode.tankroyale.botapi.Constants;
+import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.OkuRunBot;
 import okurun.battlemanager.EnemyState;
 import okurun.predictor.Predictor;
@@ -29,6 +31,24 @@ public class ZigzagPredictModel extends AbstractPredictModel {
         }
     }
 
+    /**
+     * モデルの色を取得する
+     * 
+     * @return モデルの色
+     */
+    @Override
+    public Color getColor() {
+        return Color.RED;
+    }
+
+    /**
+     * 次ターンの敵の状態を予測する
+     * 
+     * @param bot          ボット
+     * @param enemyState   敵の状態
+     * @param stateHistory 敵の状態履歴
+     * @return 次ターンの敵の状態
+     */
     @Override
     public EnemyState nextTurnState(OkuRunBot bot, EnemyState enemyState, Deque<EnemyState> stateHistory) {
         final List<EnemyState> moveHistories = getMoveHistories(bot, enemyState.id, stateHistory);
@@ -52,10 +72,14 @@ public class ZigzagPredictModel extends AbstractPredictModel {
         final EnemyState moveHistory = moveHistories.get(historyPos);
 
         final double[] predictedPos = Predictor.calcPosition(enemyState.x, enemyState.y, enemyState.heading,
-                moveHistory.velocity, moveHistory.turnDegree, 1);
-        final EnemyState predictedEnemyState = new EnemyState(enemyState.id, enemyState.scannedTurnNum + 1, predictedPos[0], predictedPos[1],
-                enemyState.heading + enemyState.turnDegree, moveHistory.velocity, enemyState.energy,
-                enemyState.turnDegree, moveHistory.velocity - enemyState.velocity, enemyState.distance);
+                moveHistory.velocity + moveHistory.acceleration, moveHistory.turnDegree, 1);
+        final EnemyState predictedEnemyState = new EnemyState(enemyState.id, enemyState.scannedTurnNum + 1,
+                predictedPos[0], predictedPos[1],
+                enemyState.heading + moveHistory.turnDegree,
+                Math.min(Math.min(moveHistory.acceleration + enemyState.velocity, Constants.MAX_SPEED),
+                        -Constants.MAX_SPEED),
+                enemyState.energy,
+                moveHistory.turnDegree, moveHistory.acceleration, enemyState.distance);
         caches.put(cacheName, predictedEnemyState);
         return predictedEnemyState;
     }

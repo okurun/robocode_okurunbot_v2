@@ -9,6 +9,12 @@ import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
 import okurun.gunner.Gunner;
 
+/**
+ * できるだけ最大火力で射撃します
+ * 砲が回りきらない場合は威力を小さくして再予測してみます
+ * 砲が回りきるまで発射しません
+ * 最大火力はCommander.getBaseFirePower()を使用します
+ */
 public class MaxPowerGunAction implements GunAction {
 
     private static final double FIREPOWER_SEARCH_STEP = 0.4;
@@ -24,9 +30,9 @@ public class MaxPowerGunAction implements GunAction {
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
 
-        double firePower;
+        double firePower = Math.min(Math.min(commander.getBaseFirePower(bot), Constants.MAX_FIREPOWER), bot.getEnergy() - 0.1);
         EnemyState fireTarget = null;
-        for (firePower = Constants.MAX_FIREPOWER; firePower > 0; firePower -= FIREPOWER_SEARCH_STEP) {
+        for (; firePower > 0; firePower -= FIREPOWER_SEARCH_STEP) {
             fireTarget = GunAction.getFireTarget(bot, targetEnemyProfile, firePower);
             if (fireTarget != null) {
                 break;
@@ -55,7 +61,7 @@ public class MaxPowerGunAction implements GunAction {
 
         // デバッグ用に射撃目標位置に円を描きます
         // ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
-        GunAction.drawTargetPoint(bot, fireTarget, firePower);
+        GunAction.drawCircle(bot, fireTarget);
 
         // 射撃目標位置に砲頭を向けます
         bot.setAdjustGunForBodyTurn(true);

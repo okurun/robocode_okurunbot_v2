@@ -4,9 +4,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
-import okurun.battlemanager.BattleManager;
-import okurun.battlemanager.EnemyProfile;
-import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
 import okurun.driver.Driver;
 import okurun.gunner.Gunner;
@@ -32,7 +29,6 @@ public abstract class AbstractTactic implements Tactic {
     @Override
     public void action(OkuRunBot bot) {
         setTargetEnemyId(bot);
-        setBaseFirePower(bot);
         setPredictModel(bot);
         setTargetMovePosition(bot);
         setDriveActionName(bot);
@@ -90,27 +86,6 @@ public abstract class AbstractTactic implements Tactic {
     protected void reset() {
         bulletHitCnt.set(0);
         targetEnemyId.set(Commander.NO_TARGET);
-    }
-
-    protected void setBaseFirePower(OkuRunBot bot) {
-        if (targetEnemyId.get() != Commander.NO_TARGET) {
-            final BattleManager battleManager = bot.getBattleManager();
-            final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
-            final EnemyState latesEnemyState = targetEnemyProfile.getLatestState();
-            if (latesEnemyState != null && latesEnemyState.distance < OkuRunBot.BODY_SIZE + 10) {
-                baseFirePower = 3;
-                return;
-            }
-        }
-
-        baseFirePower = 2;
-
-        // 自分のエネルギーが少ない時はパワーを下げる
-        if (bot.getEnergy() < 60) {
-            baseFirePower -= (60 - bot.getEnergy()) * 0.03;
-        } else if (bot.getEnergy() > 100) {
-            baseFirePower += (bot.getEnergy() - 100) * 0.03;
-        }
     }
 
     /**

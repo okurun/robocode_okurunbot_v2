@@ -87,14 +87,14 @@ public class BattleManager {
      * 
      * @param id 敵ボットのID
      * @return 指定したIDの敵ボットのプロファイル
+     * @throws RuntimeException idがNO_TARGET、または自分のIDである場合
      */
     public EnemyProfile getEnemyProfile(int id) {
         if (id == Commander.NO_TARGET) {
-            return null;
+            throw new RuntimeException("id is NO_TARGET");
         }
         if (id == myId.get()) {
-            System.out.println(String.format("getEnemyProfile: id: %d == myId.get(): %d", id, myId.get()));
-            return null;
+            throw new RuntimeException("id is myId");
         }
         return enemyProfiles.computeIfAbsent(id, EnemyProfile::new);
     }

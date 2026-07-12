@@ -43,11 +43,6 @@ public class OneOnOneGoRoundAreaTactic extends AbstractOneOnOneTactic {
     }
 
     @Override
-    protected void setBaseFirePower(OkuRunBot bot) {
-        baseFirePower = 1.5;
-    }
-
-    @Override
     protected void setGunActionName(OkuRunBot bot) {
         if (targetEnemyId.get() == Commander.NO_TARGET) {
             // ターゲットが設定されていない場合はスキャンを行います
@@ -77,6 +72,7 @@ public class OneOnOneGoRoundAreaTactic extends AbstractOneOnOneTactic {
         if (bot.getGunHeat() <= bot.getGunCoolingRate() * 3) {
             // 3ターン以内に射撃可能であれば射撃を行います
             gunAction = Gunner.Action.RAPID_FIRE;
+            baseFirePower = 1.5;
             return;
         }
 

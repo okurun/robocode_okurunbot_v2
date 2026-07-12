@@ -3,6 +3,7 @@ package okurun.commander.tactics;
 import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.OkuRunBot;
 import okurun.battlemanager.BattleManager;
+import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
 import okurun.predictor.Predictor.Model;
@@ -60,12 +61,17 @@ public abstract class AbstractOneOnOneTactic extends AbstractTactic {
     protected void setPredictModel(OkuRunBot bot) {
         if (targetEnemyId.get() != Commander.NO_TARGET) {
             final BattleManager battleManager = bot.getBattleManager();
-            if (ZigzagPredictModel.canUse(bot, battleManager.getEnemyProfile(targetEnemyId.get()).getStateHistory())) {
-                bot.setScanColor(Color.fromRgba(Color.LIGHT_BLUE, 2));
+            final EnemyProfile enemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
+            if (ZigzagPredictModel.canUse(bot, enemyProfile.getStateHistory())) {
                 predictModel = Model.ZIGZAG;
                 return;
             }
+            if (enemyProfile.getStateHistory().size() >= HistoryPredictModel.HISTORY_POS) {
+                predictModel = Model.HISTORY;
+                return;
+            }
         }
-        predictModel = Model.SIMPLE;
+
+        predictModel = Model.DYNAMIC;
     }
 }

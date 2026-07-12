@@ -9,7 +9,9 @@ import okurun.commander.Commander;
 import okurun.gunner.Gunner;
 
 /**
- * エネルギーが０になった敵に止めを刺すガンアクション
+ * エネルギーが０になり動けなくなった敵に止めを刺すガンアクション
+ * 予測はせず、敵の現在位置に対して最小火力で発射します
+ * 砲が回りきるまで発射しません
  */
 public class ExecutionGunAction implements GunAction {
 
@@ -28,7 +30,7 @@ public class ExecutionGunAction implements GunAction {
         }
 
         final double firePower = Constants.MIN_FIREPOWER;
-        GunAction.drawTargetPoint(bot, latestEnemyState, firePower);
+        GunAction.drawCircle(bot, latestEnemyState);
 
         // 射撃目標位置に砲頭を向けます
         final double bearingTo = bot.gunBearingTo(latestEnemyState.getPosition());

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import dev.robocode.tankroyale.botapi.Constants;
 import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
 import okurun.arenamap.ArenaMap;
@@ -19,7 +20,7 @@ import okurun.predictor.models.*;
  */
 public class Predictor {
     public static enum Model {
-        SIMPLE, ZIGZAG
+        SIMPLE, DYNAMIC, ZIGZAG, HISTORY
     }
 
     private final Map<Model, PredictModel> predictModels = new HashMap<>();
@@ -54,11 +55,12 @@ public class Predictor {
      * @param targetTurnNum 予測するターン数
      * @param model         使用するモデル
      * @return 予測した敵の状態
+     * @throws RuntimeException 予測モデルが存在しない場合
      */
-    private EnemyState predict(OkuRunBot bot, EnemyProfile enemyProfile, int targetTurnNum, Model model) {
+    public EnemyState predict(OkuRunBot bot, EnemyProfile enemyProfile, int targetTurnNum, Model model) {
         final PredictModel predictModel = predictModels.get(model);
         if (predictModel == null) {
-            return null;
+            throw new RuntimeException("Predict model is not found: " + model);
         }
 
         final EnemyState latestEnemyState = enemyProfile.getLatestState();
@@ -92,6 +94,10 @@ public class Predictor {
         return enemyState;
     }
 
+    public PredictModel getPredictModel(OkuRunBot bot) {
+        return getPredictModel(bot.getCommander().getPredictModel(bot));
+    }
+
     public PredictModel getPredictModel(Model model) {
         return predictModels.get(model);
     }
@@ -120,9 +126,10 @@ public class Predictor {
      * @return 予測した敵の状態
      */
     public static double[] calcPosition(double x, double y, double heading, double velocity, int diffTurnNum) {
+        final double v = Math.min(Math.max(velocity, -Constants.MAX_SPEED), Constants.MAX_SPEED);
         final double rad = Math.toRadians(heading);
-        final double newX = x + velocity * Math.cos(rad) * diffTurnNum;
-        final double newY = y + velocity * Math.sin(rad) * diffTurnNum;
+        final double newX = x + v * Math.cos(rad) * diffTurnNum;
+        final double newY = y + v * Math.sin(rad) * diffTurnNum;
         return new double[] { newX, newY };
     }
 
@@ -175,7 +182,9 @@ public class Predictor {
     public void onGameStarted(GameStartedEvent e, OkuRunBot bot) {
         try {
             predictModels.put(Model.SIMPLE, new SimplePredictModel());
+            predictModels.put(Model.DYNAMIC, new DynamicPredictModel());
             predictModels.put(Model.ZIGZAG, new ZigzagPredictModel());
+            predictModels.put(Model.HISTORY, new HistoryPredictModel());
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();

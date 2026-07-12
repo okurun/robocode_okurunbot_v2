@@ -2,6 +2,7 @@ package okurun.commander.tactics;
 
 import java.util.List;
 
+import dev.robocode.tankroyale.botapi.Constants;
 import okurun.OkuRunBot;
 import okurun.arenamap.ArenaMap;
 import okurun.arenamap.ArenaMap.Area;
@@ -61,19 +62,6 @@ public class SurvivalTactic extends AbstractTactic {
     }
 
     @Override
-    protected void setBaseFirePower(OkuRunBot bot) {
-        super.setBaseFirePower(bot);
-
-        // 敵の数が多い時はパワーを下げる
-        final int aliveEnemyCount = bot.getBattleManager().getAliveAndNotMissingEnemyCount(bot);
-        if (aliveEnemyCount > 2) {
-            baseFirePower -= 1;
-        } else if (aliveEnemyCount > 1) {
-            baseFirePower = -0.5;
-        }
-    }
-
-    @Override
     protected void setPredictModel(OkuRunBot bot) {
         predictModel = Model.SIMPLE;
     }
@@ -108,10 +96,14 @@ public class SurvivalTactic extends AbstractTactic {
             // 3ターン以内に射撃可能であれば射撃を行います
             if (latesEnemyState.distance < OkuRunBot.BODY_SIZE + 10) {
                 gunAction = Gunner.Action.RAPID_FIRE;
+                baseFirePower = Constants.MAX_FIREPOWER;
                 return;
             }
+            gunAction = Gunner.Action.MAX_POWER;
+            baseFirePower = Constants.MAX_FIREPOWER;
+            return;
         }
-        gunAction = Gunner.Action.MAX_POWER;
+        gunAction = Gunner.Action.TRACKING;
     }
 
     @Override

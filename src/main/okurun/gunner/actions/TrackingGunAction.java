@@ -37,7 +37,7 @@ public class TrackingGunAction implements GunAction {
 
         // デバッグ用に射撃目標位置に円を描きます
         // ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
-        GunAction.drawTargetPoint(bot, nextEnemyState, 0);
+        GunAction.drawCircle(bot, nextEnemyState);
 
         bot.setAdjustGunForBodyTurn(true);
         final double bearingTo = bot.gunBearingTo(nextEnemyState.getPosition());
