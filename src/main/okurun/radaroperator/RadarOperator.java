@@ -11,17 +11,17 @@ import okurun.radaroperator.actions.*;
  * レーダー技士クラス
  */
 public class RadarOperator {
-    public static enum Action {
+    public static enum ActionId {
         ALL_SCAN, TARGET_SCAN
     }
 
-    private Map<Action, RadarAction> actions = new HashMap<>();
+    private Map<ActionId, RadarAction> actions = new HashMap<>();
 
     public void preAction(OkuRunBot bot) {
     }
 
     public void action(OkuRunBot bot) {
-        Action action = bot.getCommander().getRadarAction(bot);
+        ActionId action = bot.getCommander().getRadarAction(bot);
         while (action != null) {
             action = actions.get(action).action(bot);
         }
@@ -30,11 +30,11 @@ public class RadarOperator {
     /**
      * ゲームが開始された時の処理
      * 
-     * @param e ゲーム開始イベント
+     * @param e   ゲーム開始イベント
      * @param bot Bot
      */
     public void onGameStarted(GameStartedEvent e, OkuRunBot bot) {
-        actions.put(Action.ALL_SCAN, new AllScanRadarAction());
-        actions.put(Action.TARGET_SCAN, new TargetScanRadarAction());
+        actions.put(ActionId.ALL_SCAN, new AllScanRadarAction());
+        actions.put(ActionId.TARGET_SCAN, new TargetScanRadarAction());
     }
 }

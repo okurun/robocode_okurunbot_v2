@@ -52,14 +52,9 @@ class SurvivalTacticTest {
         when(battleManager.getNearestAliveEnemy(bot)).thenReturn(null);
 
         when(bot.getArenaMap()).thenReturn(arenaMap);
-        ArenaMap.Area safeArea = mock(ArenaMap.Area.class);
-        when(arenaMap.getSafeArea(bot)).thenReturn(safeArea);
-        when(safeArea.getCenter()).thenReturn(new double[] { 100.0, 100.0 });
-        when(bot.getPosition()).thenReturn(new double[] { 200.0, 200.0 });
-
         tactic.action(bot);
 
-        assertEquals(RadarOperator.Action.ALL_SCAN, tactic.getRadarAction(bot));
-        assertEquals(Gunner.Action.SCAN, tactic.getGunActionName(bot));
+        assertEquals(RadarOperator.ActionId.ALL_SCAN, tactic.getRadarAction(bot));
+        assertEquals(Gunner.ActionId.SCAN, tactic.getGunActionName(bot));
     }
 }

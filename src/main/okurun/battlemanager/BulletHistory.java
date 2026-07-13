@@ -1,12 +1,12 @@
 package okurun.battlemanager;
 
-import okurun.predictor.Predictor.Model;
+import okurun.predictor.Predictor.PredictModelId;
 
 /**
  * 発射された弾丸の情報を保持するクラス
  */
 public class BulletHistory {
-    public final Model predictModel;
+    public final PredictModelId predictModel;
     public final double targetX;
     public final double targetY;
     public final int targetEnemyId;
@@ -15,7 +15,8 @@ public class BulletHistory {
     public int bulletId = 0;
     public double power = 0;
 
-    public BulletHistory(Model predictModel, double targetX, double targetY, int targetEnemyId, int predictTurnNum, double distance) {
+    public BulletHistory(PredictModelId predictModel, double targetX, double targetY, int targetEnemyId,
+            int predictTurnNum, double distance) {
         this.predictModel = predictModel;
         this.targetX = targetX;
         this.targetY = targetY;

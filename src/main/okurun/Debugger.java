@@ -18,11 +18,11 @@ public class Debugger {
 
         drawPredictLine(bot, commander.getPredictModel(bot), enemyProfile);
         // for (Predictor.Model model: Predictor.Model.values()) {
-        //     drawPredictLine(bot, model, enemyProfile);
+        // drawPredictLine(bot, model, enemyProfile);
         // }
     }
 
-    private void drawPredictLine(OkuRunBot bot, Predictor.Model model, EnemyProfile enemyProfile) {
+    private void drawPredictLine(OkuRunBot bot, Predictor.PredictModelId model, EnemyProfile enemyProfile) {
         final Predictor predictor = bot.getPredictor();
         final Color color = predictor.getPredictModel(model).getColor();
         final int turnNum = bot.getTurnNumber();
@@ -35,7 +35,7 @@ public class Debugger {
                 }
                 bot.drawLine(prevState.getPosition(), predictedState.getPosition(), color);
                 prevState = predictedState;
-            }            
+            }
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
         }

@@ -16,17 +16,17 @@ import okurun.gunner.Gunner;
 public class ExecutionGunAction implements GunAction {
 
     @Override
-    public Gunner.Action action(OkuRunBot bot) {
+    public Gunner.ActionId action(OkuRunBot bot) {
         final Commander commander = bot.getCommander();
         final int targetEnemyId = commander.getTargetEnemyId(bot);
         if (targetEnemyId == Commander.NO_TARGET) {
-            return Gunner.Action.SCAN;
+            return Gunner.ActionId.SCAN;
         }
 
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyState latestEnemyState = battleManager.getLatestEnemyState(targetEnemyId);
         if (latestEnemyState == null) {
-            return Gunner.Action.SCAN;
+            return Gunner.ActionId.SCAN;
         }
 
         final double firePower = Constants.MIN_FIREPOWER;

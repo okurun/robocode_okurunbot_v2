@@ -18,7 +18,7 @@ public class AvoidWallDriveAction implements DriveAction {
     }
 
     @Override
-    public Driver.Action action(OkuRunBot bot) {
+    public Driver.ActionId action(OkuRunBot bot) {
         final ArenaMap arenaMap = bot.getArenaMap();
         final List<ArenaMap.PotentialCollisionWall> pcWalls = arenaMap.getPotentialCollisionWalls(bot);
         if (pcWalls.isEmpty()) {

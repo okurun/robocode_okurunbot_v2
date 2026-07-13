@@ -9,7 +9,7 @@ import okurun.gunner.Gunner;
 public class ScanGunAction implements GunAction {
 
     @Override
-    public Gunner.Action action(OkuRunBot bot) {
+    public Gunner.ActionId action(OkuRunBot bot) {
         bot.setAdjustGunForBodyTurn(false);
         bot.setTurnGunLeft(360);
 

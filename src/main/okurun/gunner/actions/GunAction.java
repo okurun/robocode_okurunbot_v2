@@ -11,7 +11,7 @@ import okurun.predictor.Predictor;
 public interface GunAction {
     public static final int LIMIT_TURNS = 30;
 
-    public Gunner.Action action(OkuRunBot bot);
+    public Gunner.ActionId action(OkuRunBot bot);
 
     /**
      * 予測線を画面に描画します

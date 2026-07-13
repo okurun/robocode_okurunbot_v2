@@ -43,7 +43,7 @@ public class MoveToDriveAction implements DriveAction {
     private int randNum = 0;
 
     @Override
-    public Driver.Action action(OkuRunBot bot) {
+    public Driver.ActionId action(OkuRunBot bot) {
         final Commander commander = bot.getCommander();
         final double[] pos = commander.getTargetMovePosition(bot);
         if (pos == null) {

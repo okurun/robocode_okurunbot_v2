@@ -18,12 +18,12 @@ import okurun.predictor.models.*;
  * 予測士クラス
  */
 public class Predictor {
-    public static enum Model {
+    public static enum PredictModelId {
         SIMPLE, DYNAMIC, ZIGZAG, HISTORY, NONE
     }
 
-    private final Map<Model, PredictModel> predictModels = new HashMap<>();
-    private final Map<Integer, Model> bulletModels = new ConcurrentHashMap<>();
+    private final Map<PredictModelId, PredictModel> predictModels = new HashMap<>();
+    private final Map<Integer, PredictModelId> bulletModels = new ConcurrentHashMap<>();
 
     public void preAction(OkuRunBot bot) {
         for (PredictModel model : predictModels.values()) {
@@ -56,7 +56,7 @@ public class Predictor {
      * @return 予測した敵の状態
      * @throws RuntimeException 予測モデルが存在しない場合
      */
-    public EnemyState predict(OkuRunBot bot, EnemyProfile enemyProfile, int targetTurnNum, Model model) {
+    public EnemyState predict(OkuRunBot bot, EnemyProfile enemyProfile, int targetTurnNum, PredictModelId model) {
         final PredictModel predictModel = predictModels.get(model);
         if (predictModel == null) {
             throw new RuntimeException("Predict model is not found: " + model);
@@ -96,7 +96,7 @@ public class Predictor {
         return getPredictModel(bot.getCommander().getPredictModel(bot));
     }
 
-    public PredictModel getPredictModel(Model model) {
+    public PredictModel getPredictModel(PredictModelId model) {
         return predictModels.get(model);
     }
 
@@ -174,16 +174,16 @@ public class Predictor {
     /**
      * ゲームが開始された時の処理
      * 
-     * @param e ゲーム開始イベント
+     * @param e   ゲーム開始イベント
      * @param bot Bot
      */
     public void onGameStarted(GameStartedEvent e, OkuRunBot bot) {
         try {
-            predictModels.put(Model.SIMPLE, new SimplePredictModel());
-            predictModels.put(Model.DYNAMIC, new DynamicPredictModel());
-            predictModels.put(Model.ZIGZAG, new ZigzagPredictModel());
-            predictModels.put(Model.HISTORY, new HistoryPredictModel());
-            predictModels.put(Model.NONE, new NonePredictPredictModel());
+            predictModels.put(PredictModelId.SIMPLE, new SimplePredictModel());
+            predictModels.put(PredictModelId.DYNAMIC, new DynamicPredictModel());
+            predictModels.put(PredictModelId.ZIGZAG, new ZigzagPredictModel());
+            predictModels.put(PredictModelId.HISTORY, new HistoryPredictModel());
+            predictModels.put(PredictModelId.NONE, new NonePredictPredictModel());
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();
@@ -193,12 +193,12 @@ public class Predictor {
     /**
      * ゲームが終了した時の処理
      * 
-     * @param e ゲーム終了イベント
+     * @param e   ゲーム終了イベント
      * @param bot ボット
      */
     public void onGameEnded(GameEndedEvent e, OkuRunBot bot) {
         try {
-            for (final Model model : predictModels.keySet()) {
+            for (final PredictModelId model : predictModels.keySet()) {
                 predictModels.get(model).onGameEnded(e, bot);
             }
         } catch (Exception exception) {
@@ -216,7 +216,7 @@ public class Predictor {
     public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
         try {
             bulletModels.clear();
-            for (final Model model : predictModels.keySet()) {
+            for (final PredictModelId model : predictModels.keySet()) {
                 predictModels.get(model).onRoundEnded(e, bot);
             }
         } catch (Exception exception) {
@@ -257,7 +257,7 @@ public class Predictor {
     public void onBulletHit(BulletHitBotEvent e, OkuRunBot bot) {
         try {
             final int bulletId = e.getBullet().getBulletId();
-            final Model model = bulletModels.remove(bulletId);
+            final PredictModelId model = bulletModels.remove(bulletId);
             if (model == null) {
                 System.out.println("Warning: " + e.getTurnNumber() + " onBulletHit: model is null");
                 return;
@@ -278,7 +278,7 @@ public class Predictor {
     public void onBulletHitBullet(BulletHitBulletEvent e, OkuRunBot bot) {
         try {
             final int bulletId = e.getBullet().getBulletId();
-            final Model model = bulletModels.remove(bulletId);
+            final PredictModelId model = bulletModels.remove(bulletId);
             if (model == null) {
                 System.out.println("Warning: " + e.getTurnNumber() + " onBulletHitBullet: model is null");
                 return;
@@ -299,7 +299,7 @@ public class Predictor {
     public void onBulletHitWall(BulletHitWallEvent e, OkuRunBot bot) {
         try {
             final int bulletId = e.getBullet().getBulletId();
-            final Model model = bulletModels.remove(bulletId);
+            final PredictModelId model = bulletModels.remove(bulletId);
             if (model == null) {
                 System.out.println("Warning: " + e.getTurnNumber() + " onBulletHitWall: model is null");
                 return;

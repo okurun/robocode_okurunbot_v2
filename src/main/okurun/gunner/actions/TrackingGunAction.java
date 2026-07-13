@@ -14,11 +14,11 @@ import okurun.predictor.Predictor;
 public class TrackingGunAction implements GunAction {
 
     @Override
-    public Gunner.Action action(OkuRunBot bot) {
+    public Gunner.ActionId action(OkuRunBot bot) {
         final Commander commander = bot.getCommander();
         final int targetEnemyId = commander.getTargetEnemyId(bot);
         if (targetEnemyId == Commander.NO_TARGET) {
-            return Gunner.Action.SCAN;
+            return Gunner.ActionId.SCAN;
         }
 
         final BattleManager battleManager = bot.getBattleManager();
@@ -31,7 +31,7 @@ public class TrackingGunAction implements GunAction {
             // 予測できない場合は最新のステータスを使用します
             nextEnemyState = targetEnemyProfile.getLatestState();
             if (nextEnemyState == null) {
-                return Gunner.Action.SCAN;
+                return Gunner.ActionId.SCAN;
             }
         }
 

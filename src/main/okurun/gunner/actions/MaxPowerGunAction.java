@@ -20,17 +20,18 @@ public class MaxPowerGunAction implements GunAction {
     private static final double FIREPOWER_SEARCH_STEP = 0.4;
 
     @Override
-    public Gunner.Action action(OkuRunBot bot) {
+    public Gunner.ActionId action(OkuRunBot bot) {
         final Commander commander = bot.getCommander();
         final int targetEnemyId = commander.getTargetEnemyId(bot);
         if (targetEnemyId == Commander.NO_TARGET) {
-            return Gunner.Action.SCAN;
+            return Gunner.ActionId.SCAN;
         }
 
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
 
-        double firePower = Math.min(Math.min(commander.getBaseFirePower(bot), Constants.MAX_FIREPOWER), bot.getEnergy() - 0.1);
+        double firePower = Math.min(Math.min(commander.getBaseFirePower(bot), Constants.MAX_FIREPOWER),
+                bot.getEnergy() - 0.1);
         EnemyState fireTarget = null;
         double bearingTo = 0;
         for (; firePower > 0; firePower -= FIREPOWER_SEARCH_STEP) {
@@ -44,7 +45,7 @@ public class MaxPowerGunAction implements GunAction {
             }
         }
         if (fireTarget == null) {
-            return Gunner.Action.TRACKING;
+            return Gunner.ActionId.TRACKING;
         }
 
         // デバッグ用に射撃目標位置に円を描きます

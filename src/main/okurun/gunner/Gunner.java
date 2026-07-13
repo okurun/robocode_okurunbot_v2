@@ -13,21 +13,21 @@ import okurun.gunner.actions.*;
  * 砲撃手クラス
  */
 public class Gunner {
-    public static enum Action {
+    public static enum ActionId {
         SCAN,
         TRACKING,
         EXECUTION,
         MAX_POWER;
     }
 
-    private final Map<Action, GunAction> actions = new HashMap<>();
+    private final Map<ActionId, GunAction> actions = new HashMap<>();
 
     public void preAction(OkuRunBot bot) {
     }
 
     public void action(OkuRunBot bot) {
         final Commander commander = bot.getCommander();
-        Action action = commander.getGunActionName(bot);
+        ActionId action = commander.getGunActionName(bot);
         while (action != null) {
             action = actions.get(action).action(bot);
         }
@@ -48,12 +48,13 @@ public class Gunner {
     /**
      * ゲームが開始された時の処理
      * 
-     * @param e ゲーム開始イベント
+     * @param e   ゲーム開始イベント
      * @param bot Bot
      */
     public void onGameStarted(GameStartedEvent e, OkuRunBot bot) {
-        actions.put(Action.SCAN, new ScanGunAction());
-        actions.put(Action.TRACKING, new TrackingGunAction());
-        actions.put(Action.EXECUTION, new ExecutionGunAction());
-        actions.put(Action.MAX_POWER, new MaxPowerGunAction());
-    }}
+        actions.put(ActionId.SCAN, new ScanGunAction());
+        actions.put(ActionId.TRACKING, new TrackingGunAction());
+        actions.put(ActionId.EXECUTION, new ExecutionGunAction());
+        actions.put(ActionId.MAX_POWER, new MaxPowerGunAction());
+    }
+}

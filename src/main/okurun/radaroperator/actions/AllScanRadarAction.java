@@ -9,7 +9,7 @@ import okurun.radaroperator.RadarOperator;
 public class AllScanRadarAction implements RadarAction {
 
     @Override
-    public RadarOperator.Action action(OkuRunBot bot) {
+    public RadarOperator.ActionId action(OkuRunBot bot) {
         bot.setAdjustRadarForGunTurn(false);
         bot.setTurnRadarLeft(360);
         return null;

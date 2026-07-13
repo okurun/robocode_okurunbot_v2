@@ -5,17 +5,17 @@ import java.util.List;
 import dev.robocode.tankroyale.botapi.Constants;
 import okurun.OkuRunBot;
 import okurun.arenamap.ArenaMap;
-import okurun.arenamap.ArenaMap.Area;
 import okurun.battlemanager.BattleManager;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
 import okurun.commander.Commander.AccelePriority;
 import okurun.commander.Commander.HandlePriority;
+import okurun.commander.Commander.MovePatternId;
 import okurun.driver.Driver;
 import okurun.gunner.Gunner;
 import okurun.predictor.Predictor;
-import okurun.predictor.Predictor.Model;
+import okurun.predictor.Predictor.PredictModelId;
 import okurun.radaroperator.RadarOperator;
 
 /**
@@ -52,13 +52,8 @@ public class SurvivalTactic extends AbstractTactic {
     }
 
     @Override
-    protected void setTargetMovePosition(OkuRunBot bot) {
-        // 敵の少ない安全なエリアへ向かう
-        final ArenaMap arenaMap = bot.getArenaMap();
-        final Area safeArea = arenaMap.getSafeArea(bot);
-        // 目的地で停止してしまわないように少しズラす
-        targetMovePosition = Tactic.calculatePointCUsingTrig(
-                bot.getPosition(), safeArea.getCenter(), 30, false);
+    protected void setMovePatternId(OkuRunBot bot) {
+        movePatternId = MovePatternId.SAFE_AREA;
     }
 
     @Override
@@ -67,8 +62,8 @@ public class SurvivalTactic extends AbstractTactic {
             final BattleManager battleManager = bot.getBattleManager();
             final Predictor predictor = bot.getPredictor();
             final EnemyProfile enemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
-            final Model[] models = new Model[] {Model.SIMPLE};
-            for (Model model : models) {
+            final PredictModelId[] models = new PredictModelId[] { PredictModelId.SIMPLE };
+            for (PredictModelId model : models) {
                 if (predictor.getPredictModel(model).canPredict(bot, enemyProfile)) {
                     predictModel = model;
                     return;
@@ -76,13 +71,13 @@ public class SurvivalTactic extends AbstractTactic {
             }
         }
 
-        predictModel = Model.NONE;
+        predictModel = PredictModelId.NONE;
     }
 
     @Override
     protected void setGunActionName(OkuRunBot bot) {
         if (targetEnemyId.get() == Commander.NO_TARGET) {
-            gunAction = Gunner.Action.SCAN;
+            gunAction = Gunner.ActionId.SCAN;
             return;
         }
 
@@ -91,18 +86,18 @@ public class SurvivalTactic extends AbstractTactic {
         final EnemyState latesEnemyState = targetEnemyProfile.getLatestState();
         if (latesEnemyState == null) {
             // 全体スキャンを優先する
-            gunAction = Gunner.Action.SCAN;
+            gunAction = Gunner.ActionId.SCAN;
             return;
         }
         if (latesEnemyState.energy <= 0) {
             // 敵のエネルギーが0以下の場合は止めを刺します
-            gunAction = Gunner.Action.EXECUTION;
+            gunAction = Gunner.ActionId.EXECUTION;
             waitForGunTurn = true;
             return;
         }
         if (targetEnemyProfile.isNoMove(bot) && latesEnemyState.distance > OkuRunBot.BODY_SIZE) {
             // 敵が動いていない、かつ離れている場合は射撃します
-            gunAction = Gunner.Action.EXECUTION;
+            gunAction = Gunner.ActionId.EXECUTION;
             waitForGunTurn = true;
             return;
         }
@@ -110,17 +105,17 @@ public class SurvivalTactic extends AbstractTactic {
         if (bot.getGunHeat() <= bot.getGunCoolingRate() * 3) {
             // 3ターン以内に射撃可能であれば射撃を行います
             if (latesEnemyState.distance < OkuRunBot.BODY_SIZE + 10) {
-                gunAction = Gunner.Action.MAX_POWER;
+                gunAction = Gunner.ActionId.MAX_POWER;
                 baseFirePower = Constants.MAX_FIREPOWER;
                 waitForGunTurn = false;
                 return;
             }
-            gunAction = Gunner.Action.MAX_POWER;
+            gunAction = Gunner.ActionId.MAX_POWER;
             baseFirePower = 2;
             waitForGunTurn = true;
             return;
         }
-        gunAction = Gunner.Action.TRACKING;
+        gunAction = Gunner.ActionId.TRACKING;
     }
 
     @Override
@@ -132,11 +127,11 @@ public class SurvivalTactic extends AbstractTactic {
                     battleManager.getEnemyProfile(targetEnemyId.get()), bot.getTurnNumber());
             if (predictedEnemyState != null) {
                 // ターゲットの位置を探る
-                radarAction = RadarOperator.Action.TARGET_SCAN;
+                radarAction = RadarOperator.ActionId.TARGET_SCAN;
                 return;
             }
         }
-        radarAction = RadarOperator.Action.ALL_SCAN;
+        radarAction = RadarOperator.ActionId.ALL_SCAN;
     }
 
     @Override
@@ -144,10 +139,10 @@ public class SurvivalTactic extends AbstractTactic {
         final ArenaMap arenaMap = bot.getArenaMap();
         final List<ArenaMap.PotentialCollisionWall> collisionWalls = arenaMap.getPotentialCollisionWalls(bot);
         if (!collisionWalls.isEmpty()) {
-            driveAction = Driver.Action.AVOID_WALL;
+            driveAction = Driver.ActionId.AVOID_WALL;
             return;
         }
-        driveAction = Driver.Action.MOVE_TO;
+        driveAction = Driver.ActionId.MOVE_TO;
     }
 
     @Override

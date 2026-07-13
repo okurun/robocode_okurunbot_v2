@@ -5,20 +5,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
 import okurun.commander.Commander;
+import okurun.commander.Commander.MovePatternId;
 import okurun.driver.Driver;
 import okurun.gunner.Gunner;
-import okurun.predictor.Predictor.Model;
+import okurun.predictor.Predictor.PredictModelId;
 import okurun.radaroperator.RadarOperator;
 
 public abstract class AbstractTactic implements Tactic {
     protected final AtomicInteger targetEnemyId = new AtomicInteger(Commander.NO_TARGET);
-    protected double[] targetMovePosition = null;
+    protected MovePatternId movePatternId = null;
     protected double baseFirePower = 1.5;
     protected boolean waitForGunTurn = true;
-    protected Model predictModel = null;
-    protected Driver.Action driveAction = null;
-    protected Gunner.Action gunAction = null;
-    protected RadarOperator.Action radarAction = null;
+    protected PredictModelId predictModel = null;
+    protected Driver.ActionId driveAction = null;
+    protected Gunner.ActionId gunAction = null;
+    protected RadarOperator.ActionId radarAction = null;
     protected final AtomicInteger bulletHitCnt = new AtomicInteger(0);
     protected final AtomicInteger totalBulletHitCnt = new AtomicInteger(0);
     protected final AtomicInteger totalTurns = new AtomicInteger(0);
@@ -31,7 +32,7 @@ public abstract class AbstractTactic implements Tactic {
     public void action(OkuRunBot bot) {
         setTargetEnemyId(bot);
         setPredictModel(bot);
-        setTargetMovePosition(bot);
+        setMovePatternId(bot);
         setDriveActionName(bot);
         setGunActionName(bot);
         setRadarActionName(bot);
@@ -41,7 +42,7 @@ public abstract class AbstractTactic implements Tactic {
 
     protected abstract void setPredictModel(OkuRunBot bot);
 
-    protected abstract void setTargetMovePosition(OkuRunBot bot);
+    protected abstract void setMovePatternId(OkuRunBot bot);
 
     protected abstract void setDriveActionName(OkuRunBot bot);
 
@@ -55,8 +56,8 @@ public abstract class AbstractTactic implements Tactic {
     }
 
     @Override
-    public double[] getTargetMovePosition(OkuRunBot bot) {
-        return targetMovePosition;
+    public MovePatternId getMovePatternId(OkuRunBot bot) {
+        return movePatternId;
     }
 
     @Override
@@ -70,22 +71,22 @@ public abstract class AbstractTactic implements Tactic {
     }
 
     @Override
-    public Model getPredictModel(OkuRunBot bot) {
+    public PredictModelId getPredictModel(OkuRunBot bot) {
         return predictModel;
     }
 
     @Override
-    public Driver.Action getDriveAction(OkuRunBot bot) {
+    public Driver.ActionId getDriveAction(OkuRunBot bot) {
         return driveAction;
     }
 
     @Override
-    public Gunner.Action getGunActionName(OkuRunBot bot) {
+    public Gunner.ActionId getGunActionName(OkuRunBot bot) {
         return gunAction;
     }
 
     @Override
-    public RadarOperator.Action getRadarAction(OkuRunBot bot) {
+    public RadarOperator.ActionId getRadarAction(OkuRunBot bot) {
         return radarAction;
     }
 

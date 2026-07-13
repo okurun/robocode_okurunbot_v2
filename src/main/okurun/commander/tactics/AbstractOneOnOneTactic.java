@@ -7,7 +7,7 @@ import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
 import okurun.predictor.Predictor;
-import okurun.predictor.Predictor.Model;
+import okurun.predictor.Predictor.PredictModelId;
 import okurun.radaroperator.RadarOperator;
 
 /**
@@ -43,18 +43,18 @@ public abstract class AbstractOneOnOneTactic extends AbstractTactic {
     @Override
     protected void setRadarActionName(OkuRunBot bot) {
         if (targetEnemyId.get() == Commander.NO_TARGET) {
-            radarAction = RadarOperator.Action.ALL_SCAN;
+            radarAction = RadarOperator.ActionId.ALL_SCAN;
             return;
         }
 
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyState latestEnemyState = battleManager.getLatestEnemyState(targetEnemyId.get());
         if (latestEnemyState == null || latestEnemyState.scannedTurnNum < bot.getTurnNumber() - 5) {
-            radarAction = RadarOperator.Action.ALL_SCAN;
+            radarAction = RadarOperator.ActionId.ALL_SCAN;
             return;
         }
 
-        radarAction = RadarOperator.Action.TARGET_SCAN;
+        radarAction = RadarOperator.ActionId.TARGET_SCAN;
     }
 
     @Override
@@ -63,8 +63,7 @@ public abstract class AbstractOneOnOneTactic extends AbstractTactic {
             final BattleManager battleManager = bot.getBattleManager();
             final Predictor predictor = bot.getPredictor();
             final EnemyProfile enemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
-            final Model[] models = new Model[] {Model.ZIGZAG, Model.HISTORY, Model.DYNAMIC, Model.SIMPLE};
-            for (Model model : models) {
+            for (PredictModelId model : enemyProfile.getPredictModels()) {
                 if (predictor.getPredictModel(model).canPredict(bot, enemyProfile)) {
                     predictModel = model;
                     return;
@@ -72,6 +71,6 @@ public abstract class AbstractOneOnOneTactic extends AbstractTactic {
             }
         }
 
-        predictModel = Model.NONE;
+        predictModel = PredictModelId.NONE;
     }
 }

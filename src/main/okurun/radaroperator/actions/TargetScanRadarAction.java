@@ -14,23 +14,23 @@ import okurun.radaroperator.RadarOperator;
 public class TargetScanRadarAction implements RadarAction {
 
     @Override
-    public RadarOperator.Action action(OkuRunBot bot) {
+    public RadarOperator.ActionId action(OkuRunBot bot) {
         final Commander commander = bot.getCommander();
         final int targetEnemyId = commander.getTargetEnemyId(bot);
         if (targetEnemyId == Commander.NO_TARGET) {
-            return RadarOperator.Action.ALL_SCAN;
+            return RadarOperator.ActionId.ALL_SCAN;
         }
 
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
         final EnemyState latestEnemyState = targetEnemyProfile.getLatestState();
         if (latestEnemyState == null) {
-            return RadarOperator.Action.ALL_SCAN;
+            return RadarOperator.ActionId.ALL_SCAN;
         }
 
         if (bot.getTurnNumber() - latestEnemyState.scannedTurnNum > 3) {
             // 見失ったら全周スキャンに戻ります
-            return RadarOperator.Action.ALL_SCAN;
+            return RadarOperator.ActionId.ALL_SCAN;
         }
 
         final Predictor predictor = bot.getPredictor();

@@ -10,10 +10,11 @@ import okurun.OkuRunBot;
 import okurun.battlemanager.BattleManager;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
+import okurun.commander.movepattern.*;
 import okurun.commander.tactics.*;
 import okurun.driver.Driver;
 import okurun.gunner.Gunner;
-import okurun.predictor.Predictor.Model;
+import okurun.predictor.Predictor.PredictModelId;
 import okurun.radaroperator.RadarOperator;
 
 /**
@@ -21,10 +22,16 @@ import okurun.radaroperator.RadarOperator;
  * 戦況に応じて戦略を決定し、各コンポーネントに指示を出します。
  */
 public class Commander {
-    public static enum TacticName {
+    public static enum TacticId {
         SURVIVAL,
         ONE_ON_ONE_POSITIVE,
         ONE_ON_ONE_GO_ROUND_AREA,
+    }
+
+    public static enum MovePatternId {
+        ENEMY_SIDE,
+        ROUND_AREA,
+        SAFE_AREA,
     }
 
     public static final int NO_TARGET = -1;
@@ -43,15 +50,20 @@ public class Commander {
         MAX_SPEED, HANDLE, AVOID_BULLET
     }
 
-    private Map<TacticName, Tactic> tactics = new HashMap<>();
+    private Map<TacticId, Tactic> tactics = new HashMap<>();
+    private Map<MovePatternId, MovePattern> movePatterns = new HashMap<>();
     private Tactic currentTactic = null;
     private final Map<String, Object> caches = new ConcurrentHashMap<>();
     private AtomicBoolean isWon = new AtomicBoolean(false);
 
     public Commander() {
-        tactics.put(TacticName.ONE_ON_ONE_POSITIVE, new OneOnOnePositiveTactic());
-        tactics.put(TacticName.ONE_ON_ONE_GO_ROUND_AREA, new OneOnOneGoRoundAreaTactic());
-        tactics.put(TacticName.SURVIVAL, new SurvivalTactic());
+        tactics.put(TacticId.ONE_ON_ONE_POSITIVE, new OneOnOnePositiveTactic());
+        tactics.put(TacticId.ONE_ON_ONE_GO_ROUND_AREA, new OneOnOneGoRoundAreaTactic());
+        tactics.put(TacticId.SURVIVAL, new SurvivalTactic());
+
+        movePatterns.put(MovePatternId.ENEMY_SIDE, new EnemySideMovePattern());
+        movePatterns.put(MovePatternId.ROUND_AREA, new RoundAreaMovePattern());
+        movePatterns.put(MovePatternId.SAFE_AREA, new SafeAreaMovePattern());
     }
 
     public void preAction(OkuRunBot bot) {
@@ -74,18 +86,18 @@ public class Commander {
             // 生存している敵が1機のみ
             final EnemyProfile enemyProfile = battleManager.getAliveEnemy(bot);
             if (enemyProfile == null) {
-                currentTactic = tactics.get(TacticName.ONE_ON_ONE_GO_ROUND_AREA);
+                currentTactic = tactics.get(TacticId.ONE_ON_ONE_GO_ROUND_AREA);
                 return;
             }
             final EnemyState latestEnemyState = enemyProfile.getLatestState();
             if (latestEnemyState == null) {
-                currentTactic = tactics.get(TacticName.ONE_ON_ONE_GO_ROUND_AREA);
+                currentTactic = tactics.get(TacticId.ONE_ON_ONE_GO_ROUND_AREA);
                 return;
             }
             currentTactic = tactics.get(enemyProfile.getTacticName());
             return;
         }
-        currentTactic = tactics.get(TacticName.SURVIVAL);
+        currentTactic = tactics.get(TacticId.SURVIVAL);
     }
 
     public int getTargetEnemyId(OkuRunBot bot) {
@@ -93,7 +105,8 @@ public class Commander {
     }
 
     public double[] getTargetMovePosition(OkuRunBot bot) {
-        return currentTactic.getTargetMovePosition(bot);
+        final MovePattern movePattern = movePatterns.get(currentTactic.getMovePatternId(bot));
+        return movePattern.getMovePosition(bot);
     }
 
     public double getBaseFirePower(OkuRunBot bot) {
@@ -104,19 +117,19 @@ public class Commander {
         return currentTactic.getWaitForGunTurn(bot);
     }
 
-    public Model getPredictModel(OkuRunBot bot) {
+    public PredictModelId getPredictModel(OkuRunBot bot) {
         return currentTactic.getPredictModel(bot);
     }
 
-    public Gunner.Action getGunActionName(OkuRunBot bot) {
+    public Gunner.ActionId getGunActionName(OkuRunBot bot) {
         return currentTactic.getGunActionName(bot);
     }
 
-    public RadarOperator.Action getRadarAction(OkuRunBot bot) {
+    public RadarOperator.ActionId getRadarAction(OkuRunBot bot) {
         return currentTactic.getRadarAction(bot);
     }
 
-    public Driver.Action getDriveAction(OkuRunBot bot) {
+    public Driver.ActionId getDriveAction(OkuRunBot bot) {
         return currentTactic.getDriveAction(bot);
     }
 
@@ -283,20 +296,19 @@ public class Commander {
                 System.out.println("*** I lost. I intend to consider changing my tactics.");
                 final BattleManager battleManager = bot.getBattleManager();
                 final EnemyProfile enemyProfile = battleManager.getEnemyProfile(targetEnemyId);
-                final TacticName prevTacticName = enemyProfile.getTacticName();
+                final TacticId prevTacticName = enemyProfile.getTacticName();
                 double minTotalHitPerTurn = Double.MAX_VALUE;
-                for (final Map.Entry<TacticName, Tactic> tacticEntry : tactics.entrySet()) {
-                    final TacticName tacticName = tacticEntry.getKey();
+                for (final Map.Entry<TacticId, Tactic> tacticEntry : tactics.entrySet()) {
+                    final TacticId tacticName = tacticEntry.getKey();
                     final Tactic tactic = tacticEntry.getValue();
                     if (!(tactic instanceof AbstractOneOnOneTactic)) {
                         // 1v1の戦略でなければスキップ
                         continue;
                     }
                     System.out.println(String.format(
-                        "*** %s: hit/turn: %.3f",
-                        tacticName,
-                        tactic.getTotalHitPerTurn()
-                    ));
+                            "*** %s: hit/turn: %.3f",
+                            tacticName,
+                            tactic.getTotalHitPerTurn()));
                     final double totalHitPerTurn = tactic.getTotalHitPerTurn();
                     if (totalHitPerTurn < minTotalHitPerTurn) {
                         // ヒット率の低い戦略を選択する

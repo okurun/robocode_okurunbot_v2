@@ -6,9 +6,10 @@ import dev.robocode.tankroyale.botapi.events.RoundEndedEvent;
 import okurun.OkuRunBot;
 import okurun.commander.Commander.AccelePriority;
 import okurun.commander.Commander.HandlePriority;
+import okurun.commander.Commander.MovePatternId;
 import okurun.driver.Driver;
 import okurun.gunner.Gunner;
-import okurun.predictor.Predictor.Model;
+import okurun.predictor.Predictor.PredictModelId;
 import okurun.radaroperator.RadarOperator;
 
 public interface Tactic {
@@ -18,19 +19,19 @@ public interface Tactic {
 
     int getTargetEnemyId(OkuRunBot bot);
 
-    double[] getTargetMovePosition(OkuRunBot bot);
+    MovePatternId getMovePatternId(OkuRunBot bot);
 
     double getBaseFirePower(OkuRunBot bot);
 
     boolean getWaitForGunTurn(OkuRunBot bot);
 
-    Model getPredictModel(OkuRunBot bot);
+    PredictModelId getPredictModel(OkuRunBot bot);
 
-    Gunner.Action getGunActionName(OkuRunBot bot);
+    Gunner.ActionId getGunActionName(OkuRunBot bot);
 
-    RadarOperator.Action getRadarAction(OkuRunBot bot);
+    RadarOperator.ActionId getRadarAction(OkuRunBot bot);
 
-    Driver.Action getDriveAction(OkuRunBot bot);
+    Driver.ActionId getDriveAction(OkuRunBot bot);
 
     HandlePriority getHandlePriority(OkuRunBot bot);
 

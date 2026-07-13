@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
 import okurun.commander.Commander;
+import okurun.predictor.Predictor.PredictModelId;
 
 /**
  * 敵ボットのプロファイル
@@ -20,8 +21,8 @@ public class EnemyProfile {
 
     private final AtomicBoolean isAlive = new AtomicBoolean(true);
     private final AtomicInteger lastConfirmedTurn = new AtomicInteger(0);
-    private final AtomicReference<Commander.TacticName> tacticName = new AtomicReference<>(
-            Commander.TacticName.ONE_ON_ONE_POSITIVE);
+    private final AtomicReference<Commander.TacticId> tacticName = new AtomicReference<>(
+            Commander.TacticId.ONE_ON_ONE_POSITIVE);
 
     public EnemyProfile(int id) {
         this.id = id;
@@ -148,7 +149,7 @@ public class EnemyProfile {
      * 
      * @return 戦術名
      */
-    public Commander.TacticName getTacticName() {
+    public Commander.TacticId getTacticName() {
         return tacticName.get();
     }
 
@@ -157,7 +158,7 @@ public class EnemyProfile {
      * 
      * @param tacticName 戦術名
      */
-    public void setTacticName(Commander.TacticName tacticName) {
+    public void setTacticName(Commander.TacticId tacticName) {
         this.tacticName.set(tacticName);
     }
 
@@ -188,6 +189,11 @@ public class EnemyProfile {
             prevState = state;
         }
         return false;
+    }
+
+    public PredictModelId[] getPredictModels() {
+        return new PredictModelId[] { PredictModelId.ZIGZAG, PredictModelId.HISTORY, PredictModelId.DYNAMIC,
+                PredictModelId.SIMPLE };
     }
 
     /**
