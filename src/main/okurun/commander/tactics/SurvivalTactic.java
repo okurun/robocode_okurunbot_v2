@@ -63,7 +63,20 @@ public class SurvivalTactic extends AbstractTactic {
 
     @Override
     protected void setPredictModel(OkuRunBot bot) {
-        predictModel = Model.SIMPLE;
+        if (targetEnemyId.get() != Commander.NO_TARGET) {
+            final BattleManager battleManager = bot.getBattleManager();
+            final Predictor predictor = bot.getPredictor();
+            final EnemyProfile enemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
+            final Model[] models = new Model[] {Model.SIMPLE};
+            for (Model model : models) {
+                if (predictor.getPredictModel(model).canPredict(bot, enemyProfile)) {
+                    predictModel = model;
+                    return;
+                }
+            }
+        }
+
+        predictModel = Model.NONE;
     }
 
     @Override
@@ -84,23 +97,27 @@ public class SurvivalTactic extends AbstractTactic {
         if (latesEnemyState.energy <= 0) {
             // 敵のエネルギーが0以下の場合は止めを刺します
             gunAction = Gunner.Action.EXECUTION;
+            waitForGunTurn = true;
             return;
         }
         if (targetEnemyProfile.isNoMove(bot) && latesEnemyState.distance > OkuRunBot.BODY_SIZE) {
             // 敵が動いていない、かつ離れている場合は射撃します
             gunAction = Gunner.Action.EXECUTION;
+            waitForGunTurn = true;
             return;
         }
 
         if (bot.getGunHeat() <= bot.getGunCoolingRate() * 3) {
             // 3ターン以内に射撃可能であれば射撃を行います
             if (latesEnemyState.distance < OkuRunBot.BODY_SIZE + 10) {
-                gunAction = Gunner.Action.RAPID_FIRE;
+                gunAction = Gunner.Action.MAX_POWER;
                 baseFirePower = Constants.MAX_FIREPOWER;
+                waitForGunTurn = false;
                 return;
             }
             gunAction = Gunner.Action.MAX_POWER;
-            baseFirePower = Constants.MAX_FIREPOWER;
+            baseFirePower = 2;
+            waitForGunTurn = true;
             return;
         }
         gunAction = Gunner.Action.TRACKING;

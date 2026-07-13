@@ -22,6 +22,8 @@ public interface Tactic {
 
     double getBaseFirePower(OkuRunBot bot);
 
+    boolean getWaitForGunTurn(OkuRunBot bot);
+
     Model getPredictModel(OkuRunBot bot);
 
     Gunner.Action getGunActionName(OkuRunBot bot);

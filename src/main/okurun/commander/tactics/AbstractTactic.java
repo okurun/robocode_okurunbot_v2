@@ -14,6 +14,7 @@ public abstract class AbstractTactic implements Tactic {
     protected final AtomicInteger targetEnemyId = new AtomicInteger(Commander.NO_TARGET);
     protected double[] targetMovePosition = null;
     protected double baseFirePower = 1.5;
+    protected boolean waitForGunTurn = true;
     protected Model predictModel = null;
     protected Driver.Action driveAction = null;
     protected Gunner.Action gunAction = null;
@@ -61,6 +62,11 @@ public abstract class AbstractTactic implements Tactic {
     @Override
     public double getBaseFirePower(OkuRunBot bot) {
         return baseFirePower;
+    }
+
+    @Override
+    public boolean getWaitForGunTurn(OkuRunBot bot) {
+        return waitForGunTurn;
     }
 
     @Override

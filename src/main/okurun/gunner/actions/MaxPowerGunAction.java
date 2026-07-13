@@ -32,31 +32,19 @@ public class MaxPowerGunAction implements GunAction {
 
         double firePower = Math.min(Math.min(commander.getBaseFirePower(bot), Constants.MAX_FIREPOWER), bot.getEnergy() - 0.1);
         EnemyState fireTarget = null;
+        double bearingTo = 0;
         for (; firePower > 0; firePower -= FIREPOWER_SEARCH_STEP) {
             fireTarget = GunAction.getFireTarget(bot, targetEnemyProfile, firePower);
             if (fireTarget != null) {
-                break;
+                bearingTo = bot.gunBearingTo(fireTarget.getPosition());
+                if (Math.abs(bearingTo) <= bot.getMaxGunTurnRate()) {
+                    break;
+                }
+                // 砲が回りきらないなら威力を弱めて、まわり切る予測位置になるか試す
             }
         }
         if (fireTarget == null) {
             return Gunner.Action.TRACKING;
-        }
-
-        double bearingTo = bot.gunBearingTo(fireTarget.getPosition());
-        while (Math.abs(bearingTo) > bot.getMaxGunTurnRate()) {
-            // 砲がまわり切らないなら早い弾丸（威力を下げる）に変更
-            if (firePower - FIREPOWER_SEARCH_STEP <= 0) {
-                // 0にはならないようにする
-                break;
-            }
-            final EnemyState prevTarget = fireTarget;
-            firePower -= FIREPOWER_SEARCH_STEP;
-            fireTarget = GunAction.getFireTarget(bot, targetEnemyProfile, firePower);
-            if (fireTarget == null) {
-                fireTarget = prevTarget;
-                break;
-            }
-            bearingTo = bot.gunBearingTo(fireTarget.getPosition());
         }
 
         // デバッグ用に射撃目標位置に円を描きます
@@ -72,14 +60,16 @@ public class MaxPowerGunAction implements GunAction {
             return null;
         }
 
-        if (bot.getGunTurnRemaining() > 0) {
-            // 砲頭が回頭中なら発射しません
-            return null;
-        }
+        if (commander.getWaitForGunTurn(bot)) {
+            if (bot.getGunTurnRemaining() > 0) {
+                // 砲頭が回頭中なら発射しません
+                return null;
+            }
 
-        if (Math.abs(bearingTo) > bot.getMaxGunTurnRate()) {
-            // 砲頭がまわり切らないなら発射しません
-            return null;
+            if (Math.abs(bearingTo) > bot.getMaxGunTurnRate()) {
+                // 砲頭がまわり切らないなら発射しません
+                return null;
+            }
         }
 
         if (firePower <= 0) {

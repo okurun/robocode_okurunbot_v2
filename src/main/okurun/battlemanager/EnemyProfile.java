@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
 import okurun.commander.Commander;
 
@@ -80,7 +81,7 @@ public class EnemyProfile {
     /**
      * 敵ボットが死亡したことを設定します
      */
-    public void died() {
+    private void died() {
         isAlive.set(false);
     }
 
@@ -98,7 +99,7 @@ public class EnemyProfile {
      * 
      * @param lastConfirmedTurn 最後に生存が確認されたターン数
      */
-    public void setLastConfirmedTurn(int lastConfirmedTurn) {
+    private void setLastConfirmedTurn(int lastConfirmedTurn) {
         this.lastConfirmedTurn.set(lastConfirmedTurn);
     }
 
@@ -107,7 +108,7 @@ public class EnemyProfile {
      * 
      * @param state 敵ボットの状態
      */
-    public void addState(EnemyState state) {
+    private void addState(EnemyState state) {
         stateHistory.addFirst(state);
         if (stateHistory.size() > 50) {
             stateHistory.removeLast();
@@ -187,5 +188,108 @@ public class EnemyProfile {
             prevState = state;
         }
         return false;
+    }
+
+    /**
+     * 敵ボットが死んだ時の処理
+     * 
+     * @param e   敵ボット死亡イベント
+     * @param bot Bot
+     */
+    public void onBotDeath(BotDeathEvent e, OkuRunBot bot) {
+        died();
+    }
+
+    /**
+     * 自分が敵ボットにぶつかった時の処理
+     * 
+     * @param e   敵ボットにぶつかったイベント
+     * @param bot Bot
+     */
+    public void onHitBot(HitBotEvent e, OkuRunBot bot) {
+        setLastConfirmedTurn(e.getTurnNumber());
+        if (e.getEnergy() <= 0) {
+            died();
+        }
+    }
+
+    /**
+     * 自分が弾を発射した時の処理
+     * 
+     * @param e   弾が発射されたイベント
+     * @param bot Bot
+     */
+    public void onBulletFired(BulletFiredEvent e, OkuRunBot bot) {
+        final BulletHistory bulletHistory = bot.getBattleManager().getBulletHistory(e.getBullet().getBulletId());
+        if (bulletHistory == null || bulletHistory.targetEnemyId != id) {
+            return;
+        }
+        // TODO
+    }
+
+    /**
+     * 自分が敵の弾に当った時の処理
+     * 
+     * @param e   弾が当たったイベント
+     * @param bot Bot
+     */
+    public void onHitByBullet(HitByBulletEvent e, OkuRunBot bot) {
+        setLastConfirmedTurn(e.getTurnNumber());
+    }
+
+    /**
+     * 弾丸が敵ボットに当たった時の処理
+     * 
+     * @param e   弾が当たったイベント
+     * @param bot Bot
+     */
+    public void onBulletHit(BulletHitBotEvent e, OkuRunBot bot) {
+        setLastConfirmedTurn(e.getTurnNumber());
+        if (e.getEnergy() <= 0) {
+            died();
+        }
+    }
+
+    /**
+     * 弾が弾に当たった時の処理
+     * 
+     * @param e   弾が弾に当たったイベント
+     * @param bot Bot
+     */
+    public void onBulletHitBullet(BulletHitBulletEvent e, OkuRunBot bot) {
+        setLastConfirmedTurn(e.getTurnNumber());
+    }
+
+    /**
+     * 敵ボットをスキャンした時の処理
+     * 
+     * @param e   敵ボットをスキャンしたイベント
+     * @param bot Bot
+     */
+    public void onScannedBot(ScannedBotEvent e, OkuRunBot bot) {
+        final EnemyState enemyState = getLatestState();
+        double turnDegree = 0;
+        double acceleration = 0;
+        if (enemyState != null) {
+            final double diffDegree = e.getDirection() - enemyState.heading;
+            if (diffDegree == 0) {
+                turnDegree = 0;
+            } else {
+                turnDegree = diffDegree / (e.getTurnNumber() - enemyState.scannedTurnNum);
+            }
+            acceleration = e.getSpeed() - enemyState.velocity;
+        }
+
+        addState(new EnemyState(
+                e.getScannedBotId(),
+                e.getTurnNumber(),
+                e.getX(),
+                e.getY(),
+                e.getDirection(),
+                e.getSpeed(),
+                e.getEnergy(),
+                turnDegree,
+                acceleration,
+                bot.distanceTo(e.getX(), e.getY())));
     }
 }

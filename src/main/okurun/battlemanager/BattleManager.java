@@ -32,9 +32,10 @@ public class BattleManager {
         caches.clear();
         if (enemyProfiles.size() > enemyCount.get()) {
             System.out.println(String.format(
-                    "Warning enemyProfiles.size()=%d > enemyCount=%d",
+                    "Warning enemyProfiles.size()=%d > enemyCount=%d, bot.getEnemyCount()=%d",
                     enemyProfiles.size(),
-                    enemyCount.get()));
+                    enemyCount.get(),
+                    bot.getEnemyCount()));
             for (final Entry<Integer, EnemyProfile> entry : enemyProfiles.entrySet()) {
                 System.out.println(String.format(
                         "Warning Key: %d, id: %d", entry.getKey(), entry.getValue().getId()));
@@ -232,6 +233,7 @@ public class BattleManager {
 
     /**
      * 弾丸履歴をスタックから取得します
+     * 
      * @param bulletId 弾丸ID
      * @return 弾丸履歴
      */
@@ -242,7 +244,7 @@ public class BattleManager {
     /**
      * ゲームが開始された時の処理
      * 
-     * @param e ゲーム開始イベント
+     * @param e   ゲーム開始イベント
      * @param bot Bot
      */
     public void onGameStarted(GameStartedEvent e, OkuRunBot bot) {
@@ -251,12 +253,14 @@ public class BattleManager {
     /**
      * ゲームが終了した時の処理
      * 
-     * @param e ゲーム終了イベント
+     * @param e   ゲーム終了イベント
      * @param bot Bot
      */
     public void onGameEnded(GameEndedEvent e, OkuRunBot bot) {
         try {
             enemyProfiles.clear();
+            enemyCount.set(0);
+            myId.set(0);
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();
@@ -294,13 +298,17 @@ public class BattleManager {
     /**
      * 1ターン中の一定時間経過毎に呼ばれる
      * 
-     * @param e 1ターン中の一定時間経過イベント
+     * @param e   1ターン中の一定時間経過イベント
      * @param bot Bot
      */
     public void onTick(TickEvent e, OkuRunBot bot) {
         try {
-            myId.set(bot.getMyId());
-            enemyCount.set(bot.getEnemyCount());
+            if (myId.get() == 0) {
+                myId.set(bot.getMyId());
+            }
+            if (enemyCount.get() == 0) {
+                enemyCount.set(bot.getEnemyCount());
+            }
 
             e.getBulletStates().forEach(bulletState -> {
                 addBulletHistory(bulletState);
@@ -338,7 +346,7 @@ public class BattleManager {
      */
     public void onBotDeath(BotDeathEvent e, OkuRunBot bot) {
         try {
-            getEnemyProfile(e.getVictimId()).died();
+            getEnemyProfile(e.getVictimId()).onBotDeath(e, bot);
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();
@@ -353,7 +361,7 @@ public class BattleManager {
      */
     public void onHitBot(HitBotEvent e, OkuRunBot bot) {
         try {
-            getEnemyProfile(e.getVictimId()).setLastConfirmedTurn(e.getTurnNumber());
+            getEnemyProfile(e.getVictimId()).onHitBot(e, bot);
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();
@@ -370,6 +378,11 @@ public class BattleManager {
         try {
             setLastFiredTurnNum(e.getTurnNumber());
             addBulletHistory(e.getBullet());
+            final BulletHistory bulletHistory = getBulletHistory(e.getBullet().getBulletId());
+            if (bulletHistory == null) {
+                return;
+            }
+            getEnemyProfile(bulletHistory.targetEnemyId).onBulletFired(e, bot);
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();
@@ -384,7 +397,7 @@ public class BattleManager {
      */
     public void onHitByBullet(HitByBulletEvent e, OkuRunBot bot) {
         try {
-            getEnemyProfile(e.getBullet().getOwnerId()).setLastConfirmedTurn(e.getTurnNumber());
+            getEnemyProfile(e.getBullet().getOwnerId()).onHitByBullet(e, bot);
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();
@@ -399,7 +412,7 @@ public class BattleManager {
      */
     public void onBulletHit(BulletHitBotEvent e, OkuRunBot bot) {
         try {
-            getEnemyProfile(e.getVictimId()).setLastConfirmedTurn(e.getTurnNumber());
+            getEnemyProfile(e.getVictimId()).onBulletHit(e, bot);
             bulletHistories.remove(e.getBullet().getBulletId());
             removeBullets.remove(e.getBullet().getBulletId());
         } catch (Exception exception) {
@@ -417,7 +430,7 @@ public class BattleManager {
     public void onBulletHitBullet(BulletHitBulletEvent e, OkuRunBot bot) {
         final int ownerId = e.getHitBullet().getOwnerId();
         try {
-            getEnemyProfile(ownerId).setLastConfirmedTurn(e.getTurnNumber());
+            getEnemyProfile(ownerId).onBulletHitBullet(e, bot);
             bulletHistories.remove(e.getBullet().getBulletId());
             removeBullets.remove(e.getBullet().getBulletId());
         } catch (Exception exception) {
@@ -450,31 +463,7 @@ public class BattleManager {
      */
     public void onScannedBot(ScannedBotEvent e, OkuRunBot bot) {
         try {
-            final EnemyProfile enemyProfile = getEnemyProfile(e.getScannedBotId());
-            final EnemyState enemyState = enemyProfile.getLatestState();
-            double turnDegree = 0;
-            double acceleration = 0;
-            if (enemyState != null) {
-                final double diffDegree = e.getDirection() - enemyState.heading;
-                if (diffDegree == 0) {
-                    turnDegree = 0;
-                } else {
-                    turnDegree = diffDegree / (e.getTurnNumber() - enemyState.scannedTurnNum);
-                }
-                acceleration = e.getSpeed() - enemyState.velocity;
-            }
-
-            enemyProfile.addState(new EnemyState(
-                    e.getScannedBotId(),
-                    e.getTurnNumber(),
-                    e.getX(),
-                    e.getY(),
-                    e.getDirection(),
-                    e.getSpeed(),
-                    e.getEnergy(),
-                    turnDegree,
-                    acceleration,
-                    bot.distanceTo(e.getX(), e.getY())));
+            getEnemyProfile(e.getScannedBotId()).onScannedBot(e, bot);
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();

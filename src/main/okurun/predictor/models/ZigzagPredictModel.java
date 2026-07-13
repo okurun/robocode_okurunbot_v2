@@ -7,6 +7,7 @@ import java.util.List;
 import dev.robocode.tankroyale.botapi.Constants;
 import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.OkuRunBot;
+import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.predictor.Predictor;
 
@@ -46,11 +47,12 @@ public class ZigzagPredictModel extends AbstractPredictModel {
      * 
      * @param bot          ボット
      * @param enemyState   敵の状態
-     * @param stateHistory 敵の状態履歴
+     * @param enemyProfile 敵プロファイル
      * @return 次ターンの敵の状態
      */
     @Override
-    public EnemyState nextTurnState(OkuRunBot bot, EnemyState enemyState, Deque<EnemyState> stateHistory) {
+    public EnemyState nextTurnState(OkuRunBot bot, EnemyState enemyState, EnemyProfile enemyProfile) {
+        final Deque<EnemyState> stateHistory = enemyProfile.getStateHistory();
         final List<EnemyState> moveHistories = getMoveHistories(bot, enemyState.id, stateHistory);
         if (moveHistories.size() < DETECT_ZIGZAG_TURN_CHANGE_NUM) {
             return null;
@@ -124,7 +126,15 @@ public class ZigzagPredictModel extends AbstractPredictModel {
         return history;
     }
 
-    public static boolean canPredict(OkuRunBot bot, Deque<EnemyState> stateHistory) {
+    /**
+     * 指定された敵をこのモデルで予測できるかどうかを判定する
+     * 
+     * @param bot          ボット
+     * @param enemyProfile 敵プロファイル
+     * @return trueなら予測できる
+     */
+    public boolean canPredict(OkuRunBot bot, EnemyProfile enemyProfile) {
+        final Deque<EnemyState> stateHistory = enemyProfile.getStateHistory();
         if (stateHistory.size() > DETECT_ZIGZAG_TURN_CHANGE_NUM) {
             Turn prevTurn = null; // 前回の旋回方向
             int turnChangeCnt = 0; // 旋回が逆転した回数

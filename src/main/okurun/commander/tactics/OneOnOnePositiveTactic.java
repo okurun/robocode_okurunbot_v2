@@ -95,23 +95,27 @@ public class OneOnOnePositiveTactic extends AbstractOneOnOneTactic {
         if (latesEnemyState.energy <= 0) {
             // 敵のエネルギーが0以下の場合は止めを刺します
             gunAction = Gunner.Action.EXECUTION;
+            waitForGunTurn = true;
             return;
         }
         if (targetEnemyProfile.isNoMove(bot) && latesEnemyState.distance > OkuRunBot.BODY_SIZE) {
             // 敵が動いていない、かつ離れている場合は射撃します
             gunAction = Gunner.Action.EXECUTION;
+            waitForGunTurn = true;
             return;
         }
 
         if (bot.getGunHeat() <= bot.getGunCoolingRate() * 3) {
             // 3ターン以内に射撃可能であれば射撃を行います
             if (latesEnemyState.distance < OkuRunBot.BODY_SIZE + 10) {
-                gunAction = Gunner.Action.RAPID_FIRE;
+                gunAction = Gunner.Action.MAX_POWER;
                 baseFirePower = Constants.MAX_FIREPOWER;
+                waitForGunTurn = false;
                 return;
             }
             gunAction = Gunner.Action.MAX_POWER;
             baseFirePower = Constants.MAX_FIREPOWER;
+            waitForGunTurn = true;
             return;
         }
 

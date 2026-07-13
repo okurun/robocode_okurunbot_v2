@@ -6,8 +6,8 @@ import okurun.battlemanager.BattleManager;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
+import okurun.predictor.Predictor;
 import okurun.predictor.Predictor.Model;
-import okurun.predictor.models.*;
 import okurun.radaroperator.RadarOperator;
 
 /**
@@ -61,18 +61,17 @@ public abstract class AbstractOneOnOneTactic extends AbstractTactic {
     protected void setPredictModel(OkuRunBot bot) {
         if (targetEnemyId.get() != Commander.NO_TARGET) {
             final BattleManager battleManager = bot.getBattleManager();
+            final Predictor predictor = bot.getPredictor();
             final EnemyProfile enemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
-            if (ZigzagPredictModel.canPredict(bot, enemyProfile.getStateHistory())) {
-                predictModel = Model.ZIGZAG;
-                return;
+            final Model[] models = new Model[] {Model.ZIGZAG, Model.HISTORY, Model.DYNAMIC, Model.SIMPLE};
+            for (Model model : models) {
+                if (predictor.getPredictModel(model).canPredict(bot, enemyProfile)) {
+                    predictModel = model;
+                    return;
+                }
             }
-            // if (enemyProfile.getStateHistory().size() >= HistoryPredictModel.HISTORY_POS)
-            // {
-            // predictModel = Model.HISTORY;
-            // return;
-            // }
         }
 
-        predictModel = Model.DYNAMIC;
+        predictModel = Model.NONE;
     }
 }

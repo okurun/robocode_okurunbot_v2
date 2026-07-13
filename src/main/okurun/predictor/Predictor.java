@@ -1,6 +1,5 @@
 package okurun.predictor;
 
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,7 +19,7 @@ import okurun.predictor.models.*;
  */
 public class Predictor {
     public static enum Model {
-        SIMPLE, DYNAMIC, ZIGZAG, HISTORY
+        SIMPLE, DYNAMIC, ZIGZAG, HISTORY, NONE
     }
 
     private final Map<Model, PredictModel> predictModels = new HashMap<>();
@@ -77,11 +76,10 @@ public class Predictor {
         }
 
         final ArenaMap arenaMap = bot.getArenaMap();
-        final Deque<EnemyState> statusHistory = enemyProfile.getStateHistory();
         EnemyState enemyState = latestEnemyState;
         while (enemyState.scannedTurnNum < targetTurnNum) {
             // キャッシュがない場合は予測モデルを使って次のターンの敵の状態を予測します
-            enemyState = predictModel.nextTurnState(bot, enemyState, statusHistory);
+            enemyState = predictModel.nextTurnState(bot, enemyState, enemyProfile);
             if (enemyState == null) {
                 return null;
             }
@@ -185,6 +183,7 @@ public class Predictor {
             predictModels.put(Model.DYNAMIC, new DynamicPredictModel());
             predictModels.put(Model.ZIGZAG, new ZigzagPredictModel());
             predictModels.put(Model.HISTORY, new HistoryPredictModel());
+            predictModels.put(Model.NONE, new NonePredictPredictModel());
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();

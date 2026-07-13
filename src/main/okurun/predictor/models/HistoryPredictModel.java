@@ -5,6 +5,7 @@ import java.util.Deque;
 import dev.robocode.tankroyale.botapi.Constants;
 import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.OkuRunBot;
+import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.predictor.Predictor;
 
@@ -26,11 +27,12 @@ public class HistoryPredictModel extends AbstractPredictModel {
      * 
      * @param bot          ボット
      * @param enemyState   敵の状態
-     * @param stateHistory 敵の状態履歴
+     * @param enemyProfile 敵プロファイル
      * @return 次ターンの敵の状態
      */
     @Override
-    public EnemyState nextTurnState(OkuRunBot bot, EnemyState enemyState, Deque<EnemyState> stateHistory) {
+    public EnemyState nextTurnState(OkuRunBot bot, EnemyState enemyState, EnemyProfile enemyProfile) {
+        final Deque<EnemyState> stateHistory = enemyProfile.getStateHistory();
         if (stateHistory.size() < HISTORY_POS) {
             return null;
         }
@@ -56,4 +58,16 @@ public class HistoryPredictModel extends AbstractPredictModel {
         caches.put(cacheName, predictedEnemyState);
         return predictedEnemyState;
     }
+
+    /**
+     * 指定された敵をこのモデルで予測できるかどうかを判定する
+     * 
+     * @param bot          ボット
+     * @param enemyProfile 敵プロファイル
+     * @return trueなら予測できる
+     */
+    public boolean canPredict(OkuRunBot bot, EnemyProfile enemyProfile) {
+        return enemyProfile.getStateHistory().size() >= HISTORY_POS;
+    }
+
 }

@@ -7,9 +7,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import okurun.OkuRunBot;
+import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -22,6 +24,9 @@ class SimplePredictModelTest {
     @Mock
     private OkuRunBot bot;
 
+    @Mock
+    private EnemyProfile enemyProfile;
+
     @BeforeEach
     void setUp() {
         model = new SimplePredictModel();
@@ -31,19 +36,21 @@ class SimplePredictModelTest {
     void testNextTurnState_ReturnsNullWhenNoHistory() {
         Deque<EnemyState> history = new ArrayDeque<>();
         EnemyState currentState = new EnemyState(1, 10, 100, 100, 90, 5, 100, 0, 0, 100);
+        when(enemyProfile.getStateHistory()).thenReturn(history);
         
-        assertNull(model.nextTurnState(bot, currentState, history));
+        assertNull(model.nextTurnState(bot, currentState, enemyProfile));
     }
 
     @Test
     void testNextTurnState_ConstantLinearMotion() {
         Deque<EnemyState> history = new ArrayDeque<>();
         history.add(new EnemyState(1, 9, 100, 100, 90, 5, 100, 0, 0, 100));
+        when(enemyProfile.getStateHistory()).thenReturn(history);
         
         // velocity = 5.0, heading = 90
         EnemyState currentState = new EnemyState(1, 10, 100, 100, 90, 5.0, 100, 10, 1.0, 100);
         
-        EnemyState nextState = model.nextTurnState(bot, currentState, history);
+        EnemyState nextState = model.nextTurnState(bot, currentState, enemyProfile);
         assertNotNull(nextState);
         assertEquals(currentState.scannedTurnNum + 1, nextState.scannedTurnNum);
         

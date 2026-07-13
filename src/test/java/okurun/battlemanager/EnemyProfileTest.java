@@ -14,11 +14,4 @@ class EnemyProfileTest {
         assertNull(profile.getLatestState());
         assertTrue(profile.getStateHistory().isEmpty());
     }
-
-    @Test
-    void testDied() {
-        EnemyProfile profile = new EnemyProfile(1);
-        profile.died();
-        assertFalse(profile.isAlive());
-    }
 }

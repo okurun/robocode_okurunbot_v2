@@ -16,8 +16,6 @@ public class Gunner {
     public static enum Action {
         SCAN,
         TRACKING,
-        NORMAL,
-        RAPID_FIRE,
         EXECUTION,
         MAX_POWER;
     }
@@ -56,8 +54,6 @@ public class Gunner {
     public void onGameStarted(GameStartedEvent e, OkuRunBot bot) {
         actions.put(Action.SCAN, new ScanGunAction());
         actions.put(Action.TRACKING, new TrackingGunAction());
-        actions.put(Action.NORMAL, new NormalGunAction());
-        actions.put(Action.RAPID_FIRE, new RapidFireGunAction());
         actions.put(Action.EXECUTION, new ExecutionGunAction());
         actions.put(Action.MAX_POWER, new MaxPowerGunAction());
     }}

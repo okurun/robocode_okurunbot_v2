@@ -100,6 +100,10 @@ public class Commander {
         return currentTactic.getBaseFirePower(bot);
     }
 
+    public boolean getWaitForGunTurn(OkuRunBot bot) {
+        return currentTactic.getWaitForGunTurn(bot);
+    }
+
     public Model getPredictModel(OkuRunBot bot) {
         return currentTactic.getPredictModel(bot);
     }

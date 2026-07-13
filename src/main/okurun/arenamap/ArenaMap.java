@@ -233,6 +233,15 @@ public class ArenaMap {
     }
 
     /**
+     * アリーナの中心座標を返す
+     * 
+     * @return アリーナの中心座標 [x, y]
+     */
+    public double[] getCenter() {
+        return new double[] { width / 2.0, height / 2.0 };
+    }
+
+    /**
      * 指定座標が壁の内側にあるかを返します
      * 
      * @param x x座標
