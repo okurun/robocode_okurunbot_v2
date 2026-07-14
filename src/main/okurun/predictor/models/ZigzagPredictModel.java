@@ -10,6 +10,7 @@ import okurun.OkuRunBot;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.predictor.Predictor;
+import okurun.predictor.Predictor.PredictModelId;
 
 /**
  * ジグザグ走行を再現して予測するモデル
@@ -30,6 +31,16 @@ public class ZigzagPredictModel extends AbstractPredictModel {
                 return STRAIGHT;
             }
         }
+    }
+
+    /**
+     * このモデルのIDを取得する
+     * 
+     * @return モデルID
+     */
+    @Override
+    public PredictModelId getId() {
+        return PredictModelId.ZIGZAG;
     }
 
     /**

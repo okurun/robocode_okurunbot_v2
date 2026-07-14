@@ -8,9 +8,20 @@ import okurun.OkuRunBot;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.predictor.Predictor;
+import okurun.predictor.Predictor.PredictModelId;
 
 public class HistoryPredictModel extends AbstractPredictModel {
     public static final int HISTORY_POS = 30;
+
+    /**
+     * このモデルのIDを取得する
+     * 
+     * @return モデルID
+     */
+    @Override
+    public PredictModelId getId() {
+        return PredictModelId.HISTORY;
+    }
 
     /**
      * モデルの色を取得する

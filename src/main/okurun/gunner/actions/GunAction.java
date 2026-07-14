@@ -1,6 +1,5 @@
 package okurun.gunner.actions;
 
-import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.OkuRunBot;
 import okurun.battlemanager.BulletHistory;
 import okurun.battlemanager.EnemyProfile;
@@ -14,19 +13,6 @@ public interface GunAction {
     public Gunner.ActionId action(OkuRunBot bot);
 
     /**
-     * 予測線を画面に描画します
-     * ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
-     * 
-     * @param bot            ボット
-     * @param beforeState    予測前の状態
-     * @param predictedState 予測後の状態
-     */
-    public static void drawPredictLine(OkuRunBot bot, EnemyState beforeState, EnemyState predictedState) {
-        bot.drawLine(beforeState.getPosition(), predictedState.getPosition(),
-                Color.fromRgba(bot.getPredictor().getPredictModel(bot).getColor(), 100));
-    }
-
-    /**
      * 画面に円を描画します
      * ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
      * 
@@ -34,31 +20,8 @@ public interface GunAction {
      * @param fireTarget 射撃目標位置
      */
     public static void drawCircle(OkuRunBot bot, EnemyState fireTarget) {
-        bot.drawFillCircle(fireTarget.getPosition(), 5, bot.getPredictor().getPredictModel(bot).getColor());
-    }
-
-    /**
-     * 画面に射撃目標位置を描画します
-     * ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
-     * 
-     * @param bot        ボット
-     * @param fireTarget 射撃目標位置
-     * @param firePower  弾丸のパワー
-     */
-    public static void drawTargetPoint(OkuRunBot bot, EnemyState fireTarget, double firePower) {
-        drawTargetPoint(bot, fireTarget, Color.fromRgba(Gunner.getBulletColor(firePower), 150));
-    }
-
-    /**
-     * 画面に射撃目標位置を描画します
-     * ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
-     * 
-     * @param bot        ボット
-     * @param fireTarget 射撃目標位置
-     * @param color      描画色
-     */
-    private static void drawTargetPoint(OkuRunBot bot, EnemyState fireTarget, Color color) {
-        bot.drawTarget(fireTarget.getPosition(), color);
+        bot.getDebugger().drawFillCircle(bot, fireTarget.getPosition(), 5,
+                bot.getPredictor().getPredictModel(bot).getColor());
     }
 
     /**

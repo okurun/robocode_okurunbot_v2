@@ -1,11 +1,7 @@
 package okurun.commander.tactics;
 
-import dev.robocode.tankroyale.botapi.events.GameEndedEvent;
-import dev.robocode.tankroyale.botapi.events.HitByBulletEvent;
-import dev.robocode.tankroyale.botapi.events.RoundEndedEvent;
+import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
-import okurun.commander.Commander.AccelePriority;
-import okurun.commander.Commander.HandlePriority;
 import okurun.commander.Commander.MovePatternId;
 import okurun.driver.Driver;
 import okurun.gunner.Gunner;
@@ -25,26 +21,13 @@ public interface Tactic {
 
     boolean getWaitForGunTurn(OkuRunBot bot);
 
-    PredictModelId getPredictModel(OkuRunBot bot);
+    PredictModelId getPredictModelId(OkuRunBot bot);
 
-    Gunner.ActionId getGunActionName(OkuRunBot bot);
+    Gunner.ActionId getGunActionId(OkuRunBot bot);
 
-    RadarOperator.ActionId getRadarAction(OkuRunBot bot);
+    RadarOperator.ActionId getRadarActionId(OkuRunBot bot);
 
-    Driver.ActionId getDriveAction(OkuRunBot bot);
-
-    HandlePriority getHandlePriority(OkuRunBot bot);
-
-    AccelePriority getAccelePriority(OkuRunBot bot);
-
-    double getMinSpeed(OkuRunBot bot);
-
-    /**
-     * トータルのターン毎の命中弾数を取得します
-     * 
-     * @return トータルのターン毎の命中弾数
-     */
-    double getTotalHitPerTurn();
+    Driver.ActionId getDriveActionId(OkuRunBot bot);
 
     /**
      * ゲームが終了した時の処理
@@ -61,6 +44,14 @@ public interface Tactic {
      * @param bot ボット
      */
     void onRoundEnded(RoundEndedEvent e, OkuRunBot bot);
+
+    /**
+     * 弾丸が発射された時の処理
+     * 
+     * @param e   弾丸が発射されたイベント
+     * @param bot ボット
+     */
+    void onBulletFired(BulletFiredEvent e, OkuRunBot bot);
 
     /**
      * 弾丸が自分に当たった時の処理

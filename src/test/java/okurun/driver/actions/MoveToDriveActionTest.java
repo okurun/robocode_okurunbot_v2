@@ -8,6 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import okurun.Debugger;
 import okurun.OkuRunBot;
 import okurun.battlemanager.BattleManager;
 import okurun.commander.Commander;
@@ -27,6 +28,9 @@ class MoveToDriveActionTest {
 
     @Mock
     private BattleManager battleManager;
+
+    @Mock
+    private Debugger debugger;
 
     @BeforeEach
     void setUp() {
@@ -56,6 +60,8 @@ class MoveToDriveActionTest {
 
         lenient().when(bot.getBattleManager()).thenReturn(battleManager);
         lenient().when(battleManager.getLatestEnemyState(anyInt())).thenReturn(null);
+
+        lenient().when(bot.getDebugger()).thenReturn(debugger);
 
         Driver.ActionId result = action.action(bot);
 

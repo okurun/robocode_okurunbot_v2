@@ -6,11 +6,22 @@ import okurun.OkuRunBot;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.predictor.Predictor;
+import okurun.predictor.Predictor.PredictModelId;
 
 /**
  * 予測モデル：等速直線運動 + 定期的な旋回 + 加速/減速
  */
 public class DynamicPredictModel extends AbstractPredictModel {
+    /**
+     * このモデルのIDを取得する
+     * 
+     * @return モデルID
+     */
+    @Override
+    public PredictModelId getId() {
+        return PredictModelId.DYNAMIC;
+    }
+
     /**
      * モデルの色を取得する
      * 

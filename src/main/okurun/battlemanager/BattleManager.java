@@ -53,7 +53,7 @@ public class BattleManager {
             } else if (bulletHistory.predictTurnNum < bot.getTurnNumber()) {
                 color = Color.fromRgba(color, 255 - (bot.getTurnNumber() - bulletHistory.predictTurnNum) * 20);
             }
-            bot.drawTarget(bulletHistory.getTargetPosition(), color);
+            bot.getDebugger().drawTarget(bot, bulletHistory.getTargetPosition(), color);
         }
     }
 
@@ -248,6 +248,14 @@ public class BattleManager {
      * @param bot Bot
      */
     public void onGameStarted(GameStartedEvent e, OkuRunBot bot) {
+        try {
+            enemyProfiles.clear();
+            enemyCount.set(0);
+            myId.set(0);
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
     }
 
     /**

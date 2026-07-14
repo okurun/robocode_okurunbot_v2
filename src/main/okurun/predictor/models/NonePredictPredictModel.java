@@ -4,13 +4,23 @@ import okurun.OkuRunBot;
 import okurun.arenamap.ArenaMap;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
-
+import okurun.predictor.Predictor.PredictModelId;
 import dev.robocode.tankroyale.botapi.graphics.Color;
 
 /**
  * 予測を行わず、単純に最後の観測値を返すモデル
  */
 public class NonePredictPredictModel extends AbstractPredictModel {
+    /**
+     * このモデルのIDを取得する
+     * 
+     * @return モデルID
+     */
+    @Override
+    public PredictModelId getId() {
+        return PredictModelId.NONE;
+    }
+
     /**
      * モデルの色を取得する
      * 

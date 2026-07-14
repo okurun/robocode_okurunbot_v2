@@ -9,8 +9,6 @@ import okurun.battlemanager.BattleManager;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
-import okurun.commander.Commander.AccelePriority;
-import okurun.commander.Commander.HandlePriority;
 import okurun.commander.Commander.MovePatternId;
 import okurun.driver.Driver;
 import okurun.gunner.Gunner;
@@ -57,7 +55,7 @@ public class SurvivalTactic extends AbstractTactic {
     }
 
     @Override
-    protected void setPredictModel(OkuRunBot bot) {
+    protected void setPredictModelId(OkuRunBot bot) {
         if (targetEnemyId.get() != Commander.NO_TARGET) {
             final BattleManager battleManager = bot.getBattleManager();
             final Predictor predictor = bot.getPredictor();
@@ -65,19 +63,19 @@ public class SurvivalTactic extends AbstractTactic {
             final PredictModelId[] models = new PredictModelId[] { PredictModelId.SIMPLE };
             for (PredictModelId model : models) {
                 if (predictor.getPredictModel(model).canPredict(bot, enemyProfile)) {
-                    predictModel = model;
+                    predictModelId = model;
                     return;
                 }
             }
         }
 
-        predictModel = PredictModelId.NONE;
+        predictModelId = PredictModelId.NONE;
     }
 
     @Override
-    protected void setGunActionName(OkuRunBot bot) {
+    protected void setGunActionId(OkuRunBot bot) {
         if (targetEnemyId.get() == Commander.NO_TARGET) {
-            gunAction = Gunner.ActionId.SCAN;
+            gunActionId = Gunner.ActionId.SCAN;
             return;
         }
 
@@ -86,18 +84,18 @@ public class SurvivalTactic extends AbstractTactic {
         final EnemyState latesEnemyState = targetEnemyProfile.getLatestState();
         if (latesEnemyState == null) {
             // 全体スキャンを優先する
-            gunAction = Gunner.ActionId.SCAN;
+            gunActionId = Gunner.ActionId.SCAN;
             return;
         }
         if (latesEnemyState.energy <= 0) {
             // 敵のエネルギーが0以下の場合は止めを刺します
-            gunAction = Gunner.ActionId.EXECUTION;
+            gunActionId = Gunner.ActionId.EXECUTION;
             waitForGunTurn = true;
             return;
         }
         if (targetEnemyProfile.isNoMove(bot) && latesEnemyState.distance > OkuRunBot.BODY_SIZE) {
             // 敵が動いていない、かつ離れている場合は射撃します
-            gunAction = Gunner.ActionId.EXECUTION;
+            gunActionId = Gunner.ActionId.EXECUTION;
             waitForGunTurn = true;
             return;
         }
@@ -105,21 +103,21 @@ public class SurvivalTactic extends AbstractTactic {
         if (bot.getGunHeat() <= bot.getGunCoolingRate() * 3) {
             // 3ターン以内に射撃可能であれば射撃を行います
             if (latesEnemyState.distance < OkuRunBot.BODY_SIZE + 10) {
-                gunAction = Gunner.ActionId.MAX_POWER;
+                gunActionId = Gunner.ActionId.MAX_POWER;
                 baseFirePower = Constants.MAX_FIREPOWER;
                 waitForGunTurn = false;
                 return;
             }
-            gunAction = Gunner.ActionId.MAX_POWER;
+            gunActionId = Gunner.ActionId.MAX_POWER;
             baseFirePower = 2;
             waitForGunTurn = true;
             return;
         }
-        gunAction = Gunner.ActionId.TRACKING;
+        gunActionId = Gunner.ActionId.TRACKING;
     }
 
     @Override
-    protected void setRadarActionName(OkuRunBot bot) {
+    protected void setRadarActionId(OkuRunBot bot) {
         if (targetEnemyId.get() != Commander.NO_TARGET) {
             final BattleManager battleManager = bot.getBattleManager();
             final Predictor predictor = bot.getPredictor();
@@ -127,37 +125,22 @@ public class SurvivalTactic extends AbstractTactic {
                     battleManager.getEnemyProfile(targetEnemyId.get()), bot.getTurnNumber());
             if (predictedEnemyState != null) {
                 // ターゲットの位置を探る
-                radarAction = RadarOperator.ActionId.TARGET_SCAN;
+                radarActionId = RadarOperator.ActionId.TARGET_SCAN;
                 return;
             }
         }
-        radarAction = RadarOperator.ActionId.ALL_SCAN;
+        radarActionId = RadarOperator.ActionId.ALL_SCAN;
     }
 
     @Override
-    protected void setDriveActionName(OkuRunBot bot) {
+    protected void setDriveActionId(OkuRunBot bot) {
         final ArenaMap arenaMap = bot.getArenaMap();
         final List<ArenaMap.PotentialCollisionWall> collisionWalls = arenaMap.getPotentialCollisionWalls(bot);
         if (!collisionWalls.isEmpty()) {
-            driveAction = Driver.ActionId.AVOID_WALL;
+            driveActionId = Driver.ActionId.AVOID_WALL;
             return;
         }
-        driveAction = Driver.ActionId.MOVE_TO;
-    }
-
-    @Override
-    public HandlePriority getHandlePriority(OkuRunBot bot) {
-        return HandlePriority.AVOID_BULLET;
-    }
-
-    @Override
-    public AccelePriority getAccelePriority(OkuRunBot bot) {
-        return AccelePriority.MAX_SPEED;
-    }
-
-    @Override
-    public double getMinSpeed(OkuRunBot bot) {
-        return 2;
+        driveActionId = Driver.ActionId.MOVE_TO;
     }
 
 }

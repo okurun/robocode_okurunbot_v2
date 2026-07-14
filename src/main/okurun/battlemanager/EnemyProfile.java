@@ -10,6 +10,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
 import okurun.commander.Commander;
+import okurun.commander.Commander.MovePatternId;
+import okurun.commander.Commander.TacticId;
 import okurun.predictor.Predictor.PredictModelId;
 
 /**
@@ -21,8 +23,8 @@ public class EnemyProfile {
 
     private final AtomicBoolean isAlive = new AtomicBoolean(true);
     private final AtomicInteger lastConfirmedTurn = new AtomicInteger(0);
-    private final AtomicReference<Commander.TacticId> tacticName = new AtomicReference<>(
-            Commander.TacticId.ONE_ON_ONE_POSITIVE);
+    private final AtomicReference<TacticId> tacticId = new AtomicReference<>(TacticId.ONE_ON_ONE_ANALYSIS);
+    private final AtomicReference<MovePatternId> movePatternId = new AtomicReference<>(MovePatternId.ROUND_AREA);
 
     public EnemyProfile(int id) {
         this.id = id;
@@ -145,24 +147,6 @@ public class EnemyProfile {
     }
 
     /**
-     * 戦術名を返します
-     * 
-     * @return 戦術名
-     */
-    public Commander.TacticId getTacticName() {
-        return tacticName.get();
-    }
-
-    /**
-     * 戦術名を設定します
-     * 
-     * @param tacticName 戦術名
-     */
-    public void setTacticName(Commander.TacticId tacticName) {
-        this.tacticName.set(tacticName);
-    }
-
-    /**
      * 3ターン以上動きがないか判定します
      * 
      * @param bot Bot
@@ -191,9 +175,46 @@ public class EnemyProfile {
         return false;
     }
 
+    /**
+     * 戦術IDを返します
+     * 
+     * @return 戦術ID
+     */
+    public Commander.TacticId getTacticId() {
+        return tacticId.get();
+    }
+
+    /**
+     * 戦術IDを設定します
+     * 
+     * @param tacticId 戦術ID
+     */
+    public void setTacticId(Commander.TacticId tacticId) {
+        this.tacticId.set(tacticId);
+    }
+
     public PredictModelId[] getPredictModels() {
         return new PredictModelId[] { PredictModelId.ZIGZAG, PredictModelId.HISTORY, PredictModelId.DYNAMIC,
                 PredictModelId.SIMPLE };
+    }
+
+    /**
+     * MovePattern を返す
+     * 
+     * @param bot Bot
+     * @return MovePattern
+     */
+    public MovePatternId getMovePatternId() {
+        return movePatternId.get();
+    }
+
+    /**
+     * MovePattern を設定する
+     * 
+     * @param movePatternId MovePattern
+     */
+    public void setMovePatternId(MovePatternId movePatternId) {
+        this.movePatternId.set(movePatternId);
     }
 
     /**

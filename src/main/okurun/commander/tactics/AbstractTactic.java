@@ -16,13 +16,10 @@ public abstract class AbstractTactic implements Tactic {
     protected MovePatternId movePatternId = null;
     protected double baseFirePower = 1.5;
     protected boolean waitForGunTurn = true;
-    protected PredictModelId predictModel = null;
-    protected Driver.ActionId driveAction = null;
-    protected Gunner.ActionId gunAction = null;
-    protected RadarOperator.ActionId radarAction = null;
-    protected final AtomicInteger bulletHitCnt = new AtomicInteger(0);
-    protected final AtomicInteger totalBulletHitCnt = new AtomicInteger(0);
-    protected final AtomicInteger totalTurns = new AtomicInteger(0);
+    protected PredictModelId predictModelId = null;
+    protected Driver.ActionId driveActionId = null;
+    protected Gunner.ActionId gunActionId = null;
+    protected RadarOperator.ActionId radarActionId = null;
 
     @Override
     public void preAction(OkuRunBot bot) {
@@ -31,24 +28,24 @@ public abstract class AbstractTactic implements Tactic {
     @Override
     public void action(OkuRunBot bot) {
         setTargetEnemyId(bot);
-        setPredictModel(bot);
+        setPredictModelId(bot);
         setMovePatternId(bot);
-        setDriveActionName(bot);
-        setGunActionName(bot);
-        setRadarActionName(bot);
+        setDriveActionId(bot);
+        setGunActionId(bot);
+        setRadarActionId(bot);
     }
 
     protected abstract void setTargetEnemyId(OkuRunBot bot);
 
-    protected abstract void setPredictModel(OkuRunBot bot);
+    protected abstract void setPredictModelId(OkuRunBot bot);
 
     protected abstract void setMovePatternId(OkuRunBot bot);
 
-    protected abstract void setDriveActionName(OkuRunBot bot);
+    protected abstract void setDriveActionId(OkuRunBot bot);
 
-    protected abstract void setGunActionName(OkuRunBot bot);
+    protected abstract void setGunActionId(OkuRunBot bot);
 
-    protected abstract void setRadarActionName(OkuRunBot bot);
+    protected abstract void setRadarActionId(OkuRunBot bot);
 
     @Override
     public int getTargetEnemyId(OkuRunBot bot) {
@@ -71,54 +68,23 @@ public abstract class AbstractTactic implements Tactic {
     }
 
     @Override
-    public PredictModelId getPredictModel(OkuRunBot bot) {
-        return predictModel;
+    public PredictModelId getPredictModelId(OkuRunBot bot) {
+        return predictModelId;
     }
 
     @Override
-    public Driver.ActionId getDriveAction(OkuRunBot bot) {
-        return driveAction;
+    public Driver.ActionId getDriveActionId(OkuRunBot bot) {
+        return driveActionId;
     }
 
     @Override
-    public Gunner.ActionId getGunActionName(OkuRunBot bot) {
-        return gunAction;
+    public Gunner.ActionId getGunActionId(OkuRunBot bot) {
+        return gunActionId;
     }
 
     @Override
-    public RadarOperator.ActionId getRadarAction(OkuRunBot bot) {
-        return radarAction;
-    }
-
-    protected void reset() {
-        bulletHitCnt.set(0);
-        targetEnemyId.set(Commander.NO_TARGET);
-    }
-
-    /**
-     * ターン毎の命中弾数を計算します
-     * 
-     * @param turnNumber ターン番号
-     * @return ターン毎の命中弾数
-     */
-    private double getHitPerTurn(int turnNumber) {
-        if (bulletHitCnt.get() == 0) {
-            return 0;
-        }
-        return (double) bulletHitCnt.get() / (double) turnNumber;
-    }
-
-    /**
-     * トータルのターン毎の命中弾数を計算します
-     * 
-     * @return トータルのターン毎の命中弾数
-     */
-    @Override
-    public double getTotalHitPerTurn() {
-        if (totalBulletHitCnt.get() == 0) {
-            return 0;
-        }
-        return (double) totalBulletHitCnt.get() / (double) totalTurns.get();
+    public RadarOperator.ActionId getRadarActionId(OkuRunBot bot) {
+        return radarActionId;
     }
 
     /**
@@ -127,14 +93,8 @@ public abstract class AbstractTactic implements Tactic {
      * @param e   ゲーム終了イベント
      * @param bot ボット
      */
+    @Override
     public void onGameEnded(GameEndedEvent e, OkuRunBot bot) {
-        System.out.println(String.format(
-                "## TotalTacticSummary(%s): hit count: %d, hit/turn: %.3f",
-                this.getClass().getSimpleName(),
-                totalBulletHitCnt.get(),
-                getTotalHitPerTurn()));
-        totalBulletHitCnt.set(0);
-        totalTurns.set(0);
     }
 
     /**
@@ -143,15 +103,19 @@ public abstract class AbstractTactic implements Tactic {
      * @param e   ラウンド終了イベント
      * @param bot ボット
      */
+    @Override
     public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
-        totalBulletHitCnt.addAndGet(bulletHitCnt.get());
-        totalTurns.addAndGet(e.getTurnNumber());
-        System.out.println(String.format(
-                "== TacticSummary(%s): hit count: %d, hit/turn: %.3f",
-                this.getClass().getSimpleName(),
-                bulletHitCnt.get(),
-                getHitPerTurn(e.getTurnNumber())));
-        reset();
+        targetEnemyId.set(Commander.NO_TARGET);
+    }
+
+    /**
+     * 弾丸が発射された時の処理
+     * 
+     * @param e 弾丸が発射されたイベント
+     * @param bot ボット
+     */
+    @Override
+    public void onBulletFired(BulletFiredEvent e, OkuRunBot bot) {
     }
 
     /**
@@ -162,6 +126,5 @@ public abstract class AbstractTactic implements Tactic {
      */
     @Override
     public void onHitByBullet(HitByBulletEvent e, OkuRunBot bot) {
-        bulletHitCnt.incrementAndGet();
     }
 }

@@ -3,9 +3,11 @@ package okurun.commander.movepattern;
 import okurun.OkuRunBot;
 import okurun.arenamap.ArenaMap;
 import okurun.arenamap.ArenaMap.Area;
+import okurun.commander.Commander.AccelePriority;
+import okurun.commander.Commander.HandlePriority;
 import okurun.commander.tactics.Tactic;
 
-public class SafeAreaMovePattern implements MovePattern {
+public class SafeAreaMovePattern extends AbstractMovePattern {
 
     @Override
     public double[] getMovePosition(OkuRunBot bot) {
@@ -15,6 +17,21 @@ public class SafeAreaMovePattern implements MovePattern {
         // 目的地で停止してしまわないように少しズラす
         return Tactic.calculatePointCUsingTrig(
                 bot.getPosition(), safeArea.getCenter(), 30, false);
+    }
+
+    @Override
+    public HandlePriority getHandlePriority(OkuRunBot bot) {
+        return HandlePriority.AVOID_BULLET;
+    }
+
+    @Override
+    public AccelePriority getAccelePriority(OkuRunBot bot) {
+        return AccelePriority.MAX_SPEED;
+    }
+
+    @Override
+    public double getMinSpeed(OkuRunBot bot) {
+        return 2;
     }
 
 }

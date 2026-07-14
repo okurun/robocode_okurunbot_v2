@@ -24,6 +24,8 @@ import okurun.radaroperator.RadarOperator;
 public class Commander {
     public static enum TacticId {
         SURVIVAL,
+        ONE_ON_ONE_ANALYSIS,
+        ONE_ON_ONE,
         ONE_ON_ONE_POSITIVE,
         ONE_ON_ONE_GO_ROUND_AREA,
     }
@@ -57,6 +59,8 @@ public class Commander {
     private AtomicBoolean isWon = new AtomicBoolean(false);
 
     public Commander() {
+        tactics.put(TacticId.ONE_ON_ONE_ANALYSIS, new AnalysisOneOnOneTactic());
+        tactics.put(TacticId.ONE_ON_ONE, new OneOnOneTactic());
         tactics.put(TacticId.ONE_ON_ONE_POSITIVE, new OneOnOnePositiveTactic());
         tactics.put(TacticId.ONE_ON_ONE_GO_ROUND_AREA, new OneOnOneGoRoundAreaTactic());
         tactics.put(TacticId.SURVIVAL, new SurvivalTactic());
@@ -94,7 +98,7 @@ public class Commander {
                 currentTactic = tactics.get(TacticId.ONE_ON_ONE_GO_ROUND_AREA);
                 return;
             }
-            currentTactic = tactics.get(enemyProfile.getTacticName());
+            currentTactic = tactics.get(enemyProfile.getTacticId());
             return;
         }
         currentTactic = tactics.get(TacticId.SURVIVAL);
@@ -118,31 +122,34 @@ public class Commander {
     }
 
     public PredictModelId getPredictModel(OkuRunBot bot) {
-        return currentTactic.getPredictModel(bot);
+        return currentTactic.getPredictModelId(bot);
     }
 
     public Gunner.ActionId getGunActionName(OkuRunBot bot) {
-        return currentTactic.getGunActionName(bot);
+        return currentTactic.getGunActionId(bot);
     }
 
     public RadarOperator.ActionId getRadarAction(OkuRunBot bot) {
-        return currentTactic.getRadarAction(bot);
+        return currentTactic.getRadarActionId(bot);
     }
 
     public Driver.ActionId getDriveAction(OkuRunBot bot) {
-        return currentTactic.getDriveAction(bot);
+        return currentTactic.getDriveActionId(bot);
     }
 
     public AccelePriority getAccelePriority(OkuRunBot bot) {
-        return currentTactic.getAccelePriority(bot);
+        final MovePattern movePattern = movePatterns.get(currentTactic.getMovePatternId(bot));
+        return movePattern.getAccelePriority(bot);
     }
 
     public HandlePriority getHandlePriority(OkuRunBot bot) {
-        return currentTactic.getHandlePriority(bot);
+        final MovePattern movePattern = movePatterns.get(currentTactic.getMovePatternId(bot));
+        return movePattern.getHandlePriority(bot);
     }
 
     public double getMinSpeed(OkuRunBot bot) {
-        return currentTactic.getMinSpeed(bot);
+        final MovePattern movePattern = movePatterns.get(currentTactic.getMovePatternId(bot));
+        return movePattern.getMinSpeed(bot);
     }
 
     /**
@@ -273,8 +280,11 @@ public class Commander {
      * @param bot ボット
      */
     public void onGameEnded(GameEndedEvent e, OkuRunBot bot) {
-        for (Tactic tactic : tactics.values()) {
+        for (final Tactic tactic : tactics.values()) {
             tactic.onGameEnded(e, bot);
+        }
+        for (final MovePattern movePattern : movePatterns.values()) {
+            movePattern.onGameEnded(e, bot);
         }
     }
 
@@ -289,39 +299,33 @@ public class Commander {
         for (final Tactic tactic : tactics.values()) {
             tactic.onRoundEnded(e, bot);
         }
+        for (final MovePattern movePattern : movePatterns.values()) {
+            movePattern.onRoundEnded(e, bot);
+        }
 
-        if (!isWon.get()) {
-            if (targetEnemyId != Commander.NO_TARGET) {
+        if (targetEnemyId != Commander.NO_TARGET) {
+            final EnemyProfile enemyProfile = bot.getBattleManager().getEnemyProfile(targetEnemyId);
+            if (enemyProfile.getTacticId() == TacticId.ONE_ON_ONE_ANALYSIS) {
+                // 分析は1ラウンドのみ
+                enemyProfile.setTacticId(TacticId.ONE_ON_ONE);
+            }
+            if (!isWon.get()) {
                 // 敗北した場合、戦略を変更する
                 System.out.println("*** I lost. I intend to consider changing my tactics.");
-                final BattleManager battleManager = bot.getBattleManager();
-                final EnemyProfile enemyProfile = battleManager.getEnemyProfile(targetEnemyId);
-                final TacticId prevTacticName = enemyProfile.getTacticName();
-                double minTotalHitPerTurn = Double.MAX_VALUE;
-                for (final Map.Entry<TacticId, Tactic> tacticEntry : tactics.entrySet()) {
-                    final TacticId tacticName = tacticEntry.getKey();
-                    final Tactic tactic = tacticEntry.getValue();
-                    if (!(tactic instanceof AbstractOneOnOneTactic)) {
-                        // 1v1の戦略でなければスキップ
-                        continue;
-                    }
-                    System.out.println(String.format(
-                            "*** %s: hit/turn: %.3f",
-                            tacticName,
-                            tactic.getTotalHitPerTurn()));
-                    final double totalHitPerTurn = tactic.getTotalHitPerTurn();
-                    if (totalHitPerTurn < minTotalHitPerTurn) {
-                        // ヒット率の低い戦略を選択する
-                        minTotalHitPerTurn = totalHitPerTurn;
-                        enemyProfile.setTacticName(tacticName);
-                    }
-                }
-                if (!prevTacticName.equals(enemyProfile.getTacticName())) {
-                    System.out.println("*** Change tactic: " + prevTacticName + " -> " + enemyProfile.getTacticName());
-                }
+                // TODO
             }
         }
         isWon.set(false);
+    }
+
+    /**
+     * 弾丸が発射された時の処理
+     * 
+     * @param e   弾丸が発射されたイベント
+     * @param bot ボット
+     */
+    public void onBulletFired(BulletFiredEvent e, OkuRunBot bot) {
+        currentTactic.onBulletFired(e, bot);
     }
 
     /**
@@ -332,6 +336,8 @@ public class Commander {
      */
     public void onHitByBullet(HitByBulletEvent e, OkuRunBot bot) {
         currentTactic.onHitByBullet(e, bot);
+        final MovePattern movePattern = movePatterns.get(currentTactic.getMovePatternId(bot));
+        movePattern.onHitByBullet(e, bot);
     }
 
     /**

@@ -12,8 +12,6 @@ import okurun.OkuRunBot;
 import okurun.arenamap.ArenaMap;
 import okurun.battlemanager.BattleManager;
 import okurun.commander.Commander;
-import okurun.commander.Commander.AccelePriority;
-import okurun.commander.Commander.HandlePriority;
 import okurun.gunner.Gunner;
 import okurun.radaroperator.RadarOperator;
 
@@ -39,10 +37,7 @@ class SurvivalTacticTest {
     @Test
     void testGetters() {
         assertEquals(Commander.NO_TARGET, tactic.getTargetEnemyId(bot));
-        assertEquals(HandlePriority.AVOID_BULLET, tactic.getHandlePriority(bot));
-        assertEquals(AccelePriority.MAX_SPEED, tactic.getAccelePriority(bot));
-        assertNull(tactic.getPredictModel(bot));
-        assertTrue(tactic.getMinSpeed(bot) > 0);
+        assertNull(tactic.getPredictModelId(bot));
     }
 
     @Test
@@ -54,7 +49,7 @@ class SurvivalTacticTest {
         when(bot.getArenaMap()).thenReturn(arenaMap);
         tactic.action(bot);
 
-        assertEquals(RadarOperator.ActionId.ALL_SCAN, tactic.getRadarAction(bot));
-        assertEquals(Gunner.ActionId.SCAN, tactic.getGunActionName(bot));
+        assertEquals(RadarOperator.ActionId.ALL_SCAN, tactic.getRadarActionId(bot));
+        assertEquals(Gunner.ActionId.SCAN, tactic.getGunActionId(bot));
     }
 }

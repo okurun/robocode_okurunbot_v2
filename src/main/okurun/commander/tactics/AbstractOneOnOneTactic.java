@@ -41,36 +41,48 @@ public abstract class AbstractOneOnOneTactic extends AbstractTactic {
     }
 
     @Override
-    protected void setRadarActionName(OkuRunBot bot) {
+    protected void setTargetEnemyId(OkuRunBot bot) {
+        final BattleManager battleManager = bot.getBattleManager();
+        final EnemyProfile alivalEnemy = battleManager.getAliveEnemy(bot);
+        if (alivalEnemy != null && alivalEnemy.getLatestState() != null) {
+            // 敵の位置を把握している
+            targetEnemyId.set(alivalEnemy.getId());
+            return;
+        }
+        targetEnemyId.set(Commander.NO_TARGET);
+    }
+
+    @Override
+    protected void setRadarActionId(OkuRunBot bot) {
         if (targetEnemyId.get() == Commander.NO_TARGET) {
-            radarAction = RadarOperator.ActionId.ALL_SCAN;
+            radarActionId = RadarOperator.ActionId.ALL_SCAN;
             return;
         }
 
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyState latestEnemyState = battleManager.getLatestEnemyState(targetEnemyId.get());
         if (latestEnemyState == null || latestEnemyState.scannedTurnNum < bot.getTurnNumber() - 5) {
-            radarAction = RadarOperator.ActionId.ALL_SCAN;
+            radarActionId = RadarOperator.ActionId.ALL_SCAN;
             return;
         }
 
-        radarAction = RadarOperator.ActionId.TARGET_SCAN;
+        radarActionId = RadarOperator.ActionId.TARGET_SCAN;
     }
 
     @Override
-    protected void setPredictModel(OkuRunBot bot) {
+    protected void setPredictModelId(OkuRunBot bot) {
         if (targetEnemyId.get() != Commander.NO_TARGET) {
             final BattleManager battleManager = bot.getBattleManager();
             final Predictor predictor = bot.getPredictor();
             final EnemyProfile enemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
             for (PredictModelId model : enemyProfile.getPredictModels()) {
                 if (predictor.getPredictModel(model).canPredict(bot, enemyProfile)) {
-                    predictModel = model;
+                    predictModelId = model;
                     return;
                 }
             }
         }
 
-        predictModel = PredictModelId.NONE;
+        predictModelId = PredictModelId.NONE;
     }
 }

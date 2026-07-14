@@ -54,7 +54,6 @@ public class OkuRunBot extends Bot {
         setBodyColor(Color.WHITE);
         setTracksColor(Color.GRAY);
         setScanColor(Color.fromRgba(Color.WHITE, 30));
-        clearGraphics();
 
         try {
             arenaMap.preAction(this);
@@ -134,97 +133,8 @@ public class OkuRunBot extends Bot {
         return radarOperator;
     }
 
-    private void clearGraphics() {
-        var g = getGraphics();
-        g.clear();
-    }
-
-    /**
-     * 射撃目標を描画します
-     * ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
-     * 
-     * @param pos   座標
-     * @param color 描画色
-     */
-    public void drawTarget(double[] pos, Color color) {
-        drawTarget(pos[0], pos[1], color);
-    }
-
-    /**
-     * 射撃目標を描画します
-     * ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
-     * 
-     * @param x     X座標
-     * @param y     Y座標
-     * @param color 描画色
-     */
-    private void drawTarget(double x, double y, Color color) {
-        var g = getGraphics();
-        g.setFillColor(Color.fromRgba(Color.WHITE, 30));
-        g.setStrokeColor(Color.fromRgba(color, 80));
-        g.setStrokeWidth(1);
-        g.fillCircle(x, y, 10);
-        g.drawCircle(x, y, 6);
-        g.drawLine(x - 12, y, x + 12, y);
-        g.drawLine(x, y - 12, x, y + 12);
-    }
-
-    /**
-     * 画面に円を描画します
-     * ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
-     * 
-     * @param pos    座標
-     * @param radius 半径
-     * @param color  描画色
-     */
-    public void drawFillCircle(double[] pos, double radius, Color color) {
-        drawFillCircle(pos[0], pos[1], radius, color);
-    }
-
-    /**
-     * 画面に円を描画します
-     * ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
-     * 
-     * @param x      X座標
-     * @param y      Y座標
-     * @param radius 半径
-     * @param color  描画色
-     */
-    private void drawFillCircle(double x, double y, double radius, Color color) {
-        this.normalizeAbsoluteAngle(100);
-        var g = getGraphics();
-        g.setFillColor(color);
-        g.setStrokeWidth(0);
-        g.fillCircle(x, y, radius);
-    }
-
-    /**
-     * 画面に直線を描画します
-     * ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
-     * 
-     * @param pos1  始点座標
-     * @param pos2  終点座標
-     * @param color 描画色
-     */
-    public void drawLine(double[] pos1, double[] pos2, Color color) {
-        drawLine(pos1[0], pos1[1], pos2[0], pos2[1], color);
-    }
-
-    /**
-     * 画面に直線を描画します
-     * ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
-     * 
-     * @param x1    始点X座標
-     * @param y1    始点Y座標
-     * @param x2    終点X座標
-     * @param y2    終点Y座標
-     * @param color 描画色
-     */
-    private void drawLine(double x1, double y1, double x2, double y2, Color color) {
-        var g = getGraphics();
-        g.setStrokeColor(color);
-        g.setStrokeWidth(2);
-        g.drawLine(x1, y1, x2, y2);
+    public Debugger getDebugger() {
+        return debugger;
     }
 
     /**
@@ -399,6 +309,7 @@ public class OkuRunBot extends Bot {
         try {
             battleManager.onBulletFired(e, this);
             predictor.onBulletFired(e, this);
+            commander.onBulletFired(e, this);
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();

@@ -5,8 +5,17 @@ import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.OkuRunBot;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
+import okurun.predictor.PredictModelAccuracy;
+import okurun.predictor.Predictor.PredictModelId;
 
 public interface PredictModel {
+    /**
+     * このモデルのIDを取得する
+     * 
+     * @return モデルID
+     */
+    PredictModelId getId();
+
     /**
      * モデルの色を取得する
      * 
@@ -37,6 +46,20 @@ public interface PredictModel {
      * アクションの前に実行される処理
      */
     void preAction();
+
+    /**
+     * このモデルの命中率を取得する
+     * 
+     * @return 命中率
+     */
+    PredictModelAccuracy getAccuracy();
+
+    /**
+     * このモデルの累計命中率を取得する
+     * 
+     * @return 累計命中率
+     */
+    PredictModelAccuracy getTotalAccuracy();
 
     /**
      * ゲームが終了した時の処理

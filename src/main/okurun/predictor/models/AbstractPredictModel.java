@@ -17,6 +17,26 @@ public abstract class AbstractPredictModel implements PredictModel {
     }
 
     /**
+     * このモデルの命中率を取得する
+     * 
+     * @return 命中率
+     */
+    @Override
+    public PredictModelAccuracy getAccuracy() {
+        return modelAccuracy;
+    }
+
+    /**
+     * このモデルの累計命中率を取得する
+     * 
+     * @return 累計命中率
+     */
+    @Override
+    public PredictModelAccuracy getTotalAccuracy() {
+        return modelTotalAccuracy;
+    }
+
+    /**
      * ゲームが終了した時の処理
      * 
      * @param e ゲーム終了イベント

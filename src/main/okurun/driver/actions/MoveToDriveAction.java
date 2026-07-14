@@ -4,6 +4,7 @@ import java.util.Random;
 
 import dev.robocode.tankroyale.botapi.Constants;
 import dev.robocode.tankroyale.botapi.graphics.Color;
+import okurun.Debugger;
 import okurun.OkuRunBot;
 import okurun.battlemanager.BattleManager;
 import okurun.battlemanager.EnemyState;
@@ -172,11 +173,12 @@ public class MoveToDriveAction implements DriveAction {
         // 移動目標を描画します
         // ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
         final Color color = Color.LIGHT_BLUE;
-        bot.drawFillCircle(pos, 5, Color.fromRgba(color, 50));
-        bot.drawLine(bot.getPosition(), pos, Color.fromRgba(color, 50));
+        final Debugger debugger = bot.getDebugger();
+        debugger.drawFillCircle(bot, pos, 5, Color.fromRgba(color, 50));
+        debugger.drawLine(bot, bot.getPosition(), pos, Color.fromRgba(color, 50));
 
         final double[] actualPos = Predictor.calcPosition(
                 bot.getPosition(), bot.getDirection() + bearingTo, accele.distance, 1);
-        bot.drawLine(bot.getPosition(), actualPos, color);
+        debugger.drawLine(bot, bot.getPosition(), actualPos, color);
     }
 }

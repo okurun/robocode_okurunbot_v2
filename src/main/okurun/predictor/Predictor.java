@@ -100,6 +100,10 @@ public class Predictor {
         return predictModels.get(model);
     }
 
+    public Map<PredictModelId, PredictModel> getPredictModels() {
+        return new HashMap<>(predictModels);
+    }
+
     /**
      * 指定した状態から指定したターン後の敵の状態を計算します
      * 
