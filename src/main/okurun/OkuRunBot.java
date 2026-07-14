@@ -45,6 +45,7 @@ public class OkuRunBot extends Bot {
         while (isRunning()) {
             preAction();
             action();
+            postAction();
             go();
         }
     }
@@ -79,6 +80,21 @@ public class OkuRunBot extends Bot {
             gunner.action(this);
             driver.action(this);
             debugger.action(this);
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
+    }
+
+    private void postAction() {
+        try {
+            arenaMap.postAction(this);
+            battleManager.postAction(this);
+            predictor.postAction(this);
+            commander.postAction(this);
+            radarOperator.postAction(this);
+            gunner.postAction(this);
+            driver.postAction(this);
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();

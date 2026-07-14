@@ -36,7 +36,7 @@ public class SurvivalTactic extends AbstractTactic {
         if (nearestEnemy != null) {
             final Predictor predictor = bot.getPredictor();
             final EnemyState predictedEnemyState = predictor.predict(bot, nearestEnemy,
-                    bot.getTurnNumber());
+                    bot.getTurnNumber(), PredictModelId.SIMPLE);
             if (predictedEnemyState != null) {
                 final double distance = (nearestEnemy.getId() == targetEnemyId.get()) ? 300 : 200;
                 if (bot.distanceTo(predictedEnemyState.x, predictedEnemyState.y) < distance) {

@@ -16,7 +16,7 @@ public class Debugger {
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile enemyProfile = battleManager.getEnemyProfile(commander.getTargetEnemyId(bot));
 
-        drawPredictLine(bot, commander.getPredictModel(bot), enemyProfile);
+        drawPredictLine(bot, commander.getPredictModelId(bot), enemyProfile);
         // for (Predictor.Model model: Predictor.Model.values()) {
         // drawPredictLine(bot, model, enemyProfile);
         // }

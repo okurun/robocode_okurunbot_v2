@@ -19,7 +19,7 @@ import okurun.predictor.models.*;
  */
 public class Predictor {
     public static enum PredictModelId {
-        SIMPLE, DYNAMIC, ZIGZAG, HISTORY, NONE
+        ZIGZAG, HISTORY, DYNAMIC, SIMPLE, NONE
     }
 
     private final Map<PredictModelId, PredictModel> predictModels = new HashMap<>();
@@ -34,6 +34,9 @@ public class Predictor {
     public void action(OkuRunBot bot) {
     }
 
+    public void postAction(OkuRunBot bot) {
+    }
+
     /**
      * 指定したターンの敵の座標を予測します
      * 
@@ -43,7 +46,7 @@ public class Predictor {
      * @return 予測した敵の状態
      */
     public EnemyState predict(OkuRunBot bot, EnemyProfile enemyProfile, int targetTurnNum) {
-        return predict(bot, enemyProfile, targetTurnNum, bot.getCommander().getPredictModel(bot));
+        return predict(bot, enemyProfile, targetTurnNum, bot.getCommander().getPredictModelId(bot));
     }
 
     /**
@@ -93,7 +96,7 @@ public class Predictor {
     }
 
     public PredictModel getPredictModel(OkuRunBot bot) {
-        return getPredictModel(bot.getCommander().getPredictModel(bot));
+        return getPredictModel(bot.getCommander().getPredictModelId(bot));
     }
 
     public PredictModel getPredictModel(PredictModelId model) {

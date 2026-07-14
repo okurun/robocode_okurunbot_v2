@@ -33,6 +33,9 @@ public class Gunner {
         }
     }
 
+    public void postAction(OkuRunBot bot) {
+    }
+
     public static Color getBulletColor(double power) {
         // 弾丸のパワーに応じて色分け
         if (power >= 3) {

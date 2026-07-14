@@ -220,6 +220,9 @@ public class ArenaMap {
     public void action(OkuRunBot bot) {
     }
 
+    public void postAction(OkuRunBot bot) {
+    }
+
     public Wall getWall(WallId id) {
         return walls.get(id);
     }

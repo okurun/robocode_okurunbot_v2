@@ -6,6 +6,7 @@ import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.gunner.Gunner;
 import okurun.predictor.Predictor;
+import okurun.predictor.Predictor.PredictModelId;
 
 public interface GunAction {
     public static final int LIMIT_TURNS = 30;
@@ -36,6 +37,15 @@ public interface GunAction {
         final EnemyState latestEnemyState = targetEnemyProfile.getLatestState();
         if (latestEnemyState == null) {
             return null;
+        }
+        if (bot.getCommander().getPredictModelId(bot) == PredictModelId.NONE) {
+            // NonePredictModelの場合は単純に最新位置と同じ位置で返す
+            return new EnemyState(latestEnemyState.id, latestEnemyState.scannedTurnNum + 1,
+                    latestEnemyState.x, latestEnemyState.y,
+                    latestEnemyState.heading,
+                    latestEnemyState.velocity, latestEnemyState.energy, latestEnemyState.turnDegree,
+                    latestEnemyState.acceleration,
+                    latestEnemyState.distance);
         }
         final Predictor predictor = bot.getPredictor();
         final double bulletSpeed = bot.calcBulletSpeed(firePower);

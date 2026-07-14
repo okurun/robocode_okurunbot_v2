@@ -57,6 +57,9 @@ public class BattleManager {
         }
     }
 
+    public void postAction(OkuRunBot bot) {
+    }
+
     /**
      * 敵ボットの総数を返します(死んだ敵も含みます)
      * 
@@ -294,8 +297,8 @@ public class BattleManager {
             lastFiredTurnNum.set(0);
             bulletStack.clear();
             bulletHistories.clear();
-            for (EnemyProfile profile : enemyProfiles.values()) {
-                profile.reset();
+            for (final EnemyProfile profile : enemyProfiles.values()) {
+                profile.onRoundEnded(e, bot);
             }
         } catch (Exception exception) {
             System.err.println(exception.getMessage());

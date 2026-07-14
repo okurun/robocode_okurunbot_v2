@@ -15,11 +15,16 @@ public class EnemySideMovePattern extends AbstractMovePattern {
     @Override
     public double[] getMovePosition(OkuRunBot bot) {
         final Commander commander = bot.getCommander();
+        final int targetEnemyId = commander.getTargetEnemyId(bot);
+        if (targetEnemyId == Commander.NO_TARGET) {
+            return null;
+        }
+
         final BattleManager battleManager = bot.getBattleManager();
-        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(commander.getTargetEnemyId(bot));
+        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
         final EnemyState latestEnemyState = targetEnemyProfile.getLatestState();
         if (latestEnemyState == null) {
-            throw new RuntimeException("LatestEnemyState is null");
+            return null;
         }
 
         final Predictor predictor = bot.getPredictor();

@@ -84,6 +84,10 @@ public class Commander {
         }
     }
 
+    public void postAction(OkuRunBot bot) {
+        movePatterns.get(currentTactic.getMovePatternId(bot)).postAction(bot);
+    }
+
     private void setCurrentTactic(OkuRunBot bot) {
         final BattleManager battleManager = bot.getBattleManager();
         if (battleManager.getAliveAndNotMissingEnemyCount(bot) <= 1) {
@@ -121,7 +125,7 @@ public class Commander {
         return currentTactic.getWaitForGunTurn(bot);
     }
 
-    public PredictModelId getPredictModel(OkuRunBot bot) {
+    public PredictModelId getPredictModelId(OkuRunBot bot) {
         return currentTactic.getPredictModelId(bot);
     }
 
@@ -312,7 +316,13 @@ public class Commander {
             if (!isWon.get()) {
                 // 敗北した場合、戦略を変更する
                 System.out.println("*** I lost. I intend to consider changing my tactics.");
-                // TODO
+                // 一番被弾率の低いムーブパターンを採用する（全体累計で評価）
+                final MovePatternId movePatternId = movePatterns.entrySet().stream()
+                        .sorted((a, b) -> Double.compare(a.getValue().getTotalHitPerTurn(), b.getValue().getTotalHitPerTurn()))
+                        .map(Map.Entry::getKey)
+                        .findFirst().get();
+                System.out.println("*** " + enemyProfile.getMovePatternId() + " -> " + movePatternId);
+                enemyProfile.setMovePatternId(movePatternId);
             }
         }
         isWon.set(false);

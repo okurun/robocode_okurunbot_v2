@@ -82,7 +82,7 @@ public class MaxPowerGunAction implements GunAction {
 
         // デバッグ用に弾丸の情報をスタックに保存します
         GunAction.stackBulletHistory(bot,
-                new BulletHistory(commander.getPredictModel(bot), fireTarget.x, fireTarget.y, targetEnemyId,
+                new BulletHistory(commander.getPredictModelId(bot), fireTarget.x, fireTarget.y, targetEnemyId,
                         fireTarget.scannedTurnNum, fireTarget.distance));
         return null;
     }

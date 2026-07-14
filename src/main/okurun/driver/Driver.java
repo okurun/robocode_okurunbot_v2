@@ -30,6 +30,9 @@ public class Driver {
         actions.get(ActionId.MOVE_TO).action(bot);
     }
 
+    public void postAction(OkuRunBot bot) {
+    }
+
     /**
      * ゲームが開始された時の処理
      * 

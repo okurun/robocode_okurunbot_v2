@@ -8,6 +8,8 @@ import okurun.commander.Commander.AccelePriority;
 import okurun.commander.Commander.HandlePriority;
 
 public interface MovePattern {
+    void postAction(OkuRunBot bot);
+
     /**
      * 次の移動位置を取得します
      * 
@@ -43,10 +45,9 @@ public interface MovePattern {
     /**
      * ターン毎の命中弾数を取得します
      * 
-     * @param turnNumber ターン数
      * @return ターン毎の命中弾数
      */
-    double getHitPerTurn(int turnNumber);
+    double getHitPerTurn();
 
     /**
      * トータルのターン毎の命中弾数を取得します

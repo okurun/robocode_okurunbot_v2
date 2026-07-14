@@ -7,8 +7,14 @@ import okurun.OkuRunBot;
 
 abstract class AbstractMovePattern implements MovePattern {
     protected final AtomicInteger bulletHitCnt = new AtomicInteger(0);
+    protected final AtomicInteger turns = new AtomicInteger(0);
     protected final AtomicInteger totalBulletHitCnt = new AtomicInteger(0);
     protected final AtomicInteger totalTurns = new AtomicInteger(0);
+
+    @Override
+    public void postAction(OkuRunBot bot) {
+        turns.incrementAndGet();
+    }
 
     /**
      * ターン毎の命中弾数を計算します
@@ -17,11 +23,11 @@ abstract class AbstractMovePattern implements MovePattern {
      * @return ターン毎の命中弾数
      */
     @Override
-    public double getHitPerTurn(int turnNumber) {
-        if (bulletHitCnt.get() == 0) {
+    public double getHitPerTurn() {
+        if (bulletHitCnt.get() == 0 || turns.get() == 0) {
             return 0;
         }
-        return (double) bulletHitCnt.get() / (double) turnNumber;
+        return (double) bulletHitCnt.get() / (double) turns.get();
     }
 
     /**
@@ -31,7 +37,7 @@ abstract class AbstractMovePattern implements MovePattern {
      */
     @Override
     public double getTotalHitPerTurn() {
-        if (totalBulletHitCnt.get() == 0) {
+        if (totalBulletHitCnt.get() == 0 || totalTurns.get() == 0) {
             return 0;
         }
         return (double) totalBulletHitCnt.get() / (double) totalTurns.get();
@@ -45,11 +51,13 @@ abstract class AbstractMovePattern implements MovePattern {
      */
     @Override
     public void onGameEnded(GameEndedEvent e, OkuRunBot bot) {
-        System.out.println(String.format(
-                "## TotalMovePatternSummary(%s): hit count: %d, hit/turn: %.3f",
-                this.getClass().getSimpleName(),
-                totalBulletHitCnt.get(),
-                getTotalHitPerTurn()));
+        if (totalTurns.get() > 0) {
+            System.out.println(String.format(
+                    "%% TotalMovePatternSummary(%s): hit count: %d, hit/turn: %.3f",
+                    this.getClass().getSimpleName(),
+                    totalBulletHitCnt.get(),
+                    getTotalHitPerTurn()));
+        }
         totalBulletHitCnt.set(0);
         totalTurns.set(0);
     }
@@ -63,13 +71,16 @@ abstract class AbstractMovePattern implements MovePattern {
     @Override
     public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
         totalBulletHitCnt.addAndGet(bulletHitCnt.get());
-        totalTurns.addAndGet(e.getTurnNumber());
-        System.out.println(String.format(
-                "== MovePatternSummary(%s): hit count: %d, hit/turn: %.3f",
-                this.getClass().getSimpleName(),
-                bulletHitCnt.get(),
-                getHitPerTurn(e.getTurnNumber())));
+        totalTurns.addAndGet(turns.get());
+        if (turns.get() > 0) {
+            System.out.println(String.format(
+                    "++ MovePatternSummary(%s): hit count: %d, hit/turn: %.3f",
+                    this.getClass().getSimpleName(),
+                    bulletHitCnt.get(),
+                    getHitPerTurn()));
+        }
         bulletHitCnt.set(0);
+        turns.set(0);
     }
 
     /**

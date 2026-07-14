@@ -2,6 +2,8 @@ package okurun.battlemanager;
 
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,6 +14,7 @@ import okurun.OkuRunBot;
 import okurun.commander.Commander;
 import okurun.commander.Commander.MovePatternId;
 import okurun.commander.Commander.TacticId;
+import okurun.predictor.PredictModelAccuracy;
 import okurun.predictor.Predictor.PredictModelId;
 
 /**
@@ -20,14 +23,19 @@ import okurun.predictor.Predictor.PredictModelId;
 public class EnemyProfile {
     private final int id;
     private final Deque<EnemyState> stateHistory = new ConcurrentLinkedDeque<>();
-
     private final AtomicBoolean isAlive = new AtomicBoolean(true);
     private final AtomicInteger lastConfirmedTurn = new AtomicInteger(0);
     private final AtomicReference<TacticId> tacticId = new AtomicReference<>(TacticId.ONE_ON_ONE_ANALYSIS);
     private final AtomicReference<MovePatternId> movePatternId = new AtomicReference<>(MovePatternId.ROUND_AREA);
+    private final Map<PredictModelId, PredictModelAccuracy> predictModelAccuracies = new ConcurrentHashMap<>();
+    private volatile PredictModelId[] sortedPredictModels = new PredictModelId[] { PredictModelId.ZIGZAG,
+            PredictModelId.HISTORY, PredictModelId.DYNAMIC, PredictModelId.SIMPLE, PredictModelId.NONE };
 
     public EnemyProfile(int id) {
         this.id = id;
+        for (PredictModelId predictModelId : PredictModelId.values()) {
+            predictModelAccuracies.put(predictModelId, new PredictModelAccuracy());
+        }
     }
 
     /**
@@ -194,8 +202,25 @@ public class EnemyProfile {
     }
 
     public PredictModelId[] getPredictModels() {
-        return new PredictModelId[] { PredictModelId.ZIGZAG, PredictModelId.HISTORY, PredictModelId.DYNAMIC,
-                PredictModelId.SIMPLE };
+        return sortedPredictModels;
+    }
+
+    private void updateSortedPredictModels() {
+        System.out.print("{{ PredictModels: ");
+        for (PredictModelId model : sortedPredictModels) {
+            System.out.print(model + " > ");
+        }
+        System.out.println("END }}");
+        sortedPredictModels = predictModelAccuracies.entrySet().stream()
+                .sorted((a, b) -> Double.compare(b.getValue().getHitRate(), a.getValue().getHitRate()))
+                .map(Map.Entry::getKey)
+                .toArray(PredictModelId[]::new);
+        System.out.print("--> {{ PredictModels: ");
+        for (PredictModelId model : sortedPredictModels) {
+            System.out.print(String.format("%s(%.1f%%) > ", model,
+                    predictModelAccuracies.get(model).getHitRate() * 100));
+        }
+        System.out.println("END }}");
     }
 
     /**
@@ -218,12 +243,28 @@ public class EnemyProfile {
     }
 
     /**
+     * ラウンド終了時の処理
+     * 
+     * @param e
+     * @param bot
+     */
+    public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
+        // 予測モデルをヒット率でソートして更新する
+        updateSortedPredictModels();
+
+        reset();
+    }
+
+    /**
      * 敵ボットが死んだ時の処理
      * 
      * @param e   敵ボット死亡イベント
      * @param bot Bot
      */
     public void onBotDeath(BotDeathEvent e, OkuRunBot bot) {
+        if (e.getVictimId() != id) {
+            return;
+        }
         died();
     }
 
@@ -234,6 +275,9 @@ public class EnemyProfile {
      * @param bot Bot
      */
     public void onHitBot(HitBotEvent e, OkuRunBot bot) {
+        if (e.getVictimId() != id) {
+            return;
+        }
         setLastConfirmedTurn(e.getTurnNumber());
         if (e.getEnergy() <= 0) {
             died();
@@ -251,7 +295,15 @@ public class EnemyProfile {
         if (bulletHistory == null || bulletHistory.targetEnemyId != id) {
             return;
         }
-        // TODO
+        if (bulletHistory.targetEnemyId != id) {
+            return;
+        }
+        PredictModelAccuracy accuracy = predictModelAccuracies.get(bulletHistory.predictModel);
+        if (accuracy == null) {
+            System.err.println("Warning PredictModelAccuracy is null: " + bulletHistory.predictModel);
+            return;
+        }
+        accuracy.incrementFireCount();
     }
 
     /**
@@ -261,6 +313,9 @@ public class EnemyProfile {
      * @param bot Bot
      */
     public void onHitByBullet(HitByBulletEvent e, OkuRunBot bot) {
+        if (e.getBullet().getOwnerId() != id) {
+            return;
+        }
         setLastConfirmedTurn(e.getTurnNumber());
     }
 
@@ -271,6 +326,18 @@ public class EnemyProfile {
      * @param bot Bot
      */
     public void onBulletHit(BulletHitBotEvent e, OkuRunBot bot) {
+        if (e.getVictimId() != id) {
+            return;
+        }
+
+        final BulletHistory bulletHistory = bot.getBattleManager().getBulletHistory(e.getBullet().getBulletId());
+        if (bulletHistory == null) {
+            return;
+        }
+        if (bulletHistory.targetEnemyId == id) {
+            predictModelAccuracies.get(bulletHistory.predictModel).incrementHitCount();
+        }
+
         setLastConfirmedTurn(e.getTurnNumber());
         if (e.getEnergy() <= 0) {
             died();
@@ -284,6 +351,9 @@ public class EnemyProfile {
      * @param bot Bot
      */
     public void onBulletHitBullet(BulletHitBulletEvent e, OkuRunBot bot) {
+        if (e.getHitBullet().getOwnerId() != id) {
+            return;
+        }
         setLastConfirmedTurn(e.getTurnNumber());
     }
 
@@ -294,6 +364,9 @@ public class EnemyProfile {
      * @param bot Bot
      */
     public void onScannedBot(ScannedBotEvent e, OkuRunBot bot) {
+        if (e.getScannedBotId() != id) {
+            return;
+        }
         final EnemyState enemyState = getLatestState();
         double turnDegree = 0;
         double acceleration = 0;

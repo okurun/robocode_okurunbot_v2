@@ -92,7 +92,7 @@ public class PredictModelAccuracy {
      * 
      * @return ヒット率
      */
-    private double getHitRate() {
+    public double getHitRate() {
         if (fireCount.get() == 0 || hitCount.get() == 0) {
             return 0;
         }
@@ -104,7 +104,7 @@ public class PredictModelAccuracy {
      * 
      * @return ミス率
      */
-    private double getMissRate() {
+    public double getMissRate() {
         if (fireCount.get() == 0 || missCount.get() == 0) {
             return 0;
         }

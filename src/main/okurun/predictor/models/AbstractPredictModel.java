@@ -43,11 +43,13 @@ public abstract class AbstractPredictModel implements PredictModel {
      * @param bot              ボット
      */
     public void onGameEnded(GameEndedEvent e, OkuRunBot bot) {
-        System.out.println(String.format(
-            "## TotalPredictModelAccuracy(%s): %s",
-            this.getClass().getSimpleName(),
-            modelTotalAccuracy.getAccuracyString()
-        ));
+        if (modelTotalAccuracy.getFireCount() > 0) {
+            System.out.println(String.format(
+                "## TotalPredictModelAccuracy(%s): %s",
+                this.getClass().getSimpleName(),
+                modelTotalAccuracy.getAccuracyString()
+            ));
+        }
         modelTotalAccuracy.reset();
     }
 
@@ -58,11 +60,13 @@ public abstract class AbstractPredictModel implements PredictModel {
      * @param bot ボット
      */
     public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
-        System.out.println(String.format(
-            "== PredictModelAccuracy(%s): %s",
-            this.getClass().getSimpleName(),
-            modelAccuracy.getAccuracyString()
-        ));
+        if (modelAccuracy.getFireCount() > 0) {
+            System.out.println(String.format(
+                "== PredictModelAccuracy(%s): %s",
+                this.getClass().getSimpleName(),
+                modelAccuracy.getAccuracyString()
+            ));
+        }
         modelTotalAccuracy.addFireCount(modelAccuracy.getFireCount());
         modelTotalAccuracy.addHitCount(modelAccuracy.getHitCount());
         modelTotalAccuracy.addMissCount(modelAccuracy.getMissCount());

@@ -27,6 +27,9 @@ public class RadarOperator {
         }
     }
 
+    public void postAction(OkuRunBot bot) {
+    }
+
     /**
      * ゲームが開始された時の処理
      * 
