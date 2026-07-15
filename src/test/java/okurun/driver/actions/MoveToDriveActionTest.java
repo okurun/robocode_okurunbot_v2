@@ -12,7 +12,7 @@ import okurun.Debugger;
 import okurun.OkuRunBot;
 import okurun.battlemanager.BattleManager;
 import okurun.commander.Commander;
-import okurun.commander.Commander.AccelePriority;
+import okurun.commander.Commander.AccelPriority;
 import okurun.commander.Commander.HandlePriority;
 import okurun.driver.Driver;
 
@@ -51,7 +51,7 @@ class MoveToDriveActionTest {
         lenient().when(bot.getCommander()).thenReturn(commander);
         lenient().when(commander.getTargetMovePosition(bot)).thenReturn(new double[] { 200.0, 300.0 });
         lenient().when(commander.getHandlePriority(bot)).thenReturn(HandlePriority.TARGET);
-        lenient().when(commander.getAccelePriority(bot)).thenReturn(AccelePriority.MAX_SPEED);
+        lenient().when(commander.getAccelPriority(bot)).thenReturn(AccelPriority.MAX_SPEED);
         lenient().when(commander.getTargetEnemyId(bot)).thenReturn(Commander.NO_TARGET);
 
         lenient().when(bot.bearingTo(200.0, 300.0)).thenReturn(45.0);
@@ -107,14 +107,14 @@ class MoveToDriveActionTest {
     }
 
     @Test
-    void testGetAccele_DefaultPriority() throws Exception {
-        java.lang.reflect.Method method = MoveToDriveAction.class.getDeclaredMethod("getAccele", OkuRunBot.class,
+    void testGetAccel_DefaultPriority() throws Exception {
+        java.lang.reflect.Method method = MoveToDriveAction.class.getDeclaredMethod("getAccel", OkuRunBot.class,
                 double[].class, double.class);
         method.setAccessible(true);
 
         when(bot.distanceTo(100.0, 200.0)).thenReturn(150.0);
         lenient().when(bot.getCommander()).thenReturn(commander);
-        when(commander.getAccelePriority(bot)).thenReturn(AccelePriority.MAX_SPEED);
+        when(commander.getAccelPriority(bot)).thenReturn(AccelPriority.MAX_SPEED);
 
         Object result = method.invoke(action, bot, new double[] { 100.0, 200.0 }, 45.0);
 
@@ -128,14 +128,14 @@ class MoveToDriveActionTest {
     }
 
     @Test
-    void testGetAccele_HandlePriority_DiffTurnRateGreaterThan90() throws Exception {
-        java.lang.reflect.Method method = MoveToDriveAction.class.getDeclaredMethod("getAccele", OkuRunBot.class,
+    void testGetAccel_HandlePriority_DiffTurnRateGreaterThan90() throws Exception {
+        java.lang.reflect.Method method = MoveToDriveAction.class.getDeclaredMethod("getAccel", OkuRunBot.class,
                 double[].class, double.class);
         method.setAccessible(true);
 
         when(bot.distanceTo(100.0, 200.0)).thenReturn(150.0);
         lenient().when(bot.getCommander()).thenReturn(commander);
-        when(commander.getAccelePriority(bot)).thenReturn(AccelePriority.HANDLE);
+        when(commander.getAccelPriority(bot)).thenReturn(AccelPriority.HANDLE);
         when(commander.getMinSpeed(bot)).thenReturn(2.0);
 
         when(bot.getMaxTurnRate()).thenReturn(10.0);
@@ -153,14 +153,14 @@ class MoveToDriveActionTest {
     }
 
     @Test
-    void testGetAccele_HandlePriority_DiffTurnRateBetween0And90() throws Exception {
-        java.lang.reflect.Method method = MoveToDriveAction.class.getDeclaredMethod("getAccele", OkuRunBot.class,
+    void testGetAccel_HandlePriority_DiffTurnRateBetween0And90() throws Exception {
+        java.lang.reflect.Method method = MoveToDriveAction.class.getDeclaredMethod("getAccel", OkuRunBot.class,
                 double[].class, double.class);
         method.setAccessible(true);
 
         when(bot.distanceTo(100.0, 200.0)).thenReturn(150.0);
         lenient().when(bot.getCommander()).thenReturn(commander);
-        when(commander.getAccelePriority(bot)).thenReturn(AccelePriority.HANDLE);
+        when(commander.getAccelPriority(bot)).thenReturn(AccelPriority.HANDLE);
         when(commander.getMinSpeed(bot)).thenReturn(2.0);
 
         when(bot.getMaxTurnRate()).thenReturn(10.0);
@@ -178,8 +178,8 @@ class MoveToDriveActionTest {
     }
 
     @Test
-    void testGetAccele_AvoidBulletPriority_Brake() throws Exception {
-        java.lang.reflect.Method method = MoveToDriveAction.class.getDeclaredMethod("getAccele", OkuRunBot.class,
+    void testGetAccel_AvoidBulletPriority_Brake() throws Exception {
+        java.lang.reflect.Method method = MoveToDriveAction.class.getDeclaredMethod("getAccel", OkuRunBot.class,
                 double[].class, double.class);
         method.setAccessible(true);
 
@@ -189,7 +189,7 @@ class MoveToDriveActionTest {
 
         when(bot.distanceTo(100.0, 200.0)).thenReturn(150.0);
         lenient().when(bot.getCommander()).thenReturn(commander);
-        when(commander.getAccelePriority(bot)).thenReturn(AccelePriority.AVOID_BULLET);
+        when(commander.getAccelPriority(bot)).thenReturn(AccelPriority.AVOID_BULLET);
         when(commander.getMinSpeed(bot)).thenReturn(2.0);
         when(bot.getSpeed()).thenReturn(6.0);
 

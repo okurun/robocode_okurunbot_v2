@@ -166,11 +166,11 @@ public class BattleManager {
             if (!enemyProfile.isAliveAndNotMissing(bot)) {
                 continue;
             }
-            final EnemyState latesEnemyState = enemyProfile.getLatestState();
-            if (latesEnemyState == null) {
+            final EnemyState latestEnemyState = enemyProfile.getLatestState();
+            if (latestEnemyState == null) {
                 continue;
             }
-            if (latesEnemyState.energy <= 0) {
+            if (latestEnemyState.energy <= 0) {
                 return enemyProfile;
             }
         }

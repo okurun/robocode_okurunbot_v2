@@ -46,7 +46,7 @@ public class Commander {
     /**
      * 加速の優先順位
      */
-    public static enum AccelePriority {
+    public static enum AccelPriority {
         MAX_SPEED, HANDLE, AVOID_BULLET
     }
 
@@ -137,9 +137,9 @@ public class Commander {
         return currentTactic.getDriveActionId(bot);
     }
 
-    public AccelePriority getAccelePriority(OkuRunBot bot) {
+    public AccelPriority getAccelPriority(OkuRunBot bot) {
         final MovePattern movePattern = movePatterns.get(currentTactic.getMovePatternId(bot));
-        return movePattern.getAccelePriority(bot);
+        return movePattern.getAccelPriority(bot);
     }
 
     public HandlePriority getHandlePriority(OkuRunBot bot) {
@@ -310,7 +310,8 @@ public class Commander {
                 System.out.println("*** I lost. I intend to consider changing my move pattern.");
                 // 一番被弾率の低いムーブパターンを採用する（全体累計で評価）
                 final MovePatternId movePatternId = movePatterns.entrySet().stream()
-                        .sorted((a, b) -> Double.compare(a.getValue().getTotalHitPerTurn(), b.getValue().getTotalHitPerTurn()))
+                        .sorted((a, b) -> Double.compare(a.getValue().getTotalHitPerTurn(),
+                                b.getValue().getTotalHitPerTurn()))
                         .map(Map.Entry::getKey)
                         .findFirst().get();
                 System.out.println("*** " + enemyProfile.getMovePatternId() + " -> " + movePatternId);

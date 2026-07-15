@@ -190,7 +190,7 @@ public class Predictor {
             predictModels.put(PredictModelId.DYNAMIC, new DynamicPredictModel());
             predictModels.put(PredictModelId.ZIGZAG, new ZigzagPredictModel());
             predictModels.put(PredictModelId.HISTORY, new HistoryPredictModel());
-            predictModels.put(PredictModelId.NONE, new NonePredictPredictModel());
+            predictModels.put(PredictModelId.NONE, new NonePredictModel());
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();

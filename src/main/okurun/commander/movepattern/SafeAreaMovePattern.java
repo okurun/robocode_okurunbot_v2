@@ -3,7 +3,7 @@ package okurun.commander.movepattern;
 import okurun.OkuRunBot;
 import okurun.arenamap.ArenaMap;
 import okurun.arenamap.ArenaMap.Area;
-import okurun.commander.Commander.AccelePriority;
+import okurun.commander.Commander.AccelPriority;
 import okurun.commander.Commander.HandlePriority;
 import okurun.commander.tactics.Tactic;
 
@@ -25,8 +25,8 @@ public class SafeAreaMovePattern extends AbstractMovePattern {
     }
 
     @Override
-    public AccelePriority getAccelePriority(OkuRunBot bot) {
-        return AccelePriority.MAX_SPEED;
+    public AccelPriority getAccelPriority(OkuRunBot bot) {
+        return AccelPriority.MAX_SPEED;
     }
 
     @Override

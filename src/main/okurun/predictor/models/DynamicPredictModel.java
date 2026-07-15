@@ -12,7 +12,7 @@ import okurun.predictor.Predictor.PredictModelId;
  * 予測モデル：等速直線運動 + 定期的な旋回 + 加速/減速
  */
 public class DynamicPredictModel extends AbstractPredictModel {
-    private static enum AccelertaionType {
+    private static enum AccelerationType {
         INCREASE,
         DECREASE
     }
@@ -57,23 +57,23 @@ public class DynamicPredictModel extends AbstractPredictModel {
         }
 
         // 加減速を考慮した速度の計算
-        AccelertaionType accelertaionType = null;
+        AccelerationType accelerationType = null;
         double velocity = enemyState.velocity;
         if (enemyState.velocity > 0) {
             if (enemyState.acceleration > 0) {
                 velocity += Constants.ACCELERATION;
-                accelertaionType = AccelertaionType.INCREASE;
+                accelerationType = AccelerationType.INCREASE;
             } else if (enemyState.acceleration < 0) {
                 velocity += Constants.DECELERATION;
-                accelertaionType = AccelertaionType.DECREASE;
+                accelerationType = AccelerationType.DECREASE;
             }
         } else if (enemyState.velocity < 0) {
             if (enemyState.acceleration > 0) {
                 velocity -= Constants.DECELERATION;
-                accelertaionType = AccelertaionType.DECREASE;
+                accelerationType = AccelerationType.DECREASE;
             } else if (enemyState.acceleration < 0) {
                 velocity -= Constants.ACCELERATION;
-                accelertaionType = AccelertaionType.INCREASE;
+                accelerationType = AccelerationType.INCREASE;
             }
         }
         // 速度の最大値をチェック
@@ -89,7 +89,7 @@ public class DynamicPredictModel extends AbstractPredictModel {
         if (Math.abs(turnDegree) >= maxTurnRate) {
             // 加速しているときは最大旋回角まで旋回角を減らす
             turnDegree = (turnDegree > 0) ? maxTurnRate : -maxTurnRate;
-        } else if (accelertaionType == AccelertaionType.DECREASE) {
+        } else if (accelerationType == AccelerationType.DECREASE) {
             if (Math.abs(enemyState.turnDegree) - bot.calcMaxTurnRate(enemyState.velocity) < 1) {
                 // 減速しているときは最大旋回角まで旋回角を増やす
                 turnDegree = (turnDegree > 0) ? maxTurnRate : -maxTurnRate;

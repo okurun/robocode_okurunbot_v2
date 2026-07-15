@@ -48,19 +48,19 @@ public class OneOnOneTactic extends AbstractOneOnOneTactic {
 
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
-        final EnemyState latesEnemyState = targetEnemyProfile.getLatestState();
-        if (latesEnemyState == null) {
+        final EnemyState latestEnemyState = targetEnemyProfile.getLatestState();
+        if (latestEnemyState == null) {
             // 敵のステータスが取得できない場合はスキャンを行います
             gunActionId = Gunner.ActionId.SCAN;
             return;
         }
-        if (latesEnemyState.energy <= 0) {
+        if (latestEnemyState.energy <= 0) {
             // 敵のエネルギーが0以下の場合は止めを刺します
             gunActionId = Gunner.ActionId.EXECUTION;
             waitForGunTurn = true;
             return;
         }
-        if (targetEnemyProfile.isNoMove(bot) && latesEnemyState.distance > OkuRunBot.BODY_SIZE) {
+        if (targetEnemyProfile.isNotMoving(bot) && latestEnemyState.distance > OkuRunBot.BODY_SIZE) {
             // 敵が動いていない、かつ離れている場合は射撃します
             gunActionId = Gunner.ActionId.EXECUTION;
             waitForGunTurn = true;

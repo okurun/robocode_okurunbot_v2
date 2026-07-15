@@ -5,7 +5,7 @@ import okurun.arenamap.ArenaMap;
 import okurun.arenamap.ArenaMap.Area;
 import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
-import okurun.commander.Commander.AccelePriority;
+import okurun.commander.Commander.AccelPriority;
 import okurun.commander.Commander.HandlePriority;
 
 public class RoundAreaMovePattern extends AbstractMovePattern {
@@ -29,7 +29,7 @@ public class RoundAreaMovePattern extends AbstractMovePattern {
         final double bearingToEnemy = bot.bearingTo(enemyState.getPosition());
         if (Math.abs(bearingToTargetPos - bearingToEnemy) < 20) {
             // 進行方向に敵がいる場合は反対側に向かう
-            if (bot.distanceTo(enemyState.getPosition()) < 150)  {
+            if (bot.distanceTo(enemyState.getPosition()) < 150) {
                 pos = neigeringArea.getOppositeArea().getCenter();
             }
         }
@@ -47,8 +47,8 @@ public class RoundAreaMovePattern extends AbstractMovePattern {
     }
 
     @Override
-    public AccelePriority getAccelePriority(OkuRunBot bot) {
-        return AccelePriority.HANDLE;
+    public AccelPriority getAccelPriority(OkuRunBot bot) {
+        return AccelPriority.HANDLE;
     }
 
 }

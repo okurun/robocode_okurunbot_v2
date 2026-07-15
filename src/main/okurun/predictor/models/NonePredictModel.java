@@ -10,7 +10,7 @@ import dev.robocode.tankroyale.botapi.graphics.Color;
 /**
  * 予測を行わず、単純に最後の観測値を返すモデル
  */
-public class NonePredictPredictModel extends AbstractPredictModel {
+public class NonePredictModel extends AbstractPredictModel {
     /**
      * このモデルのIDを取得する
      * 

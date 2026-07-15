@@ -81,19 +81,19 @@ public class SurvivalTactic extends AbstractTactic {
 
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
-        final EnemyState latesEnemyState = targetEnemyProfile.getLatestState();
-        if (latesEnemyState == null) {
+        final EnemyState latestEnemyState = targetEnemyProfile.getLatestState();
+        if (latestEnemyState == null) {
             // 全体スキャンを優先する
             gunActionId = Gunner.ActionId.SCAN;
             return;
         }
-        if (latesEnemyState.energy <= 0) {
+        if (latestEnemyState.energy <= 0) {
             // 敵のエネルギーが0以下の場合は止めを刺します
             gunActionId = Gunner.ActionId.EXECUTION;
             waitForGunTurn = true;
             return;
         }
-        if (targetEnemyProfile.isNoMove(bot) && latesEnemyState.distance > OkuRunBot.BODY_SIZE) {
+        if (targetEnemyProfile.isNotMoving(bot) && latestEnemyState.distance > OkuRunBot.BODY_SIZE) {
             // 敵が動いていない、かつ離れている場合は射撃します
             gunActionId = Gunner.ActionId.EXECUTION;
             waitForGunTurn = true;
@@ -102,7 +102,7 @@ public class SurvivalTactic extends AbstractTactic {
 
         if (bot.getGunHeat() <= bot.getGunCoolingRate() * 3) {
             // 3ターン以内に射撃可能であれば射撃を行います
-            if (latesEnemyState.distance < OkuRunBot.BODY_SIZE + 10) {
+            if (latestEnemyState.distance < OkuRunBot.BODY_SIZE + 10) {
                 gunActionId = Gunner.ActionId.MAX_POWER;
                 baseFirePower = Constants.MAX_FIREPOWER;
                 waitForGunTurn = false;

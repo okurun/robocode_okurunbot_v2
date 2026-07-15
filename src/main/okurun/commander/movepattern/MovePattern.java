@@ -4,7 +4,7 @@ import dev.robocode.tankroyale.botapi.events.GameEndedEvent;
 import dev.robocode.tankroyale.botapi.events.HitByBulletEvent;
 import dev.robocode.tankroyale.botapi.events.RoundEndedEvent;
 import okurun.OkuRunBot;
-import okurun.commander.Commander.AccelePriority;
+import okurun.commander.Commander.AccelPriority;
 import okurun.commander.Commander.HandlePriority;
 
 public interface MovePattern {
@@ -32,7 +32,7 @@ public interface MovePattern {
      * @param bot ボット
      * @return 加速プライオリティ
      */
-    AccelePriority getAccelePriority(OkuRunBot bot);
+    AccelPriority getAccelPriority(OkuRunBot bot);
 
     /**
      * 最小速度を取得します

@@ -170,20 +170,20 @@ public class EnemyProfile {
      * @param bot Bot
      * @return 3ターン以上動きがない場合 → true
      */
-    public boolean isNoMove(OkuRunBot bot) {
+    public boolean isNotMoving(OkuRunBot bot) {
         if (stateHistory.isEmpty() || stateHistory.size() <= 1) {
             return false;
         }
 
         EnemyState prevState = null;
-        boolean noMoveFlag = false;
+        boolean notMovingFlag = false;
         for (EnemyState state : stateHistory) {
             if (prevState != null) {
                 if (state.x == prevState.x && state.y == prevState.y) {
-                    if (noMoveFlag) {
+                    if (notMovingFlag) {
                         return true;
                     }
-                    noMoveFlag = true;
+                    notMovingFlag = true;
                 } else {
                     break;
                 }

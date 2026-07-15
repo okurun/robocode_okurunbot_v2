@@ -5,7 +5,7 @@ import okurun.battlemanager.BattleManager;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
-import okurun.commander.Commander.AccelePriority;
+import okurun.commander.Commander.AccelPriority;
 import okurun.commander.Commander.HandlePriority;
 import okurun.commander.tactics.Tactic;
 import okurun.predictor.Predictor;
@@ -71,20 +71,20 @@ public class EnemySideMovePattern extends AbstractMovePattern {
     }
 
     @Override
-    public AccelePriority getAccelePriority(OkuRunBot bot) {
+    public AccelPriority getAccelPriority(OkuRunBot bot) {
         final Commander commander = bot.getCommander();
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyState enemyState = battleManager.getLatestEnemyState(commander.getTargetEnemyId(bot));
         if (enemyState == null) {
-            return AccelePriority.MAX_SPEED;
+            return AccelPriority.MAX_SPEED;
         }
 
         final double enemyLateralAngle = Math.abs(commander.getEnemyLateralAngle(bot, enemyState));
         if (enemyLateralAngle >= 60 && enemyLateralAngle <= 120) {
             // 敵が自分からみて横方向にいる場合はランダムにブレーキをかける
-            return AccelePriority.AVOID_BULLET;
+            return AccelPriority.AVOID_BULLET;
         }
 
-        return AccelePriority.MAX_SPEED;
+        return AccelPriority.MAX_SPEED;
     }
 }
