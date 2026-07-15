@@ -62,7 +62,8 @@ public class MaxPowerGunAction implements GunAction {
         }
 
         if (commander.getWaitForGunTurn(bot)) {
-            if (bot.getGunTurnRemaining() > 0) {
+            double maxTurnAngle = Math.max(5 - bot.distanceTo(fireTarget.getPosition()) / 100, 0);
+            if (bot.getGunTurnRemaining() > maxTurnAngle) {
                 // 砲頭が回頭中なら発射しません
                 return null;
             }

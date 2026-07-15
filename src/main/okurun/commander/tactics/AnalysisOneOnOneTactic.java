@@ -35,7 +35,7 @@ public class AnalysisOneOnOneTactic extends AbstractOneOnOneTactic {
     protected void setGunActionId(OkuRunBot bot) {
         gunActionId = Gunner.ActionId.MAX_POWER;
         baseFirePower = Constants.MIN_FIREPOWER;
-        waitForGunTurn = false;
+        waitForGunTurn = true;
     }
 
     @Override

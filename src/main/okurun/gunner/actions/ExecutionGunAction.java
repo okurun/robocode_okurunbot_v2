@@ -42,7 +42,8 @@ public class ExecutionGunAction implements GunAction {
             return null;
         }
 
-        if (bot.getGunTurnRemaining() > 0) {
+        double maxTurnAngle = Math.max(5 - bot.distanceTo(latestEnemyState.getPosition()) / 100, 0);
+        if (bot.getGunTurnRemaining() > maxTurnAngle) {
             // 砲頭が回頭中なら発射しません
             return null;
         }
