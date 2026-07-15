@@ -240,8 +240,8 @@ public class OkuRunBot extends Bot {
     public void onRoundEnded(RoundEndedEvent e) {
         System.out.println("------ onRoundEnded(" + e.getRoundNumber() + "): " + e.getTurnNumber() + " -----");
         try {
-            commander.onRoundEnded(e, this);
             battleManager.onRoundEnded(e, this);
+            commander.onRoundEnded(e, this);
             predictor.onRoundEnded(e, this);
         } catch (Exception exception) {
             System.err.println(exception.getMessage());

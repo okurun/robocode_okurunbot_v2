@@ -43,7 +43,7 @@ public class HistoryPredictModel extends AbstractPredictModel {
      */
     @Override
     public EnemyState nextTurnState(OkuRunBot bot, EnemyState enemyState, EnemyProfile enemyProfile) {
-        final Deque<EnemyState> stateHistory = enemyProfile.getStateHistory();
+        final Deque<EnemyState> stateHistory = enemyProfile.getStateHistory(HISTORY_POS);
         if (stateHistory.size() < HISTORY_POS) {
             return null;
         }

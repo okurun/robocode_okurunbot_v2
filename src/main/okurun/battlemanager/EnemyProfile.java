@@ -11,7 +11,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
-import okurun.commander.Commander;
 import okurun.commander.Commander.MovePatternId;
 import okurun.commander.Commander.TacticId;
 import okurun.predictor.PredictModelAccuracy;
@@ -138,6 +137,17 @@ public class EnemyProfile {
     }
 
     /**
+     * 敵ボットの状態履歴を返します
+     * 
+     * @param limit 取得する状態の最大数
+     * @return 敵ボットの状態履歴
+     */
+    public Deque<EnemyState> getStateHistory(int limit) {
+        // Immutableにするため LinkedList でラップして返す
+        return new LinkedList<>(stateHistory.stream().limit(limit).toList());
+    }
+
+    /**
      * 最新の敵ボットの状態を返します
      * 
      * @return 最新の敵ボットの状態
@@ -188,7 +198,7 @@ public class EnemyProfile {
      * 
      * @return 戦術ID
      */
-    public Commander.TacticId getTacticId() {
+    public TacticId getTacticId() {
         return tacticId.get();
     }
 
@@ -197,7 +207,7 @@ public class EnemyProfile {
      * 
      * @param tacticId 戦術ID
      */
-    public void setTacticId(Commander.TacticId tacticId) {
+    public void setTacticId(TacticId tacticId) {
         this.tacticId.set(tacticId);
     }
 
@@ -251,8 +261,20 @@ public class EnemyProfile {
     public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
         // 予測モデルをヒット率でソートして更新する
         updateSortedPredictModels();
-
         reset();
+        if (bot.getCommander().getTargetEnemyId(bot) == id) {
+            if (getTacticId() == TacticId.ONE_ON_ONE_ANALYSIS) {
+                int fireCnt = 0;
+                for (PredictModelAccuracy accuracy : predictModelAccuracies.values()) {
+                    fireCnt += accuracy.getFireCount();
+                }
+                if (fireCnt > predictModelAccuracies.size() * 3) {
+                    // 分析が十分なら戦術を変更
+                    setTacticId(TacticId.ONE_ON_ONE);
+                    System.out.println("$$$ Change tactic ONE_ON_ONE_ANALYSIS -> ONE_ON_ONE");
+                }
+            }
+        }
     }
 
     /**

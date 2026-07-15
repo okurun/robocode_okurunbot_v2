@@ -138,7 +138,7 @@ class MoveToDriveActionTest {
         when(commander.getAccelePriority(bot)).thenReturn(AccelePriority.HANDLE);
         when(commander.getMinSpeed(bot)).thenReturn(2.0);
 
-        when(bot.getTurnRate()).thenReturn(10.0);
+        when(bot.getMaxTurnRate()).thenReturn(10.0);
         when(bot.getSpeed()).thenReturn(6.0);
 
         Object result = method.invoke(action, bot, new double[] { 100.0, 200.0 }, 110.0);
@@ -163,7 +163,7 @@ class MoveToDriveActionTest {
         when(commander.getAccelePriority(bot)).thenReturn(AccelePriority.HANDLE);
         when(commander.getMinSpeed(bot)).thenReturn(2.0);
 
-        when(bot.getTurnRate()).thenReturn(10.0);
+        when(bot.getMaxTurnRate()).thenReturn(10.0);
         when(bot.getSpeed()).thenReturn(6.0);
 
         Object result = method.invoke(action, bot, new double[] { 100.0, 200.0 }, 50.0);

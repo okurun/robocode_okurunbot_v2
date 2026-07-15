@@ -26,8 +26,6 @@ public class Commander {
         SURVIVAL,
         ONE_ON_ONE_ANALYSIS,
         ONE_ON_ONE,
-        ONE_ON_ONE_POSITIVE,
-        ONE_ON_ONE_GO_ROUND_AREA,
     }
 
     public static enum MovePatternId {
@@ -61,8 +59,6 @@ public class Commander {
     public Commander() {
         tactics.put(TacticId.ONE_ON_ONE_ANALYSIS, new AnalysisOneOnOneTactic());
         tactics.put(TacticId.ONE_ON_ONE, new OneOnOneTactic());
-        tactics.put(TacticId.ONE_ON_ONE_POSITIVE, new OneOnOnePositiveTactic());
-        tactics.put(TacticId.ONE_ON_ONE_GO_ROUND_AREA, new OneOnOneGoRoundAreaTactic());
         tactics.put(TacticId.SURVIVAL, new SurvivalTactic());
 
         movePatterns.put(MovePatternId.ENEMY_SIDE, new EnemySideMovePattern());
@@ -94,12 +90,12 @@ public class Commander {
             // 生存している敵が1機のみ
             final EnemyProfile enemyProfile = battleManager.getAliveEnemy(bot);
             if (enemyProfile == null) {
-                currentTactic = tactics.get(TacticId.ONE_ON_ONE_GO_ROUND_AREA);
+                currentTactic = tactics.get(TacticId.ONE_ON_ONE);
                 return;
             }
             final EnemyState latestEnemyState = enemyProfile.getLatestState();
             if (latestEnemyState == null) {
-                currentTactic = tactics.get(TacticId.ONE_ON_ONE_GO_ROUND_AREA);
+                currentTactic = tactics.get(TacticId.ONE_ON_ONE);
                 return;
             }
             currentTactic = tactics.get(enemyProfile.getTacticId());
@@ -309,13 +305,9 @@ public class Commander {
 
         if (targetEnemyId != Commander.NO_TARGET) {
             final EnemyProfile enemyProfile = bot.getBattleManager().getEnemyProfile(targetEnemyId);
-            if (enemyProfile.getTacticId() == TacticId.ONE_ON_ONE_ANALYSIS) {
-                // 分析は1ラウンドのみ
-                enemyProfile.setTacticId(TacticId.ONE_ON_ONE);
-            }
             if (!isWon.get()) {
-                // 敗北した場合、戦略を変更する
-                System.out.println("*** I lost. I intend to consider changing my tactics.");
+                // 敗北した場合、ムーブパターンを変更する
+                System.out.println("*** I lost. I intend to consider changing my move pattern.");
                 // 一番被弾率の低いムーブパターンを採用する（全体累計で評価）
                 final MovePatternId movePatternId = movePatterns.entrySet().stream()
                         .sorted((a, b) -> Double.compare(a.getValue().getTotalHitPerTurn(), b.getValue().getTotalHitPerTurn()))
