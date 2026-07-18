@@ -13,6 +13,7 @@ import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
 import okurun.commander.Commander.MovePatternId;
 import okurun.commander.Commander.TacticId;
+import okurun.gunner.BulletHistory;
 import okurun.predictor.PredictModelAccuracy;
 import okurun.predictor.Predictor.PredictModelId;
 
@@ -253,6 +254,29 @@ public class EnemyProfile {
     }
 
     /**
+     * ターン毎のアクションの後にコールされるイベント
+     * このイベントはメインスレッドからコールされます
+     * 
+     * @param bot Bot
+     */
+    public void onPostAction(OkuRunBot bot) {
+        if (bot.getCommander().getTargetEnemyId(bot) != id) {
+            return;
+        }
+
+        if (bot.getTurnNumber() % 100 == 0) {
+            // 一番被弾率の低いムーブパターンを採用する（全体累計で評価）
+            final MovePatternId movePatternId = bot.getCommander().getMovePatterns().entrySet().stream()
+                    .sorted((a, b) -> Double.compare(a.getValue().getTotalHitPerTurn(),
+                            b.getValue().getTotalHitPerTurn()))
+                    .map(Map.Entry::getKey)
+                    .findFirst().get();
+            System.out.println("(" + bot.getTurnNumber() + ")*** " + getMovePatternId() + " -> " + movePatternId);
+            setMovePatternId(movePatternId);
+        }
+    }
+
+    /**
      * ラウンド終了時の処理
      * 
      * @param e
@@ -313,7 +337,7 @@ public class EnemyProfile {
      * @param bot Bot
      */
     public void onBulletFired(BulletFiredEvent e, OkuRunBot bot) {
-        final BulletHistory bulletHistory = bot.getBattleManager().getBulletHistory(e.getBullet().getBulletId());
+        final BulletHistory bulletHistory = bot.getGunner().getBulletHistory(e.getBullet().getBulletId());
         if (bulletHistory == null || bulletHistory.targetEnemyId != id) {
             return;
         }
@@ -352,7 +376,7 @@ public class EnemyProfile {
             return;
         }
 
-        final BulletHistory bulletHistory = bot.getBattleManager().getBulletHistory(e.getBullet().getBulletId());
+        final BulletHistory bulletHistory = bot.getGunner().getBulletHistory(e.getBullet().getBulletId());
         if (bulletHistory == null) {
             return;
         }

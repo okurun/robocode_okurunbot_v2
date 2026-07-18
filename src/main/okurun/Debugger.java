@@ -5,10 +5,30 @@ import okurun.battlemanager.BattleManager;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
+import okurun.gunner.BulletHistory;
+import okurun.gunner.Gunner;
 import okurun.predictor.Predictor;
 
 public class Debugger {
-    public void action(OkuRunBot bot) {
+    /**
+     * ターン毎のアクションの前にコールされるイベント
+     * このイベントはメインスレッドからコールされます
+     * 
+     * @param bot Bot
+     */
+    public void onPreAction(OkuRunBot bot) {
+    }
+
+    /**
+     * ターン毎のアクションイベント
+     * このイベントはメインスレッドからコールされます
+     * 
+     * @param bot Bot
+     */
+    public void onAction(OkuRunBot bot) {
+        // デバッグ情報を画面に描きます
+        // ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
+
         final Commander commander = bot.getCommander();
         if (commander.getTargetEnemyId(bot) == Commander.NO_TARGET) {
             return;
@@ -16,12 +36,58 @@ public class Debugger {
         final BattleManager battleManager = bot.getBattleManager();
         final EnemyProfile enemyProfile = battleManager.getEnemyProfile(commander.getTargetEnemyId(bot));
 
+        // 敵の行動予測線を引きます
         drawPredictLine(bot, commander.getPredictModelId(bot), enemyProfile);
         // for (Predictor.Model model: Predictor.Model.values()) {
         // drawPredictLine(bot, model, enemyProfile);
         // }
+
+        // 射撃目標位置を描きます
+        final Gunner gunner = bot.getGunner();
+        for (final BulletHistory bulletHistory : gunner.getBulletHistories()) {
+            Color color = Gunner.getBulletColor(bulletHistory.power);
+            if (bulletHistory.predictTurnNum > bot.getTurnNumber()) {
+                color = Color.fromRgba(color, 200);
+            } else if (bulletHistory.predictTurnNum < bot.getTurnNumber()) {
+                color = Color.fromRgba(color, 255 - (bot.getTurnNumber() - bulletHistory.predictTurnNum) * 20);
+            }
+            bot.getDebugger().drawFireTarget(bot, bulletHistory.getTargetPosition(), color);
+        }
+
+        // 移動目標を描画します
+        drawMoveToTarget(bot, commander.getTargetMovePosition(bot));
     }
 
+    /**
+     * ターン毎のアクションの後にコールされるイベント
+     * このイベントはメインスレッドからコールされます
+     * 
+     * @param bot Bot
+     */
+    public void onPostAction(OkuRunBot bot) {
+    }
+
+    /**
+     * 現在位置から移動目標までの移動目標を描画する
+     * 
+     * @param bot
+     * @param pos       移動目標
+     */
+    private void drawMoveToTarget(OkuRunBot bot, double[] pos) {
+        final Color color = Color.LIGHT_BLUE;
+        final Debugger debugger = bot.getDebugger();
+        debugger.drawFillCircle(bot, pos, 5, Color.fromRgba(color, 60));
+        debugger.drawLine(bot, bot.getPosition(), pos, Color.fromRgba(color, 60));
+    }
+
+    /**
+     * 敵の行動予測線を引く
+     * 予測される位置に線を描画します
+     * 
+     * @param bot
+     * @param model
+     * @param enemyProfile
+     */
     private void drawPredictLine(OkuRunBot bot, Predictor.PredictModelId model, EnemyProfile enemyProfile) {
         final Predictor predictor = bot.getPredictor();
         final Color color = predictor.getPredictModel(model).getColor();
@@ -43,24 +109,22 @@ public class Debugger {
 
     /**
      * 射撃目標を描画します
-     * ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
      * 
      * @param pos   座標
      * @param color 描画色
      */
-    public void drawTarget(OkuRunBot bot, double[] pos, Color color) {
-        drawTarget(bot, pos[0], pos[1], color);
+    public void drawFireTarget(OkuRunBot bot, double[] pos, Color color) {
+        drawFireTarget(bot, pos[0], pos[1], color);
     }
 
     /**
      * 射撃目標を描画します
-     * ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
      * 
      * @param x     X座標
      * @param y     Y座標
      * @param color 描画色
      */
-    private void drawTarget(OkuRunBot bot, double x, double y, Color color) {
+    private void drawFireTarget(OkuRunBot bot, double x, double y, Color color) {
         var g = bot.getGraphics();
         g.setFillColor(Color.fromRgba(Color.WHITE, 30));
         g.setStrokeColor(Color.fromRgba(color, 80));
@@ -73,7 +137,6 @@ public class Debugger {
 
     /**
      * 画面に円を描画します
-     * ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
      * 
      * @param pos    座標
      * @param radius 半径
@@ -85,7 +148,6 @@ public class Debugger {
 
     /**
      * 画面に円を描画します
-     * ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
      * 
      * @param x      X座標
      * @param y      Y座標
@@ -102,7 +164,6 @@ public class Debugger {
 
     /**
      * 画面に直線を描画します
-     * ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
      * 
      * @param pos1  始点座標
      * @param pos2  終点座標
@@ -114,7 +175,6 @@ public class Debugger {
 
     /**
      * 画面に直線を描画します
-     * ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
      * 
      * @param x1    始点X座標
      * @param y1    始点Y座標

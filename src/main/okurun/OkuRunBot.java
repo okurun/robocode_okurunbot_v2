@@ -43,61 +43,10 @@ public class OkuRunBot extends Bot {
     public void run() {
         System.out.println("- run()");
         while (isRunning()) {
-            preAction();
-            action();
-            postAction();
+            onPreAction();
+            onAction();
+            onPostAction();
             go();
-        }
-    }
-
-    private void preAction() {
-        setTurretColor(Color.YELLOW);
-        setBodyColor(Color.WHITE);
-        setTracksColor(Color.GRAY);
-        setScanColor(Color.fromRgba(Color.WHITE, 30));
-
-        try {
-            arenaMap.preAction(this);
-            battleManager.preAction(this);
-            predictor.preAction(this);
-            commander.preAction(this);
-            radarOperator.preAction(this);
-            gunner.preAction(this);
-            driver.preAction(this);
-        } catch (Exception exception) {
-            System.err.println(exception.getMessage());
-            exception.printStackTrace();
-        }
-    }
-
-    private void action() {
-        try {
-            arenaMap.action(this);
-            battleManager.action(this);
-            predictor.action(this);
-            commander.action(this);
-            radarOperator.action(this);
-            gunner.action(this);
-            driver.action(this);
-            debugger.action(this);
-        } catch (Exception exception) {
-            System.err.println(exception.getMessage());
-            exception.printStackTrace();
-        }
-    }
-
-    private void postAction() {
-        try {
-            arenaMap.postAction(this);
-            battleManager.postAction(this);
-            predictor.postAction(this);
-            commander.postAction(this);
-            radarOperator.postAction(this);
-            gunner.postAction(this);
-            driver.postAction(this);
-        } catch (Exception exception) {
-            System.err.println(exception.getMessage());
-            exception.printStackTrace();
         }
     }
 
@@ -151,6 +100,71 @@ public class OkuRunBot extends Bot {
 
     public Debugger getDebugger() {
         return debugger;
+    }
+
+    /**
+     * ターン毎のアクションの前にコールされるイベント
+     * このイベントはメインスレッドからコールされます
+     */
+    private void onPreAction() {
+        setTurretColor(Color.YELLOW);
+        setBodyColor(Color.WHITE);
+        setTracksColor(Color.GRAY);
+        setScanColor(Color.fromRgba(Color.WHITE, 30));
+
+        try {
+            arenaMap.onPreAction(this);
+            battleManager.onPreAction(this);
+            predictor.onPreAction(this);
+            commander.onPreAction(this);
+            radarOperator.onPreAction(this);
+            gunner.onPreAction(this);
+            driver.onPreAction(this);
+            debugger.onPreAction(this);
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
+    }
+
+    /**
+     * ターン毎のアクションイベント
+     * このイベントはメインスレッドからコールされます
+     */
+    private void onAction() {
+        try {
+            arenaMap.onAction(this);
+            battleManager.onAction(this);
+            predictor.onAction(this);
+            commander.onAction(this);
+            radarOperator.onAction(this);
+            gunner.onAction(this);
+            driver.onAction(this);
+            debugger.onAction(this);
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
+    }
+
+    /**
+     * ターン毎のアクションの後にコールされるイベント
+     * このイベントはメインスレッドからコールされます
+     */
+    private void onPostAction() {
+        try {
+            arenaMap.onPostAction(this);
+            battleManager.onPostAction(this);
+            predictor.onPostAction(this);
+            commander.onPostAction(this);
+            radarOperator.onPostAction(this);
+            gunner.onPostAction(this);
+            driver.onPostAction(this);
+            debugger.onPostAction(this);
+        } catch (Exception exception) {
+            System.err.println(exception.getMessage());
+            exception.printStackTrace();
+        }
     }
 
     /**
@@ -243,6 +257,7 @@ public class OkuRunBot extends Bot {
             battleManager.onRoundEnded(e, this);
             commander.onRoundEnded(e, this);
             predictor.onRoundEnded(e, this);
+            gunner.onRoundEnded(e, this);
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();
@@ -258,6 +273,7 @@ public class OkuRunBot extends Bot {
     public void onTick(TickEvent e) {
         try {
             battleManager.onTick(e, this);
+            gunner.onTick(e, this);
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();
@@ -326,6 +342,7 @@ public class OkuRunBot extends Bot {
             battleManager.onBulletFired(e, this);
             predictor.onBulletFired(e, this);
             commander.onBulletFired(e, this);
+            gunner.onBulletFired(e, this);
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();
@@ -358,6 +375,7 @@ public class OkuRunBot extends Bot {
         try {
             predictor.onBulletHit(e, this);
             battleManager.onBulletHit(e, this);
+            gunner.onBulletHit(e, this);
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();
@@ -374,6 +392,7 @@ public class OkuRunBot extends Bot {
         try {
             predictor.onBulletHitBullet(e, this);
             battleManager.onBulletHitBullet(e, this);
+            gunner.onBulletHitBullet(e, this);
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();
@@ -390,6 +409,7 @@ public class OkuRunBot extends Bot {
         try {
             predictor.onBulletHitWall(e, this);
             battleManager.onBulletHitWall(e, this);
+            gunner.onBulletHitWall(e, this);
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();

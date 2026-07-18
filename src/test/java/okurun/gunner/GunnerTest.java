@@ -36,9 +36,9 @@ class GunnerTest {
     void testAction() {
         when(bot.getCommander()).thenReturn(commander);
         when(commander.getGunActionName(bot)).thenReturn(null);
-        
-        gunner.action(bot);
-        
+
+        gunner.onAction(bot);
+
         verify(commander).getGunActionName(bot);
     }
 }

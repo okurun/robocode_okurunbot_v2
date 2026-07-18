@@ -6,6 +6,7 @@ import dev.robocode.tankroyale.botapi.events.RoundEndedEvent;
 import okurun.OkuRunBot;
 import okurun.commander.Commander.AccelPriority;
 import okurun.commander.Commander.HandlePriority;
+import okurun.driver.Driver;
 
 public interface MovePattern {
     void postAction(OkuRunBot bot);
@@ -79,4 +80,11 @@ public interface MovePattern {
      * @param bot ボット
      */
     void onHitByBullet(HitByBulletEvent e, OkuRunBot bot);
+
+    /**
+     * このムーブパターンが依存するドライブアクションIDを取得します
+     * 
+     * @return このムーブパターンが依存するドライブアクションID
+     */
+    Driver.ActionId getDependentDriveActionId();
 }

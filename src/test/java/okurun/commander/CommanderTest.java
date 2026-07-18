@@ -37,8 +37,9 @@ class CommanderTest {
 
         // 内部で呼ばれる Tactic.action(bot) で未モックによる例外が発生する可能性があるためcatchする
         try {
-            commander.action(bot);
-        } catch (Exception e) {}
+            commander.onAction(bot);
+        } catch (Exception e) {
+        }
     }
 
     @Test
@@ -46,12 +47,13 @@ class CommanderTest {
         when(bot.getBattleManager()).thenReturn(battleManager);
         when(battleManager.getAliveAndNotMissingEnemyCount(bot)).thenReturn(1);
         when(battleManager.getAliveEnemy(bot)).thenReturn(enemyProfile);
-        
+
         EnemyState mockState = new EnemyState(1, 10, 0, 0, 0, 0, 50.0, 0, 0, 0);
         when(enemyProfile.getLatestState()).thenReturn(mockState);
 
         try {
-            commander.action(bot);
-        } catch (Exception e) {}
+            commander.onAction(bot);
+        } catch (Exception e) {
+        }
     }
 }

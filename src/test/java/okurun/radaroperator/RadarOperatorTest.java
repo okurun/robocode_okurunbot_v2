@@ -40,7 +40,7 @@ class RadarOperatorTest {
         // アクションを要求しない (nullを返す) 場合に正常に終了するか確認する
         when(commander.getRadarAction(bot)).thenReturn(null);
 
-        radarOperator.action(bot);
+        radarOperator.onAction(bot);
 
         // getRadarActionName が1回呼ばれたことを検証
         verify(commander).getRadarAction(bot);

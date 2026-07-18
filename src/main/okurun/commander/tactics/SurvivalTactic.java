@@ -38,7 +38,7 @@ public class SurvivalTactic extends AbstractTactic {
             final EnemyState predictedEnemyState = predictor.predict(bot, nearestEnemy,
                     bot.getTurnNumber(), PredictModelId.SIMPLE);
             if (predictedEnemyState != null) {
-                final double distance = (nearestEnemy.getId() == targetEnemyId.get()) ? 300 : 200;
+                final double distance = (nearestEnemy.getId() == targetEnemyId.get()) ? 400 : 300;
                 if (bot.distanceTo(predictedEnemyState.x, predictedEnemyState.y) < distance) {
                     // 近距離の敵がいたらターゲットにします
                     targetEnemyId.set(nearestEnemy.getId());
@@ -104,7 +104,7 @@ public class SurvivalTactic extends AbstractTactic {
             // 3ターン以内に射撃可能であれば射撃を行います
             if (latestEnemyState.distance < OkuRunBot.BODY_SIZE + 10) {
                 gunActionId = Gunner.ActionId.MAX_POWER;
-                baseFirePower = Constants.MAX_FIREPOWER;
+                baseFirePower = Constants.MIN_FIREPOWER;
                 waitForGunTurn = false;
                 return;
             }

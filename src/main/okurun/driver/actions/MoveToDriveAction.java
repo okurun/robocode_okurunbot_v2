@@ -3,8 +3,6 @@ package okurun.driver.actions;
 import java.util.Random;
 
 import dev.robocode.tankroyale.botapi.Constants;
-import dev.robocode.tankroyale.botapi.graphics.Color;
-import okurun.Debugger;
 import okurun.OkuRunBot;
 import okurun.battlemanager.BattleManager;
 import okurun.battlemanager.EnemyState;
@@ -12,7 +10,6 @@ import okurun.commander.Commander;
 import okurun.commander.Commander.AccelPriority;
 import okurun.commander.Commander.HandlePriority;
 import okurun.driver.Driver;
-import okurun.predictor.Predictor;
 
 /**
  * 移動目標へ向かうDriveアクション
@@ -61,9 +58,6 @@ public class MoveToDriveAction implements DriveAction {
         final Accel accel = getAccel(bot, pos, bearingTo);
         bot.setForward(accel.distance);
         bot.setMaxSpeed(accel.speed);
-
-        // 移動目標を描画します
-        draw(bot, pos, bearingTo, accel);
 
         return null;
     }
@@ -161,24 +155,4 @@ public class MoveToDriveAction implements DriveAction {
         return random.nextInt(randBound);
     }
 
-    /**
-     * 現在位置から移動目標までの移動目標を描画する
-     * 
-     * @param bot
-     * @param pos       移動目標
-     * @param bearingTo 移動目標への旋回角度
-     * @param accel     加速情報
-     */
-    private void draw(OkuRunBot bot, double[] pos, double bearingTo, Accel accel) {
-        // 移動目標を描画します
-        // ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
-        final Color color = Color.LIGHT_BLUE;
-        final Debugger debugger = bot.getDebugger();
-        debugger.drawFillCircle(bot, pos, 5, Color.fromRgba(color, 50));
-        debugger.drawLine(bot, bot.getPosition(), pos, Color.fromRgba(color, 50));
-
-        final double[] actualPos = Predictor.calcPosition(
-                bot.getPosition(), bot.getDirection() + bearingTo, accel.distance, 1);
-        debugger.drawLine(bot, bot.getPosition(), actualPos, color);
-    }
 }

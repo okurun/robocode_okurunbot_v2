@@ -1,7 +1,6 @@
 package okurun.gunner.actions;
 
 import okurun.OkuRunBot;
-import okurun.battlemanager.BulletHistory;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.gunner.Gunner;
@@ -78,15 +77,5 @@ public interface GunAction {
             return null;
         }
         return predictedState;
-    }
-
-    /**
-     * 弾丸履歴を保存します
-     * 
-     * @param bot           ボット
-     * @param bulletHistory 弾丸履歴
-     */
-    public static void stackBulletHistory(OkuRunBot bot, BulletHistory bulletHistory) {
-        bot.getBattleManager().addBulletStack(bulletHistory);
     }
 }

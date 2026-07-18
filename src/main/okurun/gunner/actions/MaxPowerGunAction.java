@@ -3,10 +3,10 @@ package okurun.gunner.actions;
 import dev.robocode.tankroyale.botapi.Constants;
 import okurun.OkuRunBot;
 import okurun.battlemanager.BattleManager;
-import okurun.battlemanager.BulletHistory;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
+import okurun.gunner.BulletHistory;
 import okurun.gunner.Gunner;
 
 /**
@@ -83,7 +83,7 @@ public class MaxPowerGunAction implements GunAction {
         bot.setFire(firePower);
 
         // デバッグ用に弾丸の情報をスタックに保存します
-        GunAction.stackBulletHistory(bot,
+        bot.getGunner().addBulletStack(
                 new BulletHistory(commander.getPredictModelId(bot), fireTarget.x, fireTarget.y, targetEnemyId,
                         fireTarget.scannedTurnNum, fireTarget.distance));
         return null;

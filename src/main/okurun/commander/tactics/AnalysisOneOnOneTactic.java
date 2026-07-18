@@ -23,7 +23,11 @@ public class AnalysisOneOnOneTactic extends AbstractOneOnOneTactic {
 
     @Override
     protected void setMovePatternId(OkuRunBot bot) {
-        movePatternId = MovePatternId.ROUND_AREA;
+        if (targetEnemyId.get() == Commander.NO_TARGET) {
+            movePatternId = MovePatternId.ROUND_AREA;
+            return;
+        }
+        movePatternId = bot.getBattleManager().getEnemyProfile(targetEnemyId.get()).getMovePatternId();
     }
 
     @Override

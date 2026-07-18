@@ -8,6 +8,7 @@ import okurun.commander.Commander;
 import okurun.commander.Commander.AccelPriority;
 import okurun.commander.Commander.HandlePriority;
 import okurun.commander.tactics.Tactic;
+import okurun.driver.Driver;
 import okurun.predictor.Predictor;
 
 public class EnemySideMovePattern extends AbstractMovePattern {
@@ -87,4 +88,15 @@ public class EnemySideMovePattern extends AbstractMovePattern {
 
         return AccelPriority.MAX_SPEED;
     }
+
+    /**
+     * このムーブパターンが依存するドライブアクションIDを取得します
+     * 
+     * @return このムーブパターンが依存するドライブアクションID
+     */
+    @Override
+    public Driver.ActionId getDependentDriveActionId() {
+        return Driver.ActionId.MOVE_TO;
+    }
+
 }

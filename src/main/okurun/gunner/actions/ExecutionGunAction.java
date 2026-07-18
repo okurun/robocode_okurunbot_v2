@@ -3,9 +3,9 @@ package okurun.gunner.actions;
 import dev.robocode.tankroyale.botapi.Constants;
 import okurun.OkuRunBot;
 import okurun.battlemanager.BattleManager;
-import okurun.battlemanager.BulletHistory;
 import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
+import okurun.gunner.BulletHistory;
 import okurun.gunner.Gunner;
 
 /**
@@ -55,7 +55,7 @@ public class ExecutionGunAction implements GunAction {
         }
 
         bot.setFire(firePower);
-        GunAction.stackBulletHistory(bot,
+        bot.getGunner().addBulletStack(
                 new BulletHistory(commander.getPredictModelId(bot), latestEnemyState.x, latestEnemyState.y,
                         targetEnemyId,
                         latestEnemyState.scannedTurnNum, latestEnemyState.distance));

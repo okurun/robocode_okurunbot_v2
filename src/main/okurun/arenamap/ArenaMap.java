@@ -213,16 +213,6 @@ public class ArenaMap {
     private Map<AreaId, Area> areas;
     private final Map<String, Object> caches = new ConcurrentHashMap<>();
 
-    public void preAction(OkuRunBot bot) {
-        caches.clear();
-    }
-
-    public void action(OkuRunBot bot) {
-    }
-
-    public void postAction(OkuRunBot bot) {
-    }
-
     public Wall getWall(WallId id) {
         return walls.get(id);
     }
@@ -506,9 +496,37 @@ public class ArenaMap {
     }
 
     /**
+     * ターン毎のアクションの前にコールされるイベント
+     * このイベントはメインスレッドからコールされます
+     * 
+     * @param bot Bot
+     */
+    public void onPreAction(OkuRunBot bot) {
+        caches.clear();
+    }
+
+    /**
+     * ターン毎のアクションイベント
+     * このイベントはメインスレッドからコールされます
+     * 
+     * @param bot Bot
+     */
+    public void onAction(OkuRunBot bot) {
+    }
+
+    /**
+     * ターン毎のアクションの後にコールされるイベント
+     * このイベントはメインスレッドからコールされます
+     * 
+     * @param bot Bot
+     */
+    public void onPostAction(OkuRunBot bot) {
+    }
+
+    /**
      * ゲームが開始された時の処理
      * 
-     * @param e ゲーム開始イベント
+     * @param e   ゲーム開始イベント
      * @param bot Bot
      */
     public void onGameStarted(GameStartedEvent e, OkuRunBot bot) {
@@ -525,5 +543,6 @@ public class ArenaMap {
                 AreaId.TOP_LEFT, new Area(AreaId.TOP_LEFT, 0, halfHeight, halfWidth, height),
                 AreaId.TOP_RIGHT, new Area(AreaId.TOP_RIGHT, halfWidth, halfHeight, width, height),
                 AreaId.BOTTOM_RIGHT, new Area(AreaId.BOTTOM_RIGHT, halfWidth, 0, width, halfHeight),
-                AreaId.BOTTOM_LEFT, new Area(AreaId.BOTTOM_LEFT, 0, 0, halfWidth, halfHeight));    }
+                AreaId.BOTTOM_LEFT, new Area(AreaId.BOTTOM_LEFT, 0, 0, halfWidth, halfHeight));
+    }
 }

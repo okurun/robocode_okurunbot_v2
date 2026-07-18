@@ -42,7 +42,7 @@ class DriverTest {
         when(commander.getDriveAction(bot)).thenReturn(null);
 
         try {
-            driver.action(bot);
+            driver.onAction(bot);
         } catch (Exception e) {
         }
 

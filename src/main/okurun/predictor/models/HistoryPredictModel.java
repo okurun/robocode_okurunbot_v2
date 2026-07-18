@@ -10,6 +10,9 @@ import okurun.battlemanager.EnemyState;
 import okurun.predictor.Predictor;
 import okurun.predictor.Predictor.PredictModelId;
 
+/**
+ * 過去の動きを再現することで予測するモデル
+ */
 public class HistoryPredictModel extends AbstractPredictModel {
     public static final int HISTORY_POS = 30;
 
@@ -78,7 +81,22 @@ public class HistoryPredictModel extends AbstractPredictModel {
      * @return trueなら予測できる
      */
     public boolean canPredict(OkuRunBot bot, EnemyProfile enemyProfile) {
-        return enemyProfile.getStateHistory().size() >= HISTORY_POS;
+        if (enemyProfile.getStateHistory().size() < HISTORY_POS) {
+            return false;
+        }
+        // 連続した履歴でないと予測できない
+        int prevTurnNum = 0;
+        for (EnemyState enemyState : enemyProfile.getStateHistory()) {
+            if (prevTurnNum == 0) {
+                prevTurnNum = enemyState.scannedTurnNum;
+                continue;
+            }
+            if (prevTurnNum - 1 != enemyState.scannedTurnNum) {
+                return false;
+            }
+            prevTurnNum = enemyState.scannedTurnNum;
+        }
+        return true;
     }
 
 }

@@ -12,22 +12,41 @@ import okurun.radaroperator.actions.*;
  */
 public class RadarOperator {
     public static enum ActionId {
-        ALL_SCAN, TARGET_SCAN
+        ALL_SCAN,
+        TARGET_SCAN,
     }
 
-    private Map<ActionId, RadarAction> actions = new HashMap<>();
+    private final Map<ActionId, RadarAction> actions = new HashMap<>();
 
-    public void preAction(OkuRunBot bot) {
+    /**
+     * ターン毎のアクションの前にコールされるイベント
+     * このイベントはメインスレッドからコールされます
+     * 
+     * @param bot Bot
+     */
+    public void onPreAction(OkuRunBot bot) {
     }
 
-    public void action(OkuRunBot bot) {
+    /**
+     * ターン毎のアクションイベント
+     * このイベントはメインスレッドからコールされます
+     * 
+     * @param bot Bot
+     */
+    public void onAction(OkuRunBot bot) {
         ActionId action = bot.getCommander().getRadarAction(bot);
         while (action != null) {
             action = actions.get(action).action(bot);
         }
     }
 
-    public void postAction(OkuRunBot bot) {
+    /**
+     * ターン毎のアクションの後にコールされるイベント
+     * このイベントはメインスレッドからコールされます
+     * 
+     * @param bot Bot
+     */
+    public void onPostAction(OkuRunBot bot) {
     }
 
     /**

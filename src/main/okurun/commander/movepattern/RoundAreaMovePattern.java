@@ -7,6 +7,7 @@ import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
 import okurun.commander.Commander.AccelPriority;
 import okurun.commander.Commander.HandlePriority;
+import okurun.driver.Driver;
 
 public class RoundAreaMovePattern extends AbstractMovePattern {
 
@@ -49,6 +50,16 @@ public class RoundAreaMovePattern extends AbstractMovePattern {
     @Override
     public AccelPriority getAccelPriority(OkuRunBot bot) {
         return AccelPriority.HANDLE;
+    }
+
+    /**
+     * このムーブパターンが依存するドライブアクションIDを取得します
+     * 
+     * @return このムーブパターンが依存するドライブアクションID
+     */
+    @Override
+    public Driver.ActionId getDependentDriveActionId() {
+        return Driver.ActionId.MOVE_TO;
     }
 
 }

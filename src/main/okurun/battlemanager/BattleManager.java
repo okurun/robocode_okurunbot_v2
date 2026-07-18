@@ -1,64 +1,23 @@
 package okurun.battlemanager;
 
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import dev.robocode.tankroyale.botapi.BulletState;
 import dev.robocode.tankroyale.botapi.events.*;
-import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.OkuRunBot;
 import okurun.commander.Commander;
-import okurun.gunner.Gunner;
 
 /**
  * 戦闘管理クラス
  */
 public class BattleManager {
-    private final Deque<BulletHistory> bulletStack = new ConcurrentLinkedDeque<>();
-    private final Map<Integer, BulletHistory> bulletHistories = new ConcurrentHashMap<>();
-    private final Deque<Integer> removeBullets = new ConcurrentLinkedDeque<>();
     private final Map<Integer, EnemyProfile> enemyProfiles = new ConcurrentHashMap<>();
     private final Map<String, Object> caches = new ConcurrentHashMap<>();
-    private final AtomicInteger lastFiredTurnNum = new AtomicInteger(0);
     private final AtomicInteger enemyCount = new AtomicInteger(0);
     private final AtomicInteger myId = new AtomicInteger(0);
-
-    public void preAction(OkuRunBot bot) {
-        caches.clear();
-        if (enemyProfiles.size() > enemyCount.get()) {
-            System.out.println(String.format(
-                    "Warning enemyProfiles.size()=%d > enemyCount=%d, bot.getEnemyCount()=%d",
-                    enemyProfiles.size(),
-                    enemyCount.get(),
-                    bot.getEnemyCount()));
-            for (final Entry<Integer, EnemyProfile> entry : enemyProfiles.entrySet()) {
-                System.out.println(String.format(
-                        "Warning Key: %d, id: %d", entry.getKey(), entry.getValue().getId()));
-            }
-        }
-    }
-
-    public void action(OkuRunBot bot) {
-        // デバッグ用に射撃目標位置を描きます
-        // ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
-        for (final BulletHistory bulletHistory : bulletHistories.values()) {
-            Color color = Gunner.getBulletColor(bulletHistory.power);
-            if (bulletHistory.predictTurnNum > bot.getTurnNumber()) {
-                color = Color.fromRgba(color, 200);
-            } else if (bulletHistory.predictTurnNum < bot.getTurnNumber()) {
-                color = Color.fromRgba(color, 255 - (bot.getTurnNumber() - bulletHistory.predictTurnNum) * 20);
-            }
-            bot.getDebugger().drawTarget(bot, bulletHistory.getTargetPosition(), color);
-        }
-    }
-
-    public void postAction(OkuRunBot bot) {
-    }
 
     /**
      * 敵ボットの総数を返します(死んだ敵も含みます)
@@ -203,45 +162,49 @@ public class BattleManager {
         return nearestAliveEnemy;
     }
 
-    public void setLastFiredTurnNum(int turnNum) {
-        lastFiredTurnNum.set(turnNum);
-    }
-
-    public int getLastFiredTurnNum() {
-        return lastFiredTurnNum.get();
-    }
-
-    private void addBulletHistory(BulletState bulletState) {
-        if (bulletHistories.containsKey(bulletState.getBulletId())) {
-            return;
+    /**
+     * ターン毎のアクションの前にコールされるイベント
+     * このイベントはメインスレッドからコールされます
+     * 
+     * @param bot Bot
+     */
+    public void onPreAction(OkuRunBot bot) {
+        caches.clear();
+        if (enemyProfiles.size() > enemyCount.get()) {
+            System.out.println(String.format(
+                    "Warning enemyProfiles.size()=%d > enemyCount=%d, bot.getEnemyCount()=%d",
+                    enemyProfiles.size(),
+                    enemyCount.get(),
+                    bot.getEnemyCount()));
+            for (final Entry<Integer, EnemyProfile> entry : enemyProfiles.entrySet()) {
+                System.out.println(String.format(
+                        "Warning Key: %d, id: %d", entry.getKey(), entry.getValue().getId()));
+            }
         }
-        final BulletHistory bulletHistory = bulletStack.pollFirst();
-        if (bulletHistory == null) {
-            System.out.println("Warning: onBulletFired(): bulletHistory is null");
-            return;
-        }
-        bulletHistory.bulletId = bulletState.getBulletId();
-        bulletHistory.power = bulletState.getPower();
-        bulletHistories.put(bulletHistory.bulletId, bulletHistory);
     }
 
     /**
-     * 弾丸履歴をスタックします
+     * ターン毎のアクションイベント
+     * このイベントはメインスレッドからコールされます
      * 
-     * @param bulletHistory 弾丸履歴
+     * @param bot Bot
      */
-    public void addBulletStack(BulletHistory bulletHistory) {
-        bulletStack.addLast(bulletHistory);
+    public void onAction(OkuRunBot bot) {
     }
 
     /**
-     * 弾丸履歴をスタックから取得します
+     * ターン毎のアクションの後にコールされるイベント
+     * このイベントはメインスレッドからコールされます
      * 
-     * @param bulletId 弾丸ID
-     * @return 弾丸履歴
+     * @param bot Bot
      */
-    public BulletHistory getBulletHistory(int bulletId) {
-        return bulletHistories.get(bulletId);
+    public void onPostAction(OkuRunBot bot) {
+        final int targetEnemyId = bot.getCommander().getTargetEnemyId(bot);
+        if (targetEnemyId == Commander.NO_TARGET) {
+            return;
+        }
+        final EnemyProfile enemyProfile = getEnemyProfile(targetEnemyId);
+        enemyProfile.onPostAction(bot);
     }
 
     /**
@@ -294,9 +257,6 @@ public class BattleManager {
      */
     public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
         try {
-            lastFiredTurnNum.set(0);
-            bulletStack.clear();
-            bulletHistories.clear();
             for (final EnemyProfile profile : enemyProfiles.values()) {
                 profile.onRoundEnded(e, bot);
             }
@@ -321,28 +281,7 @@ public class BattleManager {
                 enemyCount.set(bot.getEnemyCount());
             }
 
-            e.getBulletStates().forEach(bulletState -> {
-                addBulletHistory(bulletState);
-            });
-            while (removeBullets.size() > 0) {
-                bulletHistories.remove(removeBullets.pollFirst());
-            }
-            for (final BulletHistory bulletHistory : bulletHistories.values()) {
-                if (bulletHistory.predictTurnNum >= bot.getTurnNumber()) {
-                    continue;
-                }
-                boolean exists = false;
-                for (final BulletState bulletState : e.getBulletStates()) {
-                    if (bulletHistory.bulletId == bulletState.getBulletId()) {
-                        exists = true;
-                        break;
-                    }
-                }
-                if (exists) {
-                    continue;
-                }
-                removeBullets.addLast(bulletHistory.bulletId);
-            }
+
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();
@@ -387,13 +326,6 @@ public class BattleManager {
      */
     public void onBulletFired(BulletFiredEvent e, OkuRunBot bot) {
         try {
-            setLastFiredTurnNum(e.getTurnNumber());
-            addBulletHistory(e.getBullet());
-            final BulletHistory bulletHistory = getBulletHistory(e.getBullet().getBulletId());
-            if (bulletHistory == null) {
-                return;
-            }
-            getEnemyProfile(bulletHistory.targetEnemyId).onBulletFired(e, bot);
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();
@@ -424,8 +356,6 @@ public class BattleManager {
     public void onBulletHit(BulletHitBotEvent e, OkuRunBot bot) {
         try {
             getEnemyProfile(e.getVictimId()).onBulletHit(e, bot);
-            bulletHistories.remove(e.getBullet().getBulletId());
-            removeBullets.remove(e.getBullet().getBulletId());
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();
@@ -442,8 +372,6 @@ public class BattleManager {
         final int ownerId = e.getHitBullet().getOwnerId();
         try {
             getEnemyProfile(ownerId).onBulletHitBullet(e, bot);
-            bulletHistories.remove(e.getBullet().getBulletId());
-            removeBullets.remove(e.getBullet().getBulletId());
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();
@@ -458,8 +386,6 @@ public class BattleManager {
      */
     public void onBulletHitWall(BulletHitWallEvent e, OkuRunBot bot) {
         try {
-            bulletHistories.remove(e.getBullet().getBulletId());
-            removeBullets.remove(e.getBullet().getBulletId());
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();

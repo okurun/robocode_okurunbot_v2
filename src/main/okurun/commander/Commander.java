@@ -32,23 +32,27 @@ public class Commander {
         ENEMY_SIDE,
         ROUND_AREA,
         SAFE_AREA,
+        // SAFE_AREA_V2,
     }
-
-    public static final int NO_TARGET = -1;
 
     /**
      * ハンドリングの優先順位
      */
     public static enum HandlePriority {
-        TARGET, AVOID_BULLET
+        TARGET,
+        AVOID_BULLET,
     }
 
     /**
      * 加速の優先順位
      */
     public static enum AccelPriority {
-        MAX_SPEED, HANDLE, AVOID_BULLET
+        MAX_SPEED,
+        HANDLE,
+        AVOID_BULLET,
     }
+
+    public static final int NO_TARGET = -1;
 
     private Map<TacticId, Tactic> tactics = new HashMap<>();
     private Map<MovePatternId, MovePattern> movePatterns = new HashMap<>();
@@ -64,24 +68,7 @@ public class Commander {
         movePatterns.put(MovePatternId.ENEMY_SIDE, new EnemySideMovePattern());
         movePatterns.put(MovePatternId.ROUND_AREA, new RoundAreaMovePattern());
         movePatterns.put(MovePatternId.SAFE_AREA, new SafeAreaMovePattern());
-    }
-
-    public void preAction(OkuRunBot bot) {
-        caches.clear();
-        for (Tactic tactic : tactics.values()) {
-            tactic.preAction(bot);
-        }
-    }
-
-    public void action(OkuRunBot bot) {
-        setCurrentTactic(bot);
-        if (currentTactic != null) {
-            currentTactic.action(bot);
-        }
-    }
-
-    public void postAction(OkuRunBot bot) {
-        movePatterns.get(currentTactic.getMovePatternId(bot)).postAction(bot);
+        // movePatterns.put(MovePatternId.SAFE_AREA_V2, new SafeAreaV2MovePattern());
     }
 
     private void setCurrentTactic(OkuRunBot bot) {
@@ -150,6 +137,14 @@ public class Commander {
     public double getMinSpeed(OkuRunBot bot) {
         final MovePattern movePattern = movePatterns.get(currentTactic.getMovePatternId(bot));
         return movePattern.getMinSpeed(bot);
+    }
+
+    public Map<MovePatternId, MovePattern> getMovePatterns() {
+        return movePatterns;
+    }
+
+    public MovePattern getMovePattern(MovePatternId movePatternId) {
+        return movePatterns.get(movePatternId);
     }
 
     /**
@@ -262,6 +257,42 @@ public class Commander {
 
         // 近づいているときが負、遠ざかるときが正
         return separationVelocity;
+    }
+
+    /**
+     * ターン毎のアクションの前にコールされるイベント
+     * このイベントはメインスレッドからコールされます
+     * 
+     * @param bot Bot
+     */
+    public void onPreAction(OkuRunBot bot) {
+        caches.clear();
+        for (Tactic tactic : tactics.values()) {
+            tactic.preAction(bot);
+        }
+    }
+
+    /**
+     * ターン毎のアクションイベント
+     * このイベントはメインスレッドからコールされます
+     * 
+     * @param bot Bot
+     */
+    public void onAction(OkuRunBot bot) {
+        setCurrentTactic(bot);
+        if (currentTactic != null) {
+            currentTactic.action(bot);
+        }
+    }
+
+    /**
+     * ターン毎のアクションの後にコールされるイベント
+     * このイベントはメインスレッドからコールされます
+     * 
+     * @param bot Bot
+     */
+    public void onPostAction(OkuRunBot bot) {
+        movePatterns.get(currentTactic.getMovePatternId(bot)).postAction(bot);
     }
 
     /**

@@ -1,4 +1,4 @@
-package okurun.battlemanager;
+package okurun.gunner;
 
 import okurun.predictor.Predictor.PredictModelId;
 

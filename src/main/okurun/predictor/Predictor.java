@@ -8,10 +8,9 @@ import dev.robocode.tankroyale.botapi.Constants;
 import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
 import okurun.arenamap.ArenaMap;
-import okurun.battlemanager.BattleManager;
-import okurun.battlemanager.BulletHistory;
 import okurun.battlemanager.EnemyProfile;
 import okurun.battlemanager.EnemyState;
+import okurun.gunner.BulletHistory;
 import okurun.predictor.models.*;
 
 /**
@@ -24,18 +23,6 @@ public class Predictor {
 
     private final Map<PredictModelId, PredictModel> predictModels = new HashMap<>();
     private final Map<Integer, PredictModelId> bulletModels = new ConcurrentHashMap<>();
-
-    public void preAction(OkuRunBot bot) {
-        for (PredictModel model : predictModels.values()) {
-            model.preAction();
-        }
-    }
-
-    public void action(OkuRunBot bot) {
-    }
-
-    public void postAction(OkuRunBot bot) {
-    }
 
     /**
      * 指定したターンの敵の座標を予測します
@@ -179,6 +166,36 @@ public class Predictor {
     }
 
     /**
+     * ターン毎のアクションの前にコールされるイベント
+     * このイベントはメインスレッドからコールされます
+     * 
+     * @param bot Bot
+     */
+    public void onPreAction(OkuRunBot bot) {
+        for (PredictModel model : predictModels.values()) {
+            model.preAction();
+        }
+    }
+
+    /**
+     * ターン毎のアクションイベント
+     * このイベントはメインスレッドからコールされます
+     * 
+     * @param bot Bot
+     */
+    public void onAction(OkuRunBot bot) {
+    }
+
+    /**
+     * ターン毎のアクションの後にコールされるイベント
+     * このイベントはメインスレッドからコールされます
+     * 
+     * @param bot Bot
+     */
+    public void onPostAction(OkuRunBot bot) {
+    }
+
+    /**
      * ゲームが開始された時の処理
      * 
      * @param e   ゲーム開始イベント
@@ -241,8 +258,7 @@ public class Predictor {
     public void onBulletFired(BulletFiredEvent e, OkuRunBot bot) {
         try {
             final int bulletId = e.getBullet().getBulletId();
-            final BattleManager battleManager = bot.getBattleManager();
-            final BulletHistory bulletHistory = battleManager.getBulletHistory(bulletId);
+            final BulletHistory bulletHistory = bot.getGunner().getBulletHistory(bulletId);
             if (bulletHistory == null) {
                 System.out.println(e.getTurnNumber() + " onBulletFired: bulletHistory is null");
                 return;
