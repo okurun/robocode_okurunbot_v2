@@ -7,8 +7,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import okurun.OkuRunBot;
-import okurun.battlemanager.EnemyProfile;
-import okurun.battlemanager.EnemyState;
+import okurun.enemymanager.EnemyProfile;
+import okurun.enemymanager.EnemyState;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;

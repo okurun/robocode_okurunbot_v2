@@ -10,11 +10,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import okurun.Debugger;
 import okurun.OkuRunBot;
-import okurun.battlemanager.BattleManager;
 import okurun.commander.Commander;
 import okurun.commander.Commander.AccelPriority;
 import okurun.commander.Commander.HandlePriority;
 import okurun.driver.Driver;
+import okurun.enemymanager.EnemyManager;
 
 @ExtendWith(MockitoExtension.class)
 class MoveToDriveActionTest {
@@ -27,7 +27,7 @@ class MoveToDriveActionTest {
     private Commander commander;
 
     @Mock
-    private BattleManager battleManager;
+    private EnemyManager enemyManager;
 
     @Mock
     private Debugger debugger;
@@ -58,8 +58,8 @@ class MoveToDriveActionTest {
         lenient().when(bot.distanceTo(200.0, 300.0)).thenReturn(100.0);
         lenient().when(bot.getPosition()).thenReturn(new double[] { 100.0, 100.0 });
 
-        lenient().when(bot.getBattleManager()).thenReturn(battleManager);
-        lenient().when(battleManager.getLatestEnemyState(anyInt())).thenReturn(null);
+        lenient().when(bot.getEnemyManager()).thenReturn(enemyManager);
+        lenient().when(enemyManager.getLatestEnemyState(anyInt())).thenReturn(null);
 
         lenient().when(bot.getDebugger()).thenReturn(debugger);
 

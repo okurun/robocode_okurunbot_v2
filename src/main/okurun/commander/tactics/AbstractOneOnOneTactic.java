@@ -2,10 +2,10 @@ package okurun.commander.tactics;
 
 import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.OkuRunBot;
-import okurun.battlemanager.BattleManager;
-import okurun.battlemanager.EnemyProfile;
-import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
+import okurun.enemymanager.EnemyManager;
+import okurun.enemymanager.EnemyProfile;
+import okurun.enemymanager.EnemyState;
 import okurun.predictor.Predictor;
 import okurun.predictor.Predictor.PredictModelId;
 import okurun.radaroperator.RadarOperator;
@@ -24,8 +24,8 @@ public abstract class AbstractOneOnOneTactic extends AbstractTactic {
         if (targetEnemyId == Commander.NO_TARGET) {
             return;
         }
-        final BattleManager battleManager = bot.getBattleManager();
-        final EnemyState enemyState = battleManager.getLatestEnemyState(targetEnemyId);
+        final EnemyManager enemyManager = bot.getEnemyManager();
+        final EnemyState enemyState = enemyManager.getLatestEnemyState(targetEnemyId);
         if (enemyState == null) {
             return;
         }
@@ -42,8 +42,8 @@ public abstract class AbstractOneOnOneTactic extends AbstractTactic {
 
     @Override
     protected void setTargetEnemyId(OkuRunBot bot) {
-        final BattleManager battleManager = bot.getBattleManager();
-        final EnemyProfile alivalEnemy = battleManager.getAliveEnemy(bot);
+        final EnemyManager enemyManager = bot.getEnemyManager();
+        final EnemyProfile alivalEnemy = enemyManager.getAliveEnemy(bot);
         if (alivalEnemy != null && alivalEnemy.getLatestState() != null) {
             // 敵の位置を把握している
             targetEnemyId.set(alivalEnemy.getId());
@@ -59,8 +59,8 @@ public abstract class AbstractOneOnOneTactic extends AbstractTactic {
             return;
         }
 
-        final BattleManager battleManager = bot.getBattleManager();
-        final EnemyState latestEnemyState = battleManager.getLatestEnemyState(targetEnemyId.get());
+        final EnemyManager enemyManager = bot.getEnemyManager();
+        final EnemyState latestEnemyState = enemyManager.getLatestEnemyState(targetEnemyId.get());
         if (latestEnemyState == null || latestEnemyState.scannedTurnNum < bot.getTurnNumber() - 5) {
             radarActionId = RadarOperator.ActionId.ALL_SCAN;
             return;
@@ -72,9 +72,9 @@ public abstract class AbstractOneOnOneTactic extends AbstractTactic {
     @Override
     protected void setPredictModelId(OkuRunBot bot) {
         if (targetEnemyId.get() != Commander.NO_TARGET) {
-            final BattleManager battleManager = bot.getBattleManager();
+            final EnemyManager enemyManager = bot.getEnemyManager();
             final Predictor predictor = bot.getPredictor();
-            final EnemyProfile enemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
+            final EnemyProfile enemyProfile = enemyManager.getEnemyProfile(targetEnemyId.get());
             for (PredictModelId model : enemyProfile.getPredictModels()) {
                 if (predictor.getPredictModel(model).canPredict(bot, enemyProfile)) {
                     predictModelId = model;

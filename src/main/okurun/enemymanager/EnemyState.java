@@ -1,4 +1,4 @@
-package okurun.battlemanager;
+package okurun.enemymanager;
 
 /**
  * スキャンした敵ボットの情報を保持するクラス

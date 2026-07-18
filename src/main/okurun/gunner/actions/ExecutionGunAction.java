@@ -2,9 +2,9 @@ package okurun.gunner.actions;
 
 import dev.robocode.tankroyale.botapi.Constants;
 import okurun.OkuRunBot;
-import okurun.battlemanager.BattleManager;
-import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
+import okurun.enemymanager.EnemyManager;
+import okurun.enemymanager.EnemyState;
 import okurun.gunner.BulletHistory;
 import okurun.gunner.Gunner;
 
@@ -23,8 +23,8 @@ public class ExecutionGunAction implements GunAction {
             return Gunner.ActionId.SCAN;
         }
 
-        final BattleManager battleManager = bot.getBattleManager();
-        final EnemyState latestEnemyState = battleManager.getLatestEnemyState(targetEnemyId);
+        final EnemyManager enemyManager = bot.getEnemyManager();
+        final EnemyState latestEnemyState = enemyManager.getLatestEnemyState(targetEnemyId);
         if (latestEnemyState == null) {
             return Gunner.ActionId.SCAN;
         }

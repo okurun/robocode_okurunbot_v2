@@ -5,12 +5,12 @@ import java.util.List;
 import dev.robocode.tankroyale.botapi.Constants;
 import okurun.OkuRunBot;
 import okurun.arenamap.ArenaMap;
-import okurun.battlemanager.BattleManager;
-import okurun.battlemanager.EnemyProfile;
-import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
 import okurun.commander.Commander.MovePatternId;
 import okurun.driver.Driver;
+import okurun.enemymanager.EnemyManager;
+import okurun.enemymanager.EnemyProfile;
+import okurun.enemymanager.EnemyState;
 import okurun.gunner.Gunner;
 import okurun.predictor.Predictor;
 import okurun.predictor.Predictor.PredictModelId;
@@ -23,16 +23,16 @@ public class SurvivalTactic extends AbstractTactic {
 
     @Override
     protected void setTargetEnemyId(OkuRunBot bot) {
-        final BattleManager battleManager = bot.getBattleManager();
+        final EnemyManager enemyManager = bot.getEnemyManager();
 
-        final EnemyProfile zeroEnergyEnemy = battleManager.getZeroEnergyEnemy(bot);
+        final EnemyProfile zeroEnergyEnemy = enemyManager.getZeroEnergyEnemy(bot);
         if (zeroEnergyEnemy != null) {
             // エネルギーが0の敵をターゲットにします
             targetEnemyId.set(zeroEnergyEnemy.getId());
             return;
         }
 
-        final EnemyProfile nearestEnemy = battleManager.getNearestAliveEnemy(bot);
+        final EnemyProfile nearestEnemy = enemyManager.getNearestAliveEnemy(bot);
         if (nearestEnemy != null) {
             final Predictor predictor = bot.getPredictor();
             final EnemyState predictedEnemyState = predictor.predict(bot, nearestEnemy,
@@ -57,9 +57,9 @@ public class SurvivalTactic extends AbstractTactic {
     @Override
     protected void setPredictModelId(OkuRunBot bot) {
         if (targetEnemyId.get() != Commander.NO_TARGET) {
-            final BattleManager battleManager = bot.getBattleManager();
+            final EnemyManager enemyManager = bot.getEnemyManager();
             final Predictor predictor = bot.getPredictor();
-            final EnemyProfile enemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
+            final EnemyProfile enemyProfile = enemyManager.getEnemyProfile(targetEnemyId.get());
             final PredictModelId[] models = new PredictModelId[] { PredictModelId.SIMPLE };
             for (PredictModelId model : models) {
                 if (predictor.getPredictModel(model).canPredict(bot, enemyProfile)) {
@@ -79,8 +79,8 @@ public class SurvivalTactic extends AbstractTactic {
             return;
         }
 
-        final BattleManager battleManager = bot.getBattleManager();
-        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
+        final EnemyManager enemyManager = bot.getEnemyManager();
+        final EnemyProfile targetEnemyProfile = enemyManager.getEnemyProfile(targetEnemyId.get());
         final EnemyState latestEnemyState = targetEnemyProfile.getLatestState();
         if (latestEnemyState == null) {
             // 全体スキャンを優先する
@@ -119,10 +119,10 @@ public class SurvivalTactic extends AbstractTactic {
     @Override
     protected void setRadarActionId(OkuRunBot bot) {
         if (targetEnemyId.get() != Commander.NO_TARGET) {
-            final BattleManager battleManager = bot.getBattleManager();
+            final EnemyManager enemyManager = bot.getEnemyManager();
             final Predictor predictor = bot.getPredictor();
             final EnemyState predictedEnemyState = predictor.predict(bot,
-                    battleManager.getEnemyProfile(targetEnemyId.get()), bot.getTurnNumber());
+                    enemyManager.getEnemyProfile(targetEnemyId.get()), bot.getTurnNumber());
             if (predictedEnemyState != null) {
                 // ターゲットの位置を探る
                 radarActionId = RadarOperator.ActionId.TARGET_SCAN;

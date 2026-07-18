@@ -1,14 +1,14 @@
 package okurun.commander.movepattern;
 
 import okurun.OkuRunBot;
-import okurun.battlemanager.BattleManager;
-import okurun.battlemanager.EnemyProfile;
-import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
 import okurun.commander.Commander.AccelPriority;
 import okurun.commander.Commander.HandlePriority;
 import okurun.commander.tactics.Tactic;
 import okurun.driver.Driver;
+import okurun.enemymanager.EnemyManager;
+import okurun.enemymanager.EnemyProfile;
+import okurun.enemymanager.EnemyState;
 import okurun.predictor.Predictor;
 
 public class EnemySideMovePattern extends AbstractMovePattern {
@@ -21,8 +21,8 @@ public class EnemySideMovePattern extends AbstractMovePattern {
             return null;
         }
 
-        final BattleManager battleManager = bot.getBattleManager();
-        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
+        final EnemyManager enemyManager = bot.getEnemyManager();
+        final EnemyProfile targetEnemyProfile = enemyManager.getEnemyProfile(targetEnemyId);
         final EnemyState latestEnemyState = targetEnemyProfile.getLatestState();
         if (latestEnemyState == null) {
             return null;
@@ -56,8 +56,8 @@ public class EnemySideMovePattern extends AbstractMovePattern {
     @Override
     public HandlePriority getHandlePriority(OkuRunBot bot) {
         final Commander commander = bot.getCommander();
-        final BattleManager battleManager = bot.getBattleManager();
-        final EnemyState enemyState = battleManager.getLatestEnemyState(commander.getTargetEnemyId(bot));
+        final EnemyManager enemyManager = bot.getEnemyManager();
+        final EnemyState enemyState = enemyManager.getLatestEnemyState(commander.getTargetEnemyId(bot));
         if (enemyState == null) {
             return HandlePriority.TARGET;
         }
@@ -74,8 +74,8 @@ public class EnemySideMovePattern extends AbstractMovePattern {
     @Override
     public AccelPriority getAccelPriority(OkuRunBot bot) {
         final Commander commander = bot.getCommander();
-        final BattleManager battleManager = bot.getBattleManager();
-        final EnemyState enemyState = battleManager.getLatestEnemyState(commander.getTargetEnemyId(bot));
+        final EnemyManager enemyManager = bot.getEnemyManager();
+        final EnemyState enemyState = enemyManager.getLatestEnemyState(commander.getTargetEnemyId(bot));
         if (enemyState == null) {
             return AccelPriority.MAX_SPEED;
         }

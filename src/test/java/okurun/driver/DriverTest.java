@@ -12,7 +12,7 @@ import static org.mockito.Mockito.*;
 
 import okurun.OkuRunBot;
 import okurun.commander.Commander;
-import okurun.battlemanager.BattleManager;
+import okurun.enemymanager.EnemyManager;
 
 @ExtendWith(MockitoExtension.class)
 class DriverTest {
@@ -25,7 +25,7 @@ class DriverTest {
     private Commander commander;
 
     @Mock
-    private BattleManager battleManager;
+    private EnemyManager enemyManager;
 
     @Mock
     private GameStartedEvent gameStartedEvent;

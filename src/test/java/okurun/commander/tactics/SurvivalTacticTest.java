@@ -10,8 +10,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import okurun.OkuRunBot;
 import okurun.arenamap.ArenaMap;
-import okurun.battlemanager.BattleManager;
 import okurun.commander.Commander;
+import okurun.enemymanager.EnemyManager;
 import okurun.gunner.Gunner;
 import okurun.radaroperator.RadarOperator;
 
@@ -27,7 +27,7 @@ class SurvivalTacticTest {
     private ArenaMap arenaMap;
 
     @Mock
-    private BattleManager battleManager;
+    private EnemyManager enemyManager;
 
     @BeforeEach
     void setUp() {
@@ -42,9 +42,9 @@ class SurvivalTacticTest {
 
     @Test
     void testAction() {
-        when(bot.getBattleManager()).thenReturn(battleManager);
-        when(battleManager.getZeroEnergyEnemy(bot)).thenReturn(null);
-        when(battleManager.getNearestAliveEnemy(bot)).thenReturn(null);
+        when(bot.getEnemyManager()).thenReturn(enemyManager);
+        when(enemyManager.getZeroEnergyEnemy(bot)).thenReturn(null);
+        when(enemyManager.getNearestAliveEnemy(bot)).thenReturn(null);
 
         when(bot.getArenaMap()).thenReturn(arenaMap);
         tactic.action(bot);

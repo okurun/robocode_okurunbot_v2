@@ -201,7 +201,7 @@ public class Gunner {
             if (bulletHistory == null) {
                 return;
             }
-            bot.getBattleManager().getEnemyProfile(bulletHistory.targetEnemyId).onBulletFired(e, bot);
+            bot.getEnemyManager().getEnemyProfile(bulletHistory.targetEnemyId).onBulletFired(e, bot);
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();

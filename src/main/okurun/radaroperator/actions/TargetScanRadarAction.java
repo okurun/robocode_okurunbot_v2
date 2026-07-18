@@ -1,10 +1,10 @@
 package okurun.radaroperator.actions;
 
 import okurun.OkuRunBot;
-import okurun.battlemanager.BattleManager;
-import okurun.battlemanager.EnemyProfile;
-import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
+import okurun.enemymanager.EnemyManager;
+import okurun.enemymanager.EnemyProfile;
+import okurun.enemymanager.EnemyState;
 import okurun.predictor.Predictor;
 import okurun.radaroperator.RadarOperator;
 
@@ -21,8 +21,8 @@ public class TargetScanRadarAction implements RadarAction {
             return RadarOperator.ActionId.ALL_SCAN;
         }
 
-        final BattleManager battleManager = bot.getBattleManager();
-        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
+        final EnemyManager enemyManager = bot.getEnemyManager();
+        final EnemyProfile targetEnemyProfile = enemyManager.getEnemyProfile(targetEnemyId);
         final EnemyState latestEnemyState = targetEnemyProfile.getLatestState();
         if (latestEnemyState == null) {
             return RadarOperator.ActionId.ALL_SCAN;

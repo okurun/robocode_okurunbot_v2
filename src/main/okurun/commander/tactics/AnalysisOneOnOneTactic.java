@@ -6,11 +6,11 @@ import java.util.Map;
 import dev.robocode.tankroyale.botapi.Constants;
 import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
-import okurun.battlemanager.BattleManager;
-import okurun.battlemanager.EnemyProfile;
 import okurun.commander.Commander;
 import okurun.commander.Commander.MovePatternId;
 import okurun.driver.Driver;
+import okurun.enemymanager.EnemyManager;
+import okurun.enemymanager.EnemyProfile;
 import okurun.gunner.Gunner;
 import okurun.predictor.Predictor;
 import okurun.predictor.Predictor.PredictModelId;
@@ -27,7 +27,7 @@ public class AnalysisOneOnOneTactic extends AbstractOneOnOneTactic {
             movePatternId = MovePatternId.ROUND_AREA;
             return;
         }
-        movePatternId = bot.getBattleManager().getEnemyProfile(targetEnemyId.get()).getMovePatternId();
+        movePatternId = bot.getEnemyManager().getEnemyProfile(targetEnemyId.get()).getMovePatternId();
     }
 
     @Override
@@ -63,8 +63,8 @@ public class AnalysisOneOnOneTactic extends AbstractOneOnOneTactic {
         if (targetEnemyId == Commander.NO_TARGET) {
             return;
         }
-        final BattleManager battleManager = bot.getBattleManager();
-        final EnemyProfile enemyProfile = battleManager.getEnemyProfile(targetEnemyId);
+        final EnemyManager enemyManager = bot.getEnemyManager();
+        final EnemyProfile enemyProfile = enemyManager.getEnemyProfile(targetEnemyId);
         final Predictor predictor = bot.getPredictor();
         final Map<PredictModelId, PredictModel> predictModels = predictor.getPredictModels();
         final List<PredictModel> predictModelList = predictModels.values().stream()

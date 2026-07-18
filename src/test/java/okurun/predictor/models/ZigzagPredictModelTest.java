@@ -12,8 +12,8 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 import okurun.OkuRunBot;
-import okurun.battlemanager.EnemyProfile;
-import okurun.battlemanager.EnemyState;
+import okurun.enemymanager.EnemyProfile;
+import okurun.enemymanager.EnemyState;
 
 @ExtendWith(MockitoExtension.class)
 class ZigzagPredictModelTest {

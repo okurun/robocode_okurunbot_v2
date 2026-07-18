@@ -8,8 +8,8 @@ import dev.robocode.tankroyale.botapi.Constants;
 import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
 import okurun.arenamap.ArenaMap;
-import okurun.battlemanager.EnemyProfile;
-import okurun.battlemanager.EnemyState;
+import okurun.enemymanager.EnemyProfile;
+import okurun.enemymanager.EnemyState;
 import okurun.gunner.BulletHistory;
 import okurun.predictor.models.*;
 

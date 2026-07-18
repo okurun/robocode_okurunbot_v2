@@ -10,8 +10,8 @@ import dev.robocode.tankroyale.botapi.Constants;
 import dev.robocode.tankroyale.botapi.IBot;
 import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
-import okurun.battlemanager.BattleManager;
-import okurun.battlemanager.EnemyState;
+import okurun.enemymanager.EnemyManager;
+import okurun.enemymanager.EnemyState;
 
 /**
  * アリーナマップクラス
@@ -389,9 +389,9 @@ public class ArenaMap {
             return (Map<AreaId, Integer>) caches.get("areasEnemyCount");
         }
 
-        final BattleManager battleManager = bot.getBattleManager();
+        final EnemyManager enemyManager = bot.getEnemyManager();
         // 生存している敵の最後の状態を取得
-        final Map<Integer, EnemyState> enemyStates = battleManager.getLatestAliveAndNotMissingEnemies(bot);
+        final Map<Integer, EnemyState> enemyStates = enemyManager.getLatestAliveAndNotMissingEnemies(bot);
 
         final Map<AreaId, Integer> enemyCount = new HashMap<>();
         // 各エリアの敵の数を初期化

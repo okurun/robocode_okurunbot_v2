@@ -1,10 +1,10 @@
 package okurun.gunner.actions;
 
 import okurun.OkuRunBot;
-import okurun.battlemanager.BattleManager;
-import okurun.battlemanager.EnemyProfile;
-import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
+import okurun.enemymanager.EnemyManager;
+import okurun.enemymanager.EnemyProfile;
+import okurun.enemymanager.EnemyState;
 import okurun.gunner.Gunner;
 import okurun.predictor.Predictor;
 
@@ -21,8 +21,8 @@ public class TrackingGunAction implements GunAction {
             return Gunner.ActionId.SCAN;
         }
 
-        final BattleManager battleManager = bot.getBattleManager();
-        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
+        final EnemyManager enemyManager = bot.getEnemyManager();
+        final EnemyProfile targetEnemyProfile = enemyManager.getEnemyProfile(targetEnemyId);
 
         // 敵の次の位置を予測します
         final Predictor predictor = bot.getPredictor();

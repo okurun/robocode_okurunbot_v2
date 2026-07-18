@@ -5,12 +5,12 @@ import java.util.List;
 import dev.robocode.tankroyale.botapi.Constants;
 import okurun.OkuRunBot;
 import okurun.arenamap.ArenaMap;
-import okurun.battlemanager.BattleManager;
-import okurun.battlemanager.EnemyProfile;
-import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
 import okurun.commander.Commander.MovePatternId;
 import okurun.driver.Driver;
+import okurun.enemymanager.EnemyManager;
+import okurun.enemymanager.EnemyProfile;
+import okurun.enemymanager.EnemyState;
 import okurun.gunner.Gunner;
 
 public class OneOnOneTactic extends AbstractOneOnOneTactic {
@@ -23,7 +23,7 @@ public class OneOnOneTactic extends AbstractOneOnOneTactic {
             return;
         }
 
-        final EnemyProfile enemyProfile = bot.getBattleManager().getEnemyProfile(targetEnemyId);
+        final EnemyProfile enemyProfile = bot.getEnemyManager().getEnemyProfile(targetEnemyId);
         movePatternId = enemyProfile.getMovePatternId();
     }
 
@@ -46,8 +46,8 @@ public class OneOnOneTactic extends AbstractOneOnOneTactic {
             return;
         }
 
-        final BattleManager battleManager = bot.getBattleManager();
-        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId.get());
+        final EnemyManager enemyManager = bot.getEnemyManager();
+        final EnemyProfile targetEnemyProfile = enemyManager.getEnemyProfile(targetEnemyId.get());
         final EnemyState latestEnemyState = targetEnemyProfile.getLatestState();
         if (latestEnemyState == null) {
             // 敵のステータスが取得できない場合はスキャンを行います

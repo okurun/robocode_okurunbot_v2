@@ -1,4 +1,4 @@
-package okurun.battlemanager;
+package okurun.enemymanager;
 
 import java.util.Deque;
 import java.util.LinkedList;

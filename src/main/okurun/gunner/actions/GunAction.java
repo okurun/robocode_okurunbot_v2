@@ -1,8 +1,8 @@
 package okurun.gunner.actions;
 
 import okurun.OkuRunBot;
-import okurun.battlemanager.EnemyProfile;
-import okurun.battlemanager.EnemyState;
+import okurun.enemymanager.EnemyProfile;
+import okurun.enemymanager.EnemyState;
 import okurun.gunner.Gunner;
 import okurun.predictor.Predictor;
 import okurun.predictor.Predictor.PredictModelId;

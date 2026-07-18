@@ -2,10 +2,10 @@ package okurun.gunner.actions;
 
 import dev.robocode.tankroyale.botapi.Constants;
 import okurun.OkuRunBot;
-import okurun.battlemanager.BattleManager;
-import okurun.battlemanager.EnemyProfile;
-import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
+import okurun.enemymanager.EnemyManager;
+import okurun.enemymanager.EnemyProfile;
+import okurun.enemymanager.EnemyState;
 import okurun.gunner.BulletHistory;
 import okurun.gunner.Gunner;
 
@@ -27,8 +27,8 @@ public class MaxPowerGunAction implements GunAction {
             return Gunner.ActionId.SCAN;
         }
 
-        final BattleManager battleManager = bot.getBattleManager();
-        final EnemyProfile targetEnemyProfile = battleManager.getEnemyProfile(targetEnemyId);
+        final EnemyManager enemyManager = bot.getEnemyManager();
+        final EnemyProfile targetEnemyProfile = enemyManager.getEnemyProfile(targetEnemyId);
 
         double firePower = Math.min(Math.min(commander.getBaseFirePower(bot), Constants.MAX_FIREPOWER),
                 bot.getEnergy() - 0.1);

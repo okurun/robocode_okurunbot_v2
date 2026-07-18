@@ -10,8 +10,8 @@ import static org.mockito.Mockito.*;
 
 import dev.robocode.tankroyale.botapi.Constants;
 import okurun.OkuRunBot;
-import okurun.battlemanager.EnemyProfile;
-import okurun.battlemanager.EnemyState;
+import okurun.enemymanager.EnemyProfile;
+import okurun.enemymanager.EnemyState;
 
 import static org.junit.jupiter.api.Assertions.*;
 

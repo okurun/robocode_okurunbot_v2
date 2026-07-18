@@ -3,8 +3,8 @@ package okurun.predictor.models;
 import dev.robocode.tankroyale.botapi.Constants;
 import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.OkuRunBot;
-import okurun.battlemanager.EnemyProfile;
-import okurun.battlemanager.EnemyState;
+import okurun.enemymanager.EnemyProfile;
+import okurun.enemymanager.EnemyState;
 import okurun.predictor.Predictor;
 import okurun.predictor.Predictor.PredictModelId;
 

@@ -8,9 +8,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.mockito.Mockito.*;
 
 import okurun.OkuRunBot;
-import okurun.battlemanager.BattleManager;
-import okurun.battlemanager.EnemyProfile;
-import okurun.battlemanager.EnemyState;
+import okurun.enemymanager.EnemyManager;
+import okurun.enemymanager.EnemyProfile;
+import okurun.enemymanager.EnemyState;
 
 @ExtendWith(MockitoExtension.class)
 class CommanderTest {
@@ -20,7 +20,7 @@ class CommanderTest {
     private OkuRunBot bot;
 
     @Mock
-    private BattleManager battleManager;
+    private EnemyManager enemyManager;
 
     @Mock
     private EnemyProfile enemyProfile;
@@ -32,8 +32,8 @@ class CommanderTest {
 
     @Test
     void testActionSetsSurvivalTacticWhenManyEnemies() {
-        when(bot.getBattleManager()).thenReturn(battleManager);
-        when(battleManager.getAliveAndNotMissingEnemyCount(bot)).thenReturn(3);
+        when(bot.getEnemyManager()).thenReturn(enemyManager);
+        when(enemyManager.getAliveAndNotMissingEnemyCount(bot)).thenReturn(3);
 
         // 内部で呼ばれる Tactic.action(bot) で未モックによる例外が発生する可能性があるためcatchする
         try {
@@ -44,9 +44,9 @@ class CommanderTest {
 
     @Test
     void testActionSetsOneOnOnePositiveTactic() {
-        when(bot.getBattleManager()).thenReturn(battleManager);
-        when(battleManager.getAliveAndNotMissingEnemyCount(bot)).thenReturn(1);
-        when(battleManager.getAliveEnemy(bot)).thenReturn(enemyProfile);
+        when(bot.getEnemyManager()).thenReturn(enemyManager);
+        when(enemyManager.getAliveAndNotMissingEnemyCount(bot)).thenReturn(1);
+        when(enemyManager.getAliveEnemy(bot)).thenReturn(enemyProfile);
 
         EnemyState mockState = new EnemyState(1, 10, 0, 0, 0, 0, 50.0, 0, 0, 0);
         when(enemyProfile.getLatestState()).thenReturn(mockState);

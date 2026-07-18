@@ -1,4 +1,4 @@
-package okurun.battlemanager;
+package okurun.enemymanager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,11 +9,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
 import okurun.commander.Commander;
+import okurun.gunner.BulletHistory;
 
 /**
- * 戦闘管理クラス
+ * 敵ボット管理クラス
  */
-public class BattleManager {
+public class EnemyManager {
     private final Map<Integer, EnemyProfile> enemyProfiles = new ConcurrentHashMap<>();
     private final Map<String, Object> caches = new ConcurrentHashMap<>();
     private final AtomicInteger enemyCount = new AtomicInteger(0);
@@ -281,7 +282,6 @@ public class BattleManager {
                 enemyCount.set(bot.getEnemyCount());
             }
 
-
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();
@@ -326,6 +326,11 @@ public class BattleManager {
      */
     public void onBulletFired(BulletFiredEvent e, OkuRunBot bot) {
         try {
+            final BulletHistory bulletHistory = bot.getGunner().getBulletHistory(e.getBullet().getBulletId());
+            if (bulletHistory == null) {
+                return;
+            }
+            getEnemyProfile(bulletHistory.targetEnemyId).onBulletFired(e, bot);
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();

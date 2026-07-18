@@ -4,12 +4,12 @@ import java.util.Random;
 
 import dev.robocode.tankroyale.botapi.Constants;
 import okurun.OkuRunBot;
-import okurun.battlemanager.BattleManager;
-import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
 import okurun.commander.Commander.AccelPriority;
 import okurun.commander.Commander.HandlePriority;
 import okurun.driver.Driver;
+import okurun.enemymanager.EnemyManager;
+import okurun.enemymanager.EnemyState;
 
 /**
  * 移動目標へ向かうDriveアクション
@@ -141,10 +141,10 @@ public class MoveToDriveAction implements DriveAction {
      * @return 予測を外すための乱数
      */
     private int getRandNum(OkuRunBot bot) {
-        final BattleManager battleManager = bot.getBattleManager();
+        final EnemyManager enemyManager = bot.getEnemyManager();
         final Commander commander = bot.getCommander();
         int randBound = 10;
-        final EnemyState enemyState = battleManager.getLatestEnemyState(commander.getTargetEnemyId(bot));
+        final EnemyState enemyState = enemyManager.getLatestEnemyState(commander.getTargetEnemyId(bot));
         if (enemyState != null) {
             // 敵との距離によってブレーキの頻度を変える
             final double enemyDistance = bot.distanceTo(enemyState.x, enemyState.y);

@@ -3,11 +3,11 @@ package okurun.commander.movepattern;
 import okurun.OkuRunBot;
 import okurun.arenamap.ArenaMap;
 import okurun.arenamap.ArenaMap.Area;
-import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
 import okurun.commander.Commander.AccelPriority;
 import okurun.commander.Commander.HandlePriority;
 import okurun.driver.Driver;
+import okurun.enemymanager.EnemyState;
 
 public class RoundAreaMovePattern extends AbstractMovePattern {
 
@@ -21,7 +21,7 @@ public class RoundAreaMovePattern extends AbstractMovePattern {
         if (targetEnemyId == Commander.NO_TARGET) {
             return pos;
         }
-        final EnemyState enemyState = bot.getBattleManager().getLatestEnemyState(targetEnemyId);
+        final EnemyState enemyState = bot.getEnemyManager().getLatestEnemyState(targetEnemyId);
         if (enemyState == null) {
             return pos;
         }

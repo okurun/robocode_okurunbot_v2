@@ -7,12 +7,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
-import okurun.battlemanager.BattleManager;
-import okurun.battlemanager.EnemyProfile;
-import okurun.battlemanager.EnemyState;
 import okurun.commander.movepattern.*;
 import okurun.commander.tactics.*;
 import okurun.driver.Driver;
+import okurun.enemymanager.EnemyManager;
+import okurun.enemymanager.EnemyProfile;
+import okurun.enemymanager.EnemyState;
 import okurun.gunner.Gunner;
 import okurun.predictor.Predictor.PredictModelId;
 import okurun.radaroperator.RadarOperator;
@@ -72,10 +72,10 @@ public class Commander {
     }
 
     private void setCurrentTactic(OkuRunBot bot) {
-        final BattleManager battleManager = bot.getBattleManager();
-        if (battleManager.getAliveAndNotMissingEnemyCount(bot) <= 1) {
+        final EnemyManager enemyManager = bot.getEnemyManager();
+        if (enemyManager.getAliveAndNotMissingEnemyCount(bot) <= 1) {
             // 生存している敵が1機のみ
-            final EnemyProfile enemyProfile = battleManager.getAliveEnemy(bot);
+            final EnemyProfile enemyProfile = enemyManager.getAliveEnemy(bot);
             if (enemyProfile == null) {
                 currentTactic = tactics.get(TacticId.ONE_ON_ONE);
                 return;
@@ -335,7 +335,7 @@ public class Commander {
         }
 
         if (targetEnemyId != Commander.NO_TARGET) {
-            final EnemyProfile enemyProfile = bot.getBattleManager().getEnemyProfile(targetEnemyId);
+            final EnemyProfile enemyProfile = bot.getEnemyManager().getEnemyProfile(targetEnemyId);
             if (!isWon.get()) {
                 // 敗北した場合、ムーブパターンを変更する
                 System.out.println("*** I lost. I intend to consider changing my move pattern.");

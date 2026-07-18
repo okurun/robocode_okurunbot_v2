@@ -1,10 +1,10 @@
 package okurun;
 
 import dev.robocode.tankroyale.botapi.graphics.Color;
-import okurun.battlemanager.BattleManager;
-import okurun.battlemanager.EnemyProfile;
-import okurun.battlemanager.EnemyState;
 import okurun.commander.Commander;
+import okurun.enemymanager.EnemyManager;
+import okurun.enemymanager.EnemyProfile;
+import okurun.enemymanager.EnemyState;
 import okurun.gunner.BulletHistory;
 import okurun.gunner.Gunner;
 import okurun.predictor.Predictor;
@@ -33,8 +33,8 @@ public class Debugger {
         if (commander.getTargetEnemyId(bot) == Commander.NO_TARGET) {
             return;
         }
-        final BattleManager battleManager = bot.getBattleManager();
-        final EnemyProfile enemyProfile = battleManager.getEnemyProfile(commander.getTargetEnemyId(bot));
+        final EnemyManager enemyManager = bot.getEnemyManager();
+        final EnemyProfile enemyProfile = enemyManager.getEnemyProfile(commander.getTargetEnemyId(bot));
 
         // 敵の行動予測線を引きます
         drawPredictLine(bot, commander.getPredictModelId(bot), enemyProfile);
@@ -71,7 +71,7 @@ public class Debugger {
      * 現在位置から移動目標までの移動目標を描画する
      * 
      * @param bot
-     * @param pos       移動目標
+     * @param pos 移動目標
      */
     private void drawMoveToTarget(OkuRunBot bot, double[] pos) {
         final Color color = Color.LIGHT_BLUE;
