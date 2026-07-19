@@ -9,12 +9,6 @@ import okurun.predictor.Predictor.PredictModelId;
 import okurun.radaroperator.RadarOperator;
 
 public interface Tactic {
-    void onPreAction(OkuRunBot bot);
-
-    void onAction(OkuRunBot bot);
-
-    void onPostAction(OkuRunBot bot);
-
     int getTargetEnemyId(OkuRunBot bot);
 
     MovePatternId getMovePatternId(OkuRunBot bot);
@@ -30,6 +24,30 @@ public interface Tactic {
     RadarOperator.ActionId getRadarActionId(OkuRunBot bot);
 
     Driver.ActionId getDriveActionId(OkuRunBot bot);
+
+    /**
+     * ターン毎のアクションの前にコールされるイベント
+     * このイベントはメインスレッドからコールされます
+     * 
+     * @param bot Bot
+     */
+    void onPreAction(OkuRunBot bot);
+
+    /**
+     * ターン毎のアクションイベント
+     * このイベントはメインスレッドからコールされます
+     * 
+     * @param bot Bot
+     */
+    void onAction(OkuRunBot bot);
+
+    /**
+     * ターン毎のアクションの後にコールされるイベント
+     * このイベントはメインスレッドからコールされます
+     * 
+     * @param bot Bot
+     */
+    void onPostAction(OkuRunBot bot);
 
     /**
      * ゲームが終了した時の処理

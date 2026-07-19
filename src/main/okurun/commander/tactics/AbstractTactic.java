@@ -21,17 +21,17 @@ public abstract class AbstractTactic implements Tactic {
     protected double baseFirePower = 1.5;
     protected boolean waitForGunTurn = true;
 
-    protected abstract void setTargetEnemyId(OkuRunBot bot);
+    protected abstract void updateTargetEnemyId(OkuRunBot bot);
 
-    protected abstract void setPredictModelId(OkuRunBot bot);
+    protected abstract void updatePredictModelId(OkuRunBot bot);
 
-    protected abstract void setMovePatternId(OkuRunBot bot);
+    protected abstract void updateMovePatternId(OkuRunBot bot);
 
-    protected abstract void setDriveActionId(OkuRunBot bot);
+    protected abstract void updateDriveActionId(OkuRunBot bot);
 
-    protected abstract void setGunActionId(OkuRunBot bot);
+    protected abstract void updateGunActionId(OkuRunBot bot);
 
-    protected abstract void setRadarActionId(OkuRunBot bot);
+    protected abstract void updateRadarActionId(OkuRunBot bot);
 
     @Override
     public int getTargetEnemyId(OkuRunBot bot) {
@@ -91,12 +91,12 @@ public abstract class AbstractTactic implements Tactic {
      */
     @Override
     public void onAction(OkuRunBot bot) {
-        setTargetEnemyId(bot);
-        setPredictModelId(bot);
-        setMovePatternId(bot);
-        setDriveActionId(bot);
-        setGunActionId(bot);
-        setRadarActionId(bot);
+        updateTargetEnemyId(bot);
+        updatePredictModelId(bot);
+        updateMovePatternId(bot);
+        updateDriveActionId(bot);
+        updateGunActionId(bot);
+        updateRadarActionId(bot);
     }
 
     /**

@@ -16,7 +16,7 @@ import okurun.gunner.Gunner;
 public class OneOnOneTactic extends AbstractOneOnOneTactic {
 
     @Override
-    protected void setMovePatternId(OkuRunBot bot) {
+    protected void updateMovePatternId(OkuRunBot bot) {
         final int targetEnemyId = getTargetEnemyId(bot);
         if (targetEnemyId == Commander.NO_TARGET) {
             movePatternId = MovePatternId.ROUND_AREA;
@@ -28,7 +28,7 @@ public class OneOnOneTactic extends AbstractOneOnOneTactic {
     }
 
     @Override
-    protected void setDriveActionId(OkuRunBot bot) {
+    protected void updateDriveActionId(OkuRunBot bot) {
         final ArenaMap arenaMap = bot.getArenaMap();
         final List<ArenaMap.PotentialCollisionWall> collisionWalls = arenaMap.getPotentialCollisionWalls(bot);
         if (!collisionWalls.isEmpty()) {
@@ -39,7 +39,7 @@ public class OneOnOneTactic extends AbstractOneOnOneTactic {
     }
 
     @Override
-    protected void setGunActionId(OkuRunBot bot) {
+    protected void updateGunActionId(OkuRunBot bot) {
         if (targetEnemyId.get() == Commander.NO_TARGET) {
             // ターゲットが設定されていない場合はスキャンを行います
             gunActionId = Gunner.ActionId.SCAN;

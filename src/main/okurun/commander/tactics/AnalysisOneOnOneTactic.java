@@ -23,7 +23,7 @@ import okurun.predictor.models.PredictModel;
 public class AnalysisOneOnOneTactic extends AbstractOneOnOneTactic {
 
     @Override
-    protected void setMovePatternId(OkuRunBot bot) {
+    protected void updateMovePatternId(OkuRunBot bot) {
         if (targetEnemyId.get() == Commander.NO_TARGET) {
             movePatternId = MovePatternId.ROUND_AREA;
             return;
@@ -32,7 +32,7 @@ public class AnalysisOneOnOneTactic extends AbstractOneOnOneTactic {
     }
 
     @Override
-    protected void setDriveActionId(OkuRunBot bot) {
+    protected void updateDriveActionId(OkuRunBot bot) {
         final ArenaMap arenaMap = bot.getArenaMap();
         final List<ArenaMap.PotentialCollisionWall> collisionWalls = arenaMap.getPotentialCollisionWalls(bot);
         if (!collisionWalls.isEmpty()) {
@@ -43,14 +43,14 @@ public class AnalysisOneOnOneTactic extends AbstractOneOnOneTactic {
     }
 
     @Override
-    protected void setGunActionId(OkuRunBot bot) {
+    protected void updateGunActionId(OkuRunBot bot) {
         gunActionId = Gunner.ActionId.MAX_POWER;
         baseFirePower = Constants.MIN_FIREPOWER;
         waitForGunTurn = true;
     }
 
     @Override
-    protected void setPredictModelId(OkuRunBot bot) {
+    protected void updatePredictModelId(OkuRunBot bot) {
         if (predictModelId == null) {
             predictModelId = PredictModelId.NONE;
         }

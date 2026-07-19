@@ -22,7 +22,7 @@ import okurun.radaroperator.RadarOperator;
 public class SurvivalTactic extends AbstractTactic {
 
     @Override
-    protected void setTargetEnemyId(OkuRunBot bot) {
+    protected void updateTargetEnemyId(OkuRunBot bot) {
         final EnemyManager enemyManager = bot.getEnemyManager();
 
         final EnemyProfile zeroEnergyEnemy = enemyManager.getZeroEnergyEnemy(bot);
@@ -48,12 +48,12 @@ public class SurvivalTactic extends AbstractTactic {
     }
 
     @Override
-    protected void setMovePatternId(OkuRunBot bot) {
+    protected void updateMovePatternId(OkuRunBot bot) {
         movePatternId = MovePatternId.SAFE_AREA_V2;
     }
 
     @Override
-    protected void setPredictModelId(OkuRunBot bot) {
+    protected void updatePredictModelId(OkuRunBot bot) {
         if (targetEnemyId.get() != Commander.NO_TARGET) {
             final EnemyManager enemyManager = bot.getEnemyManager();
             final Predictor predictor = bot.getPredictor();
@@ -71,7 +71,7 @@ public class SurvivalTactic extends AbstractTactic {
     }
 
     @Override
-    protected void setGunActionId(OkuRunBot bot) {
+    protected void updateGunActionId(OkuRunBot bot) {
         if (targetEnemyId.get() == Commander.NO_TARGET) {
             gunActionId = Gunner.ActionId.SCAN;
             return;
@@ -115,7 +115,7 @@ public class SurvivalTactic extends AbstractTactic {
     }
 
     @Override
-    protected void setRadarActionId(OkuRunBot bot) {
+    protected void updateRadarActionId(OkuRunBot bot) {
         if (targetEnemyId.get() != Commander.NO_TARGET) {
             final EnemyManager enemyManager = bot.getEnemyManager();
             final Predictor predictor = bot.getPredictor();
@@ -131,7 +131,7 @@ public class SurvivalTactic extends AbstractTactic {
     }
 
     @Override
-    protected void setDriveActionId(OkuRunBot bot) {
+    protected void updateDriveActionId(OkuRunBot bot) {
         final ArenaMap arenaMap = bot.getArenaMap();
         final List<ArenaMap.PotentialCollisionWall> collisionWalls = arenaMap.getPotentialCollisionWalls(bot);
         if (!collisionWalls.isEmpty()) {
