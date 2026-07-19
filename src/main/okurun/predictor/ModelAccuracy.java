@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * 予測モデルの命中精度を管理するクラス
  */
-public class PredictModelAccuracy {
+public class ModelAccuracy {
     private final AtomicInteger fireCount = new AtomicInteger(0);
     private final AtomicInteger hitCount = new AtomicInteger(0);
     private final AtomicInteger missCount = new AtomicInteger(0);

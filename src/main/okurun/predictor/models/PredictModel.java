@@ -5,7 +5,7 @@ import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.OkuRunBot;
 import okurun.enemymanager.EnemyProfile;
 import okurun.enemymanager.EnemyState;
-import okurun.predictor.PredictModelAccuracy;
+import okurun.predictor.ModelAccuracy;
 import okurun.predictor.Predictor.PredictModelId;
 
 public interface PredictModel {
@@ -52,14 +52,14 @@ public interface PredictModel {
      * 
      * @return 命中率
      */
-    PredictModelAccuracy getAccuracy();
+    ModelAccuracy getAccuracy();
 
     /**
      * このモデルの累計命中率を取得する
      * 
      * @return 累計命中率
      */
-    PredictModelAccuracy getTotalAccuracy();
+    ModelAccuracy getTotalAccuracy();
 
     /**
      * ゲームが終了した時の処理

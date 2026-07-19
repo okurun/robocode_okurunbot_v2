@@ -14,7 +14,7 @@ import okurun.OkuRunBot;
 import okurun.commander.Commander.MovePatternId;
 import okurun.commander.Commander.TacticId;
 import okurun.gunner.BulletHistory;
-import okurun.predictor.PredictModelAccuracy;
+import okurun.predictor.ModelAccuracy;
 import okurun.predictor.Predictor.PredictModelId;
 
 /**
@@ -27,14 +27,14 @@ public class EnemyProfile {
     private final AtomicInteger lastConfirmedTurn = new AtomicInteger(0);
     private final AtomicReference<TacticId> tacticId = new AtomicReference<>(TacticId.ONE_ON_ONE_ANALYSIS);
     private final AtomicReference<MovePatternId> movePatternId = new AtomicReference<>(MovePatternId.ROUND_AREA);
-    private final Map<PredictModelId, PredictModelAccuracy> predictModelAccuracies = new ConcurrentHashMap<>();
+    private final Map<PredictModelId, ModelAccuracy> predictModelAccuracies = new ConcurrentHashMap<>();
     private volatile PredictModelId[] sortedPredictModels = new PredictModelId[] { PredictModelId.ZIGZAG,
             PredictModelId.HISTORY, PredictModelId.DYNAMIC, PredictModelId.SIMPLE, PredictModelId.NONE };
 
     public EnemyProfile(int id) {
         this.id = id;
         for (PredictModelId predictModelId : PredictModelId.values()) {
-            predictModelAccuracies.put(predictModelId, new PredictModelAccuracy());
+            predictModelAccuracies.put(predictModelId, new ModelAccuracy());
         }
     }
 
@@ -289,7 +289,7 @@ public class EnemyProfile {
         if (bot.getCommander().getTargetEnemyId(bot) == id) {
             if (getTacticId() == TacticId.ONE_ON_ONE_ANALYSIS) {
                 int fireCnt = 0;
-                for (PredictModelAccuracy accuracy : predictModelAccuracies.values()) {
+                for (ModelAccuracy accuracy : predictModelAccuracies.values()) {
                     fireCnt += accuracy.getFireCount();
                 }
                 if (fireCnt > predictModelAccuracies.size() * 3) {
@@ -344,7 +344,7 @@ public class EnemyProfile {
         if (bulletHistory.targetEnemyId != id) {
             return;
         }
-        PredictModelAccuracy accuracy = predictModelAccuracies.get(bulletHistory.predictModel);
+        ModelAccuracy accuracy = predictModelAccuracies.get(bulletHistory.predictModel);
         if (accuracy == null) {
             System.err.println("Warning PredictModelAccuracy is null: " + bulletHistory.predictModel);
             return;

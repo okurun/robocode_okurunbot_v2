@@ -7,13 +7,13 @@ class PredictionAccuracyTest {
 
     @Test
     void testInitialState() {
-        PredictModelAccuracy accuracy = new PredictModelAccuracy();
+        ModelAccuracy accuracy = new ModelAccuracy();
         assertEquals("fireCount: 0, hitRate: 0.0%, missRate: 0.0%, unknownRate: 100.0%", accuracy.getAccuracyString());
     }
 
     @Test
     void testIncrementsAndRates() {
-        PredictModelAccuracy accuracy = new PredictModelAccuracy();
+        ModelAccuracy accuracy = new ModelAccuracy();
 
         accuracy.incrementFireCount();
         accuracy.incrementFireCount();
@@ -32,7 +32,7 @@ class PredictionAccuracyTest {
 
     @Test
     void testRounding() {
-        PredictModelAccuracy accuracy = new PredictModelAccuracy();
+        ModelAccuracy accuracy = new ModelAccuracy();
         for (int i = 0; i < 3; i++) {
             accuracy.incrementFireCount();
         }

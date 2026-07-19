@@ -5,12 +5,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
-import okurun.predictor.PredictModelAccuracy;
+import okurun.predictor.ModelAccuracy;
 
 public abstract class AbstractPredictModel implements PredictModel {
     protected final Map<String, Object> caches = new ConcurrentHashMap<>();
-    protected PredictModelAccuracy modelAccuracy = new PredictModelAccuracy();
-    protected PredictModelAccuracy modelTotalAccuracy = new PredictModelAccuracy();
+    protected ModelAccuracy modelAccuracy = new ModelAccuracy();
+    protected ModelAccuracy modelTotalAccuracy = new ModelAccuracy();
 
     public void preAction() {
         caches.clear();
@@ -22,7 +22,7 @@ public abstract class AbstractPredictModel implements PredictModel {
      * @return 命中率
      */
     @Override
-    public PredictModelAccuracy getAccuracy() {
+    public ModelAccuracy getAccuracy() {
         return modelAccuracy;
     }
 
@@ -32,23 +32,22 @@ public abstract class AbstractPredictModel implements PredictModel {
      * @return 累計命中率
      */
     @Override
-    public PredictModelAccuracy getTotalAccuracy() {
+    public ModelAccuracy getTotalAccuracy() {
         return modelTotalAccuracy;
     }
 
     /**
      * ゲームが終了した時の処理
      * 
-     * @param e ゲーム終了イベント
-     * @param bot              ボット
+     * @param e   ゲーム終了イベント
+     * @param bot ボット
      */
     public void onGameEnded(GameEndedEvent e, OkuRunBot bot) {
         if (modelTotalAccuracy.getFireCount() > 0) {
             System.out.println(String.format(
-                "## TotalPredictModelAccuracy(%s): %s",
-                this.getClass().getSimpleName(),
-                modelTotalAccuracy.getAccuracyString()
-            ));
+                    "## TotalPredictModelAccuracy(%s): %s",
+                    this.getClass().getSimpleName(),
+                    modelTotalAccuracy.getAccuracyString()));
         }
         modelTotalAccuracy.reset();
     }
@@ -62,10 +61,9 @@ public abstract class AbstractPredictModel implements PredictModel {
     public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
         if (modelAccuracy.getFireCount() > 0) {
             System.out.println(String.format(
-                "== PredictModelAccuracy(%s): %s",
-                this.getClass().getSimpleName(),
-                modelAccuracy.getAccuracyString()
-            ));
+                    "== PredictModelAccuracy(%s): %s",
+                    this.getClass().getSimpleName(),
+                    modelAccuracy.getAccuracyString()));
         }
         modelTotalAccuracy.addFireCount(modelAccuracy.getFireCount());
         modelTotalAccuracy.addHitCount(modelAccuracy.getHitCount());
