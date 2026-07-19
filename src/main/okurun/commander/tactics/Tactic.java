@@ -9,9 +9,11 @@ import okurun.predictor.Predictor.PredictModelId;
 import okurun.radaroperator.RadarOperator;
 
 public interface Tactic {
-    void preAction(OkuRunBot bot);
+    void onPreAction(OkuRunBot bot);
 
-    void action(OkuRunBot bot);
+    void onAction(OkuRunBot bot);
+
+    void onPostAction(OkuRunBot bot);
 
     int getTargetEnemyId(OkuRunBot bot);
 

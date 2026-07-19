@@ -301,7 +301,7 @@ public class ArenaMap {
             return (List<PotentialCollisionWall>) caches.get("potentialCollisionWalls");
         }
         final List<PotentialCollisionWall> collisionWalls = getPotentialCollisionWalls(
-                bot.getX(), bot.getY(), bot.getDirection(), Constants.MAX_SPEED);
+                bot.getX(), bot.getY(), bot.getDirection(), (bot.getSpeed() >= 0) ? Constants.MAX_SPEED : -Constants.MAX_SPEED);
         caches.put("potentialCollisionWalls", collisionWalls);
         return collisionWalls;
     }

@@ -18,7 +18,7 @@ import okurun.enemymanager.EnemyManager;
 
 @ExtendWith(MockitoExtension.class)
 class MoveToDriveActionTest {
-    private MoveToDriveAction action;
+    private MoveToForwardDriveAction action;
 
     @Mock
     private OkuRunBot bot;
@@ -34,7 +34,7 @@ class MoveToDriveActionTest {
 
     @BeforeEach
     void setUp() {
-        action = new MoveToDriveAction();
+        action = new MoveToForwardDriveAction();
     }
 
     @Test
@@ -73,7 +73,8 @@ class MoveToDriveActionTest {
 
     @Test
     void testGetBearingTo_NoAvoidance() throws Exception {
-        java.lang.reflect.Method method = MoveToDriveAction.class.getDeclaredMethod("getBearingTo", OkuRunBot.class,
+        java.lang.reflect.Method method = MoveToForwardDriveAction.class.getDeclaredMethod("getBearingTo",
+                OkuRunBot.class,
                 double[].class);
         method.setAccessible(true);
 
@@ -86,11 +87,12 @@ class MoveToDriveActionTest {
 
     @Test
     void testGetBearingTo_AvoidanceLeftToRight() throws Exception {
-        java.lang.reflect.Method method = MoveToDriveAction.class.getDeclaredMethod("getBearingTo", OkuRunBot.class,
+        java.lang.reflect.Method method = MoveToForwardDriveAction.class.getDeclaredMethod("getBearingTo",
+                OkuRunBot.class,
                 double[].class);
         method.setAccessible(true);
 
-        java.lang.reflect.Field randNumField = MoveToDriveAction.class.getDeclaredField("randNum");
+        java.lang.reflect.Field randNumField = MoveToForwardDriveAction.class.getDeclaredField("randNum");
         randNumField.setAccessible(true);
         randNumField.set(action, 0);
 
@@ -108,7 +110,7 @@ class MoveToDriveActionTest {
 
     @Test
     void testGetAccel_DefaultPriority() throws Exception {
-        java.lang.reflect.Method method = MoveToDriveAction.class.getDeclaredMethod("getAccel", OkuRunBot.class,
+        java.lang.reflect.Method method = MoveToForwardDriveAction.class.getDeclaredMethod("getAccel", OkuRunBot.class,
                 double[].class, double.class);
         method.setAccessible(true);
 
@@ -129,7 +131,7 @@ class MoveToDriveActionTest {
 
     @Test
     void testGetAccel_HandlePriority_DiffTurnRateGreaterThan90() throws Exception {
-        java.lang.reflect.Method method = MoveToDriveAction.class.getDeclaredMethod("getAccel", OkuRunBot.class,
+        java.lang.reflect.Method method = MoveToForwardDriveAction.class.getDeclaredMethod("getAccel", OkuRunBot.class,
                 double[].class, double.class);
         method.setAccessible(true);
 
@@ -154,7 +156,7 @@ class MoveToDriveActionTest {
 
     @Test
     void testGetAccel_HandlePriority_DiffTurnRateBetween0And90() throws Exception {
-        java.lang.reflect.Method method = MoveToDriveAction.class.getDeclaredMethod("getAccel", OkuRunBot.class,
+        java.lang.reflect.Method method = MoveToForwardDriveAction.class.getDeclaredMethod("getAccel", OkuRunBot.class,
                 double[].class, double.class);
         method.setAccessible(true);
 
@@ -179,11 +181,11 @@ class MoveToDriveActionTest {
 
     @Test
     void testGetAccel_AvoidBulletPriority_Brake() throws Exception {
-        java.lang.reflect.Method method = MoveToDriveAction.class.getDeclaredMethod("getAccel", OkuRunBot.class,
+        java.lang.reflect.Method method = MoveToForwardDriveAction.class.getDeclaredMethod("getAccel", OkuRunBot.class,
                 double[].class, double.class);
         method.setAccessible(true);
 
-        java.lang.reflect.Field randNumField = MoveToDriveAction.class.getDeclaredField("randNum");
+        java.lang.reflect.Field randNumField = MoveToForwardDriveAction.class.getDeclaredField("randNum");
         randNumField.setAccessible(true);
         randNumField.set(action, 0);
 

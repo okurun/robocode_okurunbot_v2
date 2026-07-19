@@ -12,7 +12,7 @@ abstract class AbstractMovePattern implements MovePattern {
     protected final AtomicInteger totalTurns = new AtomicInteger(0);
 
     @Override
-    public void postAction(OkuRunBot bot) {
+    public void onPostAction(OkuRunBot bot) {
         turns.incrementAndGet();
     }
 

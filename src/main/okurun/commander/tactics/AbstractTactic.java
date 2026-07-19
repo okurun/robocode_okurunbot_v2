@@ -13,27 +13,13 @@ import okurun.radaroperator.RadarOperator;
 
 public abstract class AbstractTactic implements Tactic {
     protected final AtomicInteger targetEnemyId = new AtomicInteger(Commander.NO_TARGET);
-    protected MovePatternId movePatternId = null;
+    protected MovePatternId movePatternId = MovePatternId.ROUND_AREA;
+    protected PredictModelId predictModelId = PredictModelId.SIMPLE;
+    protected Driver.ActionId driveActionId = Driver.ActionId.MOVE_TO_FORWARD;
+    protected Gunner.ActionId gunActionId = Gunner.ActionId.SCAN;
+    protected RadarOperator.ActionId radarActionId = RadarOperator.ActionId.ALL_SCAN;
     protected double baseFirePower = 1.5;
     protected boolean waitForGunTurn = true;
-    protected PredictModelId predictModelId = null;
-    protected Driver.ActionId driveActionId = null;
-    protected Gunner.ActionId gunActionId = null;
-    protected RadarOperator.ActionId radarActionId = null;
-
-    @Override
-    public void preAction(OkuRunBot bot) {
-    }
-
-    @Override
-    public void action(OkuRunBot bot) {
-        setTargetEnemyId(bot);
-        setPredictModelId(bot);
-        setMovePatternId(bot);
-        setDriveActionId(bot);
-        setGunActionId(bot);
-        setRadarActionId(bot);
-    }
 
     protected abstract void setTargetEnemyId(OkuRunBot bot);
 
@@ -88,6 +74,41 @@ public abstract class AbstractTactic implements Tactic {
     }
 
     /**
+     * ターン毎のアクションの前にコールされるイベント
+     * このイベントはメインスレッドからコールされます
+     * 
+     * @param bot Bot
+     */
+    @Override
+    public void onPreAction(OkuRunBot bot) {
+    }
+
+    /**
+     * ターン毎のアクションイベント
+     * このイベントはメインスレッドからコールされます
+     * 
+     * @param bot Bot
+     */
+    @Override
+    public void onAction(OkuRunBot bot) {
+        setTargetEnemyId(bot);
+        setPredictModelId(bot);
+        setMovePatternId(bot);
+        setDriveActionId(bot);
+        setGunActionId(bot);
+        setRadarActionId(bot);
+    }
+
+    /**
+     * ターン毎のアクションの後にコールされるイベント
+     * このイベントはメインスレッドからコールされます
+     * 
+     * @param bot Bot
+     */
+    public void onPostAction(OkuRunBot bot) {
+    }
+
+    /**
      * ゲームが終了した時の処理
      * 
      * @param e   ゲーム終了イベント
@@ -111,7 +132,7 @@ public abstract class AbstractTactic implements Tactic {
     /**
      * 弾丸が発射された時の処理
      * 
-     * @param e 弾丸が発射されたイベント
+     * @param e   弾丸が発射されたイベント
      * @param bot ボット
      */
     @Override

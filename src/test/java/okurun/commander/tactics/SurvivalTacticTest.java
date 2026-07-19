@@ -5,15 +5,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import okurun.OkuRunBot;
 import okurun.arenamap.ArenaMap;
 import okurun.commander.Commander;
 import okurun.enemymanager.EnemyManager;
-import okurun.gunner.Gunner;
-import okurun.radaroperator.RadarOperator;
+import okurun.predictor.Predictor;
 
 @ExtendWith(MockitoExtension.class)
 class SurvivalTacticTest {
@@ -37,19 +35,6 @@ class SurvivalTacticTest {
     @Test
     void testGetters() {
         assertEquals(Commander.NO_TARGET, tactic.getTargetEnemyId(bot));
-        assertNull(tactic.getPredictModelId(bot));
-    }
-
-    @Test
-    void testAction() {
-        when(bot.getEnemyManager()).thenReturn(enemyManager);
-        when(enemyManager.getZeroEnergyEnemy(bot)).thenReturn(null);
-        when(enemyManager.getNearestAliveEnemy(bot)).thenReturn(null);
-
-        when(bot.getArenaMap()).thenReturn(arenaMap);
-        tactic.action(bot);
-
-        assertEquals(RadarOperator.ActionId.ALL_SCAN, tactic.getRadarActionId(bot));
-        assertEquals(Gunner.ActionId.SCAN, tactic.getGunActionId(bot));
+        assertEquals(Predictor.PredictModelId.SIMPLE, tactic.getPredictModelId(bot));
     }
 }

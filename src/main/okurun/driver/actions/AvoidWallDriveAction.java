@@ -3,6 +3,7 @@ package okurun.driver.actions;
 import java.util.List;
 
 import dev.robocode.tankroyale.botapi.Constants;
+import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.OkuRunBot;
 import okurun.arenamap.ArenaMap;
 import okurun.driver.Driver;
@@ -34,6 +35,7 @@ public class AvoidWallDriveAction implements DriveAction {
         bot.setTurnLeft(driveActionParam.leftTurnAngle);
         bot.setMaxSpeed(driveActionParam.maxSpeed);
         bot.setForward(driveActionParam.distance);
+        bot.setTracksColor(Color.RED);
         return null;
     }
 

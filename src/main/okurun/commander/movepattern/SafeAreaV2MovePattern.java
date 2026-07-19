@@ -1,19 +1,16 @@
 package okurun.commander.movepattern;
 
-import java.util.Random;
-
 import okurun.OkuRunBot;
 import okurun.arenamap.ArenaMap;
 import okurun.arenamap.ArenaMap.Area;
 import okurun.commander.Commander.AccelPriority;
 import okurun.commander.Commander.HandlePriority;
+import okurun.commander.tactics.Tactic;
 import okurun.driver.Driver;
-import okurun.predictor.Predictor;
 
 public class SafeAreaV2MovePattern extends AbstractMovePattern {
-    private boolean flg = false;
-    private int a = 1;
-    private final Random rand = new Random();
+    private boolean isOrbiting = false;
+    private boolean clockwise = true;
 
     @Override
     public double[] getMovePosition(OkuRunBot bot) {
@@ -23,20 +20,26 @@ public class SafeAreaV2MovePattern extends AbstractMovePattern {
 
         final Area currentArea = arenaMap.getArea(bot);
         if (safeArea != currentArea) {
-            flg = false;
+            // 現在のエリアと安全エリアが違う場合は安全エリアの中心を目指す
+            isOrbiting = false; // フラグはリセット
             return safeArea.getCenter();
         }
 
-        if (flg) {
-            if (rand.nextInt(30) == 0) {
-                a = -a;
+        final double distance = 100;
+        if (isOrbiting) {
+            final double[] pos = Tactic.calculatePointCUsingTrig(arenaMap.getCenter(), safeArea.getCenter(), distance, clockwise);
+            if (bot.distanceTo(pos) > distance / 2) {
+                // 目標から遠い場合はそのまま
+                return pos;
             }
-            final double directionTo = bot.directionTo(arenaMap.getCenter()) + (90 * a);
-            return Predictor.calcPosition(bot.getPosition(), bot.normalizeAbsoluteAngle(directionTo), 100, 1);
+            // 目標に近づいた場合は方向転換して反対方向へ進む
+            clockwise = !clockwise;
+            return Tactic.calculatePointCUsingTrig(arenaMap.getCenter(), safeArea.getCenter(), distance, clockwise);
         }
 
+        // 中心付近に近づくまでは中心を目標にする
         final double[] pos = safeArea.getCenter();
-        flg = bot.distanceTo(pos) < 100;
+        isOrbiting = bot.distanceTo(pos) < distance; // 中心に近づいたらフラグを立てる
         return safeArea.getCenter();
     }
 
@@ -47,12 +50,12 @@ public class SafeAreaV2MovePattern extends AbstractMovePattern {
 
     @Override
     public AccelPriority getAccelPriority(OkuRunBot bot) {
-        return AccelPriority.MAX_SPEED;
+        return AccelPriority.HANDLE;
     }
 
     @Override
     public double getMinSpeed(OkuRunBot bot) {
-        return 2;
+        return 4;
     }
 
     /**
@@ -62,7 +65,7 @@ public class SafeAreaV2MovePattern extends AbstractMovePattern {
      */
     @Override
     public Driver.ActionId getDependentDriveActionId() {
-        return Driver.ActionId.MOVE_TO_V2;
+        return Driver.ActionId.MOVE_TO;
     }
 
 }

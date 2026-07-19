@@ -32,7 +32,7 @@ public class Commander {
         ENEMY_SIDE,
         ROUND_AREA,
         SAFE_AREA,
-        // SAFE_AREA_V2,
+        SAFE_AREA_V2,
     }
 
     /**
@@ -68,7 +68,7 @@ public class Commander {
         movePatterns.put(MovePatternId.ENEMY_SIDE, new EnemySideMovePattern());
         movePatterns.put(MovePatternId.ROUND_AREA, new RoundAreaMovePattern());
         movePatterns.put(MovePatternId.SAFE_AREA, new SafeAreaMovePattern());
-        // movePatterns.put(MovePatternId.SAFE_AREA_V2, new SafeAreaV2MovePattern());
+        movePatterns.put(MovePatternId.SAFE_AREA_V2, new SafeAreaV2MovePattern());
     }
 
     private void setCurrentTactic(OkuRunBot bot) {
@@ -267,8 +267,8 @@ public class Commander {
      */
     public void onPreAction(OkuRunBot bot) {
         caches.clear();
-        for (Tactic tactic : tactics.values()) {
-            tactic.preAction(bot);
+        if (currentTactic != null) {
+            currentTactic.onAction(bot);
         }
     }
 
@@ -281,7 +281,7 @@ public class Commander {
     public void onAction(OkuRunBot bot) {
         setCurrentTactic(bot);
         if (currentTactic != null) {
-            currentTactic.action(bot);
+            currentTactic.onAction(bot);
         }
     }
 
@@ -292,7 +292,10 @@ public class Commander {
      * @param bot Bot
      */
     public void onPostAction(OkuRunBot bot) {
-        movePatterns.get(currentTactic.getMovePatternId(bot)).postAction(bot);
+        movePatterns.get(currentTactic.getMovePatternId(bot)).onPostAction(bot);
+        if (currentTactic != null) {
+            currentTactic.onPostAction(bot);
+        }
     }
 
     /**

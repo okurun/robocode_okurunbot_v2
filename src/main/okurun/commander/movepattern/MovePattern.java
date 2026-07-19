@@ -9,7 +9,7 @@ import okurun.commander.Commander.HandlePriority;
 import okurun.driver.Driver;
 
 public interface MovePattern {
-    void postAction(OkuRunBot bot);
+    void onPostAction(OkuRunBot bot);
 
     /**
      * 次の移動位置を取得します

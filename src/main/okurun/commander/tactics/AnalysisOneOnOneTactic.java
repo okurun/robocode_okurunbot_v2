@@ -6,6 +6,7 @@ import java.util.Map;
 import dev.robocode.tankroyale.botapi.Constants;
 import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
+import okurun.arenamap.ArenaMap;
 import okurun.commander.Commander;
 import okurun.commander.Commander.MovePatternId;
 import okurun.driver.Driver;
@@ -32,7 +33,13 @@ public class AnalysisOneOnOneTactic extends AbstractOneOnOneTactic {
 
     @Override
     protected void setDriveActionId(OkuRunBot bot) {
-        driveActionId = Driver.ActionId.MOVE_TO;
+        final ArenaMap arenaMap = bot.getArenaMap();
+        final List<ArenaMap.PotentialCollisionWall> collisionWalls = arenaMap.getPotentialCollisionWalls(bot);
+        if (!collisionWalls.isEmpty()) {
+            driveActionId = Driver.ActionId.AVOID_WALL;
+            return;
+        }
+        driveActionId = Driver.ActionId.MOVE_TO_FORWARD;
     }
 
     @Override

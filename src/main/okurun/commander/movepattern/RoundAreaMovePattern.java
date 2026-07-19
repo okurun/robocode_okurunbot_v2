@@ -59,7 +59,7 @@ public class RoundAreaMovePattern extends AbstractMovePattern {
      */
     @Override
     public Driver.ActionId getDependentDriveActionId() {
-        return Driver.ActionId.MOVE_TO;
+        return Driver.ActionId.MOVE_TO_FORWARD;
     }
 
 }

@@ -12,8 +12,8 @@ import okurun.driver.actions.*;
  */
 public class Driver {
     public static enum ActionId {
+        MOVE_TO_FORWARD,
         MOVE_TO,
-        MOVE_TO_V2,
         AVOID_WALL,
     }
 
@@ -41,7 +41,7 @@ public class Driver {
         }
 
         // actionが失敗した場合はとりあえず前進する
-        actions.get(ActionId.MOVE_TO).action(bot);
+        actions.get(ActionId.MOVE_TO_FORWARD).action(bot);
     }
 
     /**
@@ -60,8 +60,8 @@ public class Driver {
      * @param bot Bot
      */
     public void onGameStarted(GameStartedEvent e, OkuRunBot bot) {
+        actions.put(ActionId.MOVE_TO_FORWARD, new MoveToForwardDriveAction());
         actions.put(ActionId.MOVE_TO, new MoveToDriveAction());
-        actions.put(ActionId.MOVE_TO_V2, new MoveToV2DriveAction());
         actions.put(ActionId.AVOID_WALL, new AvoidWallDriveAction());
     }
 }

@@ -147,9 +147,18 @@ public class ZigzagPredictModel extends AbstractPredictModel {
     public boolean canPredict(OkuRunBot bot, EnemyProfile enemyProfile) {
         final Deque<EnemyState> stateHistory = enemyProfile.getStateHistory();
         if (stateHistory.size() > DETECT_ZIGZAG_TURN_CHANGE_NUM) {
+            int prevTurnNumber = 0;
             Turn prevTurn = null; // 前回の旋回方向
             int turnChangeCnt = 0; // 旋回が逆転した回数
             for (EnemyState state : stateHistory) {
+                if (prevTurnNumber == 0) {
+                    prevTurnNumber = state.scannedTurnNum;
+                } else if (prevTurnNumber - 1 != state.scannedTurnNum) {
+                    // ターンが飛んでいる
+                    return false;
+                } else {
+                    prevTurnNumber = state.scannedTurnNum;
+                }
                 if (bot.getTurnNumber() - state.scannedTurnNum > LIMIT_TURN_NUM) {
                     // LIMIT_TURN_NUM ターン以上昔の状態は考慮しない
                     return false;

@@ -44,12 +44,12 @@ class ZigzagPredictModelTest {
         when(bot.getTurnNumber()).thenReturn(13);
 
         // 旋回方向（turnDegree）が変わらない履歴を用意
-        history.add(new EnemyState(1, 12, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
-        history.add(new EnemyState(1, 11, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
-        history.add(new EnemyState(1, 10, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
-        history.add(new EnemyState(1, 9, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
-        history.add(new EnemyState(1, 8, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
-        history.add(new EnemyState(1, 7, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
+        history.addLast(new EnemyState(1, 12, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
+        history.addLast(new EnemyState(1, 11, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
+        history.addLast(new EnemyState(1, 10, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
+        history.addLast(new EnemyState(1, 9, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
+        history.addLast(new EnemyState(1, 8, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
+        history.addLast(new EnemyState(1, 7, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
 
         assertFalse(model.canPredict(bot, enemyProfile));
     }
@@ -61,12 +61,12 @@ class ZigzagPredictModelTest {
         when(bot.getTurnNumber()).thenReturn(13);
 
         // 旋回方向（turnDegree）が+,-と交互に変わる回数が少ない履歴を用意
-        history.add(new EnemyState(1, 12, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
-        history.add(new EnemyState(1, 11, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
-        history.add(new EnemyState(1, 10, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
-        history.add(new EnemyState(1, 9, 0, 0, 0, 0, 100, -5.0, 0, 0)); // Turn RIGHT
-        history.add(new EnemyState(1, 8, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
-        history.add(new EnemyState(1, 7, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
+        history.addLast(new EnemyState(1, 12, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
+        history.addLast(new EnemyState(1, 11, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
+        history.addLast(new EnemyState(1, 10, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
+        history.addLast(new EnemyState(1, 9, 0, 0, 0, 0, 100, -5.0, 0, 0)); // Turn RIGHT
+        history.addLast(new EnemyState(1, 8, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
+        history.addLast(new EnemyState(1, 7, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
 
         assertFalse(model.canPredict(bot, enemyProfile));
     }
@@ -78,12 +78,12 @@ class ZigzagPredictModelTest {
         when(bot.getTurnNumber()).thenReturn(13);
 
         // 旋回方向（turnDegree）が+,-と交互に変わる履歴を用意
-        history.add(new EnemyState(1, 12, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
-        history.add(new EnemyState(1, 11, 0, 0, 0, 0, 100, -5.0, 0, 0)); // Turn RIGHT
-        history.add(new EnemyState(1, 10, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
-        history.add(new EnemyState(1, 9, 0, 0, 0, 0, 100, -5.0, 0, 0)); // Turn RIGHT
-        history.add(new EnemyState(1, 8, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
-        history.add(new EnemyState(1, 7, 0, 0, 0, 0, 100, -5.0, 0, 0)); // Turn RIGHT
+        history.addLast(new EnemyState(1, 12, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
+        history.addLast(new EnemyState(1, 11, 0, 0, 0, 0, 100, -5.0, 0, 0)); // Turn RIGHT
+        history.addLast(new EnemyState(1, 10, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
+        history.addLast(new EnemyState(1, 9, 0, 0, 0, 0, 100, -5.0, 0, 0)); // Turn RIGHT
+        history.addLast(new EnemyState(1, 8, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
+        history.addLast(new EnemyState(1, 7, 0, 0, 0, 0, 100, -5.0, 0, 0)); // Turn RIGHT
 
         assertTrue(model.canPredict(bot, enemyProfile));
     }
@@ -95,18 +95,18 @@ class ZigzagPredictModelTest {
         when(bot.getTurnNumber()).thenReturn(15);
 
         // 旋回方向（turnDegree）が+,-と交互にゆっくり変わる履歴を用意
-        history.add(new EnemyState(1, 14, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
-        history.add(new EnemyState(1, 13, 0, 0, 0, 0, 100, 0, 0, 0)); // Turn STRAIGHT
-        history.add(new EnemyState(1, 12, 0, 0, 0, 0, 100, -5.0, 0, 0)); // Turn RIGHT
-        history.add(new EnemyState(1, 11, 0, 0, 0, 0, 100, 0, 0, 0)); // Turn STRAIGHT
-        history.add(new EnemyState(1, 10, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
-        history.add(new EnemyState(1, 9, 0, 0, 0, 0, 100, 0, 0, 0)); // Turn STRAIGHT
-        history.add(new EnemyState(1, 8, 0, 0, 0, 0, 100, -5.0, 0, 0)); // Turn RIGHT
-        history.add(new EnemyState(1, 7, 0, 0, 0, 0, 100, 0, 0, 0)); // Turn STRAIGHT
-        history.add(new EnemyState(1, 6, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
-        history.add(new EnemyState(1, 5, 0, 0, 0, 0, 100, 0, 0, 0)); // Turn STRAIGHT
-        history.add(new EnemyState(1, 4, 0, 0, 0, 0, 100, -5.0, 0, 0)); // Turn RIGHT
-        history.add(new EnemyState(1, 3, 0, 0, 0, 0, 100, 0, 0, 0)); // Turn STRAIGHT
+        history.addLast(new EnemyState(1, 14, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
+        history.addLast(new EnemyState(1, 13, 0, 0, 0, 0, 100, 0, 0, 0)); // Turn STRAIGHT
+        history.addLast(new EnemyState(1, 12, 0, 0, 0, 0, 100, -5.0, 0, 0)); // Turn RIGHT
+        history.addLast(new EnemyState(1, 11, 0, 0, 0, 0, 100, 0, 0, 0)); // Turn STRAIGHT
+        history.addLast(new EnemyState(1, 10, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
+        history.addLast(new EnemyState(1, 9, 0, 0, 0, 0, 100, 0, 0, 0)); // Turn STRAIGHT
+        history.addLast(new EnemyState(1, 8, 0, 0, 0, 0, 100, -5.0, 0, 0)); // Turn RIGHT
+        history.addLast(new EnemyState(1, 7, 0, 0, 0, 0, 100, 0, 0, 0)); // Turn STRAIGHT
+        history.addLast(new EnemyState(1, 6, 0, 0, 0, 0, 100, 5.0, 0, 0)); // Turn LEFT
+        history.addLast(new EnemyState(1, 5, 0, 0, 0, 0, 100, 0, 0, 0)); // Turn STRAIGHT
+        history.addLast(new EnemyState(1, 4, 0, 0, 0, 0, 100, -5.0, 0, 0)); // Turn RIGHT
+        history.addLast(new EnemyState(1, 3, 0, 0, 0, 0, 100, 0, 0, 0)); // Turn STRAIGHT
 
         assertTrue(model.canPredict(bot, enemyProfile));
     }

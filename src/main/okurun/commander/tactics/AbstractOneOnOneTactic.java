@@ -15,8 +15,8 @@ import okurun.radaroperator.RadarOperator;
  */
 public abstract class AbstractOneOnOneTactic extends AbstractTactic {
     @Override
-    public void action(OkuRunBot bot) {
-        super.action(bot);
+    public void onAction(OkuRunBot bot) {
+        super.onAction(bot);
 
         // 砲台の色を戦況によって変える
         final Commander commander = bot.getCommander();

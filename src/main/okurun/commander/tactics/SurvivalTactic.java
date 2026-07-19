@@ -35,11 +35,9 @@ public class SurvivalTactic extends AbstractTactic {
         final EnemyProfile nearestEnemy = enemyManager.getNearestAliveEnemy(bot);
         if (nearestEnemy != null) {
             final Predictor predictor = bot.getPredictor();
-            final EnemyState predictedEnemyState = predictor.predict(bot, nearestEnemy,
-                    bot.getTurnNumber(), PredictModelId.SIMPLE);
+            final EnemyState predictedEnemyState = predictor.predict(bot, nearestEnemy, bot.getTurnNumber());
             if (predictedEnemyState != null) {
-                final double distance = (nearestEnemy.getId() == targetEnemyId.get()) ? 400 : 300;
-                if (bot.distanceTo(predictedEnemyState.x, predictedEnemyState.y) < distance) {
+                if (bot.distanceTo(predictedEnemyState.x, predictedEnemyState.y) < 300) {
                     // 近距離の敵がいたらターゲットにします
                     targetEnemyId.set(nearestEnemy.getId());
                     return;
@@ -51,7 +49,7 @@ public class SurvivalTactic extends AbstractTactic {
 
     @Override
     protected void setMovePatternId(OkuRunBot bot) {
-        movePatternId = MovePatternId.SAFE_AREA;
+        movePatternId = MovePatternId.SAFE_AREA_V2;
     }
 
     @Override
@@ -140,7 +138,7 @@ public class SurvivalTactic extends AbstractTactic {
             driveActionId = Driver.ActionId.AVOID_WALL;
             return;
         }
-        driveActionId = Driver.ActionId.MOVE_TO;
+        driveActionId = bot.getCommander().getMovePattern(movePatternId).getDependentDriveActionId();
     }
 
 }
