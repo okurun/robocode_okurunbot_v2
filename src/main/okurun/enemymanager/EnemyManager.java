@@ -233,6 +233,9 @@ public class EnemyManager {
      */
     public void onGameEnded(GameEndedEvent e, OkuRunBot bot) {
         try {
+            for (final EnemyProfile enemyProfile : enemyProfiles.values()) {
+                enemyProfile.onGameEnded(e, bot);
+            }
             enemyProfiles.clear();
             enemyCount.set(0);
             myId.set(0);

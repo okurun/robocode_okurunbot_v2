@@ -143,6 +143,10 @@ public class Commander {
         return movePatterns;
     }
 
+    public MovePatternId getMovePatternId(OkuRunBot bot) {
+        return currentTactic.getMovePatternId(bot);
+    }
+
     public MovePattern getMovePattern(MovePatternId movePatternId) {
         return movePatterns.get(movePatternId);
     }

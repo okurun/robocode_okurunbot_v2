@@ -1,19 +1,16 @@
 package okurun.commander.movepattern;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
+import okurun.commander.EvasionPerformance;
 
 abstract class AbstractMovePattern implements MovePattern {
-    protected final AtomicInteger bulletHitCnt = new AtomicInteger(0);
-    protected final AtomicInteger turns = new AtomicInteger(0);
-    protected final AtomicInteger totalBulletHitCnt = new AtomicInteger(0);
-    protected final AtomicInteger totalTurns = new AtomicInteger(0);
+    protected final EvasionPerformance evasionPerformance = new EvasionPerformance();
+    protected final EvasionPerformance totalEvasionPerformance = new EvasionPerformance();
 
     @Override
     public void onPostAction(OkuRunBot bot) {
-        turns.incrementAndGet();
+        evasionPerformance.incrementTurns();
     }
 
     /**
@@ -24,10 +21,7 @@ abstract class AbstractMovePattern implements MovePattern {
      */
     @Override
     public double getHitPerTurn() {
-        if (bulletHitCnt.get() == 0 || turns.get() == 0) {
-            return 0;
-        }
-        return (double) bulletHitCnt.get() / (double) turns.get();
+        return evasionPerformance.getHitPerTurn();
     }
 
     /**
@@ -37,10 +31,7 @@ abstract class AbstractMovePattern implements MovePattern {
      */
     @Override
     public double getTotalHitPerTurn() {
-        if (totalBulletHitCnt.get() == 0 || totalTurns.get() == 0) {
-            return 0;
-        }
-        return (double) totalBulletHitCnt.get() / (double) totalTurns.get();
+        return totalEvasionPerformance.getHitPerTurn();
     }
 
     /**
@@ -51,15 +42,14 @@ abstract class AbstractMovePattern implements MovePattern {
      */
     @Override
     public void onGameEnded(GameEndedEvent e, OkuRunBot bot) {
-        if (totalTurns.get() > 0) {
+        if (totalEvasionPerformance.getTurns() > 0) {
             System.out.println(String.format(
-                    "%% TotalMovePatternSummary(%s): hit count: %d, hit/turn: %.3f",
+                    "%% TotalMovePatternEvasionPerformance(%s): hit count: %d, hit/turn: %.3f",
                     this.getClass().getSimpleName(),
-                    totalBulletHitCnt.get(),
-                    getTotalHitPerTurn()));
+                    totalEvasionPerformance.getHitCnt(),
+                    totalEvasionPerformance.getHitPerTurn()));
         }
-        totalBulletHitCnt.set(0);
-        totalTurns.set(0);
+        totalEvasionPerformance.reset();
     }
 
     /**
@@ -70,17 +60,15 @@ abstract class AbstractMovePattern implements MovePattern {
      */
     @Override
     public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
-        totalBulletHitCnt.addAndGet(bulletHitCnt.get());
-        totalTurns.addAndGet(turns.get());
-        if (turns.get() > 0) {
+        totalEvasionPerformance.add(evasionPerformance);
+        if (evasionPerformance.getTurns() > 0) {
             System.out.println(String.format(
-                    "++ MovePatternSummary(%s): hit count: %d, hit/turn: %.3f",
+                    "++ MovePatternEvasionPerformance(%s): hit count: %d, hit/turn: %.3f",
                     this.getClass().getSimpleName(),
-                    bulletHitCnt.get(),
-                    getHitPerTurn()));
+                    evasionPerformance.getHitCnt(),
+                    evasionPerformance.getHitPerTurn()));
         }
-        bulletHitCnt.set(0);
-        turns.set(0);
+        evasionPerformance.reset();
     }
 
     /**
@@ -91,6 +79,6 @@ abstract class AbstractMovePattern implements MovePattern {
      */
     @Override
     public void onHitByBullet(HitByBulletEvent e, OkuRunBot bot) {
-        bulletHitCnt.incrementAndGet();
+        evasionPerformance.incrementHitCount();
     }
 }

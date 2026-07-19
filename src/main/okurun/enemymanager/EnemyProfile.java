@@ -11,8 +11,10 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
+import okurun.commander.Commander;
 import okurun.commander.Commander.MovePatternId;
 import okurun.commander.Commander.TacticId;
+import okurun.commander.EvasionPerformance;
 import okurun.gunner.BulletHistory;
 import okurun.predictor.ModelAccuracy;
 import okurun.predictor.Predictor.PredictModelId;
@@ -30,21 +32,16 @@ public class EnemyProfile {
     private final Map<PredictModelId, ModelAccuracy> predictModelAccuracies = new ConcurrentHashMap<>();
     private volatile PredictModelId[] sortedPredictModels = new PredictModelId[] { PredictModelId.ZIGZAG,
             PredictModelId.HISTORY, PredictModelId.DYNAMIC, PredictModelId.SIMPLE, PredictModelId.NONE };
+    private final Map<MovePatternId, EvasionPerformance> movePatternEvasionPerformances = new ConcurrentHashMap<>();
 
     public EnemyProfile(int id) {
         this.id = id;
-        for (PredictModelId predictModelId : PredictModelId.values()) {
+        for (final PredictModelId predictModelId : PredictModelId.values()) {
             predictModelAccuracies.put(predictModelId, new ModelAccuracy());
         }
-    }
-
-    /**
-     * 情報をリセットします
-     */
-    public void reset() {
-        isAlive.set(true);
-        lastConfirmedTurn.set(0);
-        stateHistory.clear();
+        for (final MovePatternId movePatternId : MovePatternId.values()) {
+            movePatternEvasionPerformances.put(movePatternId, new EvasionPerformance());
+        }
     }
 
     /**
@@ -260,19 +257,34 @@ public class EnemyProfile {
      * @param bot Bot
      */
     public void onPostAction(OkuRunBot bot) {
-        if (bot.getCommander().getTargetEnemyId(bot) != id) {
+        final Commander commander = bot.getCommander();
+        if (commander.getTargetEnemyId(bot) != id) {
             return;
         }
 
+        movePatternEvasionPerformances.get(commander.getMovePatternId(bot)).incrementTurns();
+
         if (bot.getTurnNumber() % 100 == 0) {
             // 一番被弾率の低いムーブパターンを採用する（全体累計で評価）
-            final MovePatternId movePatternId = bot.getCommander().getMovePatterns().entrySet().stream()
-                    .sorted((a, b) -> Double.compare(a.getValue().getTotalHitPerTurn(),
-                            b.getValue().getTotalHitPerTurn()))
+            final MovePatternId movePatternId = movePatternEvasionPerformances.entrySet().stream()
+                    .sorted((a, b) -> Double.compare(a.getValue().getHitPerTurn(),
+                            b.getValue().getHitPerTurn()))
                     .map(Map.Entry::getKey)
                     .findFirst().get();
             System.out.println("(" + bot.getTurnNumber() + ")*** " + getMovePatternId() + " -> " + movePatternId);
             setMovePatternId(movePatternId);
+        }
+    }
+
+    /**
+     * ゲームが終了した時の処理
+     * 
+     * @param e   ゲーム終了イベント
+     * @param bot ボット
+     */
+    public void onGameEnded(GameEndedEvent e, OkuRunBot bot) {
+        for (EvasionPerformance evasionPerformance : movePatternEvasionPerformances.values()) {
+            evasionPerformance.reset();
         }
     }
 
@@ -285,7 +297,9 @@ public class EnemyProfile {
     public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
         // 予測モデルをヒット率でソートして更新する
         updateSortedPredictModels();
-        reset();
+        isAlive.set(true);
+        lastConfirmedTurn.set(0);
+        stateHistory.clear();
         if (bot.getCommander().getTargetEnemyId(bot) == id) {
             if (getTacticId() == TacticId.ONE_ON_ONE_ANALYSIS) {
                 int fireCnt = 0;
@@ -363,6 +377,7 @@ public class EnemyProfile {
             return;
         }
         setLastConfirmedTurn(e.getTurnNumber());
+        movePatternEvasionPerformances.get(bot.getCommander().getMovePatternId(bot)).incrementHitCount();
     }
 
     /**
