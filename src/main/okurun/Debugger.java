@@ -45,7 +45,7 @@ public class Debugger {
         // 射撃目標位置を描きます
         final Gunner gunner = bot.getGunner();
         for (final BulletHistory bulletHistory : gunner.getBulletHistories()) {
-            Color color = Gunner.getBulletColor(bulletHistory.power);
+            Color color = getBulletColor(bulletHistory.power);
             if (bulletHistory.predictTurnNum > bot.getTurnNumber()) {
                 color = Color.fromRgba(color, 200);
             } else if (bulletHistory.predictTurnNum < bot.getTurnNumber()) {
@@ -188,4 +188,23 @@ public class Debugger {
         g.setStrokeWidth(2);
         g.drawLine(x1, y1, x2, y2);
     }
+
+    /**
+     * 弾丸の色を取得する
+     * 
+     * @param power 弾丸のパワー
+     * @return 弾丸の色
+     */
+    public Color getBulletColor(double power) {
+        // 弾丸のパワーに応じて色分け
+        if (power >= 3) {
+            return Color.RED;
+        } else if (power >= 2) {
+            return Color.ORANGE;
+        } else if (power >= 1) {
+            return Color.YELLOW;
+        }
+        return Color.WHITE;
+    }
+
 }

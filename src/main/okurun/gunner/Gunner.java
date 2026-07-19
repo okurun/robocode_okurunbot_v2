@@ -10,7 +10,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import dev.robocode.tankroyale.botapi.BulletState;
 import dev.robocode.tankroyale.botapi.events.*;
-import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.OkuRunBot;
 import okurun.commander.Commander;
 import okurun.gunner.actions.*;
@@ -24,18 +23,6 @@ public class Gunner {
         TRACKING,
         EXECUTION,
         MAX_POWER;
-    }
-
-    public static Color getBulletColor(double power) {
-        // 弾丸のパワーに応じて色分け
-        if (power >= 3) {
-            return Color.RED;
-        } else if (power >= 2) {
-            return Color.ORANGE;
-        } else if (power >= 1) {
-            return Color.YELLOW;
-        }
-        return Color.WHITE;
     }
 
     private final Map<ActionId, GunAction> actions = new HashMap<>();
