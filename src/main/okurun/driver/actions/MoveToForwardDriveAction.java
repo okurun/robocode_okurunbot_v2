@@ -1,147 +1,20 @@
 package okurun.driver.actions;
 
-import java.util.Random;
-
 import dev.robocode.tankroyale.botapi.Constants;
 import okurun.OkuRunBot;
-import okurun.commander.Commander;
-import okurun.commander.Commander.AccelPriority;
-import okurun.commander.Commander.HandlePriority;
-import okurun.driver.Driver;
-import okurun.enemymanager.EnemyManager;
-import okurun.enemymanager.EnemyState;
 
 /**
  * 前進して移動目標へ向かうDriveアクション
  */
-public class MoveToForwardDriveAction implements DriveAction {
-    private enum Turn {
-        LEFT,
-        RIGHT;
-
-        public Turn opposite() {
-            return this == LEFT ? RIGHT : LEFT;
-        }
-    }
-
-    private Turn avoidTurn = Turn.LEFT;
-    private Random random = new Random();
-    private int randNum = 0;
+public class MoveToForwardDriveAction extends AbstractDriveAction {
 
     @Override
-    public Driver.ActionId action(OkuRunBot bot) {
-        final Commander commander = bot.getCommander();
-        final double[] pos = commander.getTargetMovePosition(bot);
-        if (pos == null) {
-            // 移動先が設定されていない場合は何も行わない
-            return null;
-        }
-
-        // 予測を外すための乱数を初期化
-        randNum = getRandNum(bot);
-
-        final DriveParams driveParams = createDriveParams(bot, pos, getBearingTo(bot, pos));
-        bot.setTurnLeft(driveParams.leftTurnAngle);
-        bot.setForward(driveParams.forwardDistance);
-        bot.setMaxSpeed(driveParams.maxSpeed);
-
-        return null;
-    }
-
-    /**
-     * 目標旋回角を取得する
-     * 
-     * @param bot
-     * @param pos 移動目標
-     * @return 目標旋回角
-     */
-    private double getBearingTo(OkuRunBot bot, double[] pos) {
-        double bearingTo = bot.bearingTo(pos[0], pos[1]);
-        if (Math.abs(bearingTo) < bot.getMaxTurnRate()) {
-            // 旋回に余裕がある（直進に近い状態）
-            final Commander commander = bot.getCommander();
-            if (commander.getHandlePriority(bot) == HandlePriority.AVOID_BULLET) {
-                // 回避行動を行う
-                if (randNum == 0) {
-                    // 左右を入れ替える
-                    avoidTurn = avoidTurn.opposite();
-                }
-                switch (avoidTurn) {
-                    case LEFT:
-                        bearingTo += bot.getMaxTurnRate() * 0.5;
-                        break;
-                    case RIGHT:
-                        bearingTo -= bot.getMaxTurnRate() * 0.5;
-                        break;
-                }
-            }
-        }
-        return bearingTo;
-    }
-
-    /**
-     * 加速情報を取得する
-     * 
-     * @param bot       ロボット
-     * @param pos       移動目標
-     * @param bearingTo 移動目標への旋回角度
-     * @return 加速情報
-     */
-    private DriveParams createDriveParams(OkuRunBot bot, double[] pos, double bearingTo) {
+    protected DriveParams createDriveParams(OkuRunBot bot, double[] pos) {
         final DriveParams driveParams = new DriveParams();
-        driveParams.leftTurnAngle = bearingTo;
-        driveParams.forwardDistance = bot.distanceTo(pos[0], pos[1]);
+        driveParams.leftTurnAngle = bot.bearingTo(pos);
+        driveParams.forwardDistance = bot.distanceTo(pos);
         driveParams.maxSpeed = Constants.MAX_SPEED;
-        final Commander commander = bot.getCommander();
-        switch (commander.getAccelPriority(bot)) {
-            case AccelPriority.HANDLE:
-                // 旋回を優先するため、旋回角度がMAX_TURN_RATEより大きい場合は減速する
-                final double diffTurnRate = Math.abs(driveParams.leftTurnAngle) - Math.abs(bot.getMaxTurnRate());
-                if (diffTurnRate > 90) {
-                    driveParams.maxSpeed = Math.max(commander.getMinSpeed(bot), bot.getSpeed() - 2);
-                    driveParams.forwardDistance = -1;
-                } else if (diffTurnRate > 0) {
-                    driveParams.maxSpeed = Math.max(commander.getMinSpeed(bot), bot.getSpeed() - 1);
-                } else {
-                    driveParams.maxSpeed = Constants.MAX_SPEED;
-                }
-                break;
-            case AccelPriority.AVOID_BULLET:
-                // 予測を外すためにランダムでブレーキをかける
-                driveParams.maxSpeed = Constants.MAX_SPEED;
-                if (bot.getSpeed() > commander.getMinSpeed(bot)) {
-                    if (randNum == 0) {
-                        // ブレーキ
-                        driveParams.forwardDistance = -1;
-                    }
-                }
-                break;
-            default:
-                driveParams.maxSpeed = Constants.MAX_SPEED;
-                break;
-        }
         return driveParams;
-    }
-
-    /**
-     * 予測を外すための乱数を取得する
-     * 
-     * @param bot
-     * @return 予測を外すための乱数
-     */
-    private int getRandNum(OkuRunBot bot) {
-        final EnemyManager enemyManager = bot.getEnemyManager();
-        final Commander commander = bot.getCommander();
-        int randBound = 10;
-        final EnemyState enemyState = enemyManager.getLatestEnemyState(commander.getTargetEnemyId(bot));
-        if (enemyState != null) {
-            // 敵との距離によってブレーキの頻度を変える
-            final double enemyDistance = bot.distanceTo(enemyState.x, enemyState.y);
-            randBound = Math.max(randBound,
-                    (int) Math.min(commander.getMinSpeed(bot) + 1,
-                            Math.ceil(enemyDistance / bot.calcBulletSpeed(1))));
-        }
-        return random.nextInt(randBound);
     }
 
 }

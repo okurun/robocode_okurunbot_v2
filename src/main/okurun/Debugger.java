@@ -74,6 +74,9 @@ public class Debugger {
      * @param pos 移動目標
      */
     private void drawMoveToTarget(OkuRunBot bot, double[] pos) {
+        if (pos == null) {
+            return;
+        }
         final Color color = Color.LIGHT_BLUE;
         final Debugger debugger = bot.getDebugger();
         debugger.drawFillCircle(bot, pos, 5, Color.fromRgba(color, 60));
