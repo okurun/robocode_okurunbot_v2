@@ -39,7 +39,7 @@ public class AnalysisOneOnOneTactic extends AbstractOneOnOneTactic {
             driveActionId = Driver.ActionId.AVOID_WALL;
             return;
         }
-        driveActionId = Driver.ActionId.MOVE_TO_FORWARD;
+        driveActionId = bot.getCommander().getMovePattern(movePatternId).getDependentDriveActionId();
     }
 
     @Override
