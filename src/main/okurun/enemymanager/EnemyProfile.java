@@ -271,7 +271,9 @@ public class EnemyProfile {
                             b.getValue().getHitPerTurn()))
                     .map(Map.Entry::getKey)
                     .findFirst().get();
-            System.out.println("(" + bot.getTurnNumber() + ")*** " + getMovePatternId() + " -> " + movePatternId);
+            if (getMovePatternId() != movePatternId) {
+                System.out.println("(" + bot.getTurnNumber() + ")*** " + getMovePatternId() + " -> " + movePatternId);
+            }
             setMovePatternId(movePatternId);
         }
     }

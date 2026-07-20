@@ -39,9 +39,6 @@ public class Driver {
         while (action != null) {
             action = actions.get(action).action(bot);
         }
-
-        // actionが失敗した場合はとりあえず前進する
-        actions.get(ActionId.MOVE_TO_FORWARD).action(bot);
     }
 
     /**

@@ -477,4 +477,5 @@ public class OkuRunBot extends Bot {
         System.out.println(
                 "onTeamMessage(" + e.getTurnNumber() + "): " + e.getMessage());
     }
+
 }

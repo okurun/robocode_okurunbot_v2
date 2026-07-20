@@ -96,7 +96,7 @@ public class EnemySideMovePattern extends AbstractMovePattern {
      */
     @Override
     public Driver.ActionId getDependentDriveActionId() {
-        return Driver.ActionId.MOVE_TO_FORWARD;
+        return Driver.ActionId.MOVE_TO;
     }
 
 }

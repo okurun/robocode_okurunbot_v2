@@ -12,11 +12,6 @@ import okurun.driver.Driver;
  * 壁を回避するDriveAction
  */
 public class AvoidWallDriveAction implements DriveAction {
-    private static class DriveActionParam {
-        public double leftTurnAngle = 0;
-        public double maxSpeed = 0;
-        public double distance = 0;
-    }
 
     @Override
     public Driver.ActionId action(OkuRunBot bot) {
@@ -28,13 +23,13 @@ public class AvoidWallDriveAction implements DriveAction {
 
         // 一番衝突までのターンが少ない壁を取得
         final ArenaMap.PotentialCollisionWall pcWall = pcWalls.get(0);
-        final DriveActionParam driveActionParam = (bot.getSpeed() < 0)
+        final DriveParams driveParams = (bot.getSpeed() < 0)
                 ? backwardAction(bot, pcWall)
                 : forwardAction(bot, pcWall);
 
-        bot.setTurnLeft(driveActionParam.leftTurnAngle);
-        bot.setMaxSpeed(driveActionParam.maxSpeed);
-        bot.setForward(driveActionParam.distance);
+        bot.setTurnLeft(driveParams.leftTurnAngle);
+        bot.setMaxSpeed(driveParams.maxSpeed);
+        bot.setForward(driveParams.forwardDistance);
         bot.setTracksColor(Color.RED);
         return null;
     }
@@ -44,10 +39,10 @@ public class AvoidWallDriveAction implements DriveAction {
      * 
      * @param bot    ボット
      * @param pcWall 衝突壁
-     * @return DriveActionParam
+     * @return DriveParams
      */
-    private DriveActionParam forwardAction(OkuRunBot bot, ArenaMap.PotentialCollisionWall pcWall) {
-        final DriveActionParam driveActionParam = new DriveActionParam();
+    private DriveParams forwardAction(OkuRunBot bot, ArenaMap.PotentialCollisionWall pcWall) {
+        final DriveParams driveActionParam = new DriveParams();
 
         // 壁に対して平行より10度だけ離れる方向に旋回
         driveActionParam.leftTurnAngle = pcWall.wall.getLeftTurnAngleToParallel(bot);
@@ -59,9 +54,9 @@ public class AvoidWallDriveAction implements DriveAction {
         final double turnsToCollision = pcWall.turnsToCollision;
         driveActionParam.maxSpeed = Math.min(Constants.MAX_SPEED,
                 turnsToCollision * Math.abs(Constants.DECELERATION));
-        driveActionParam.distance = 100;
+        driveActionParam.forwardDistance = 100;
         if (driveActionParam.maxSpeed < Constants.MAX_SPEED && bot.getSpeed() > driveActionParam.maxSpeed) {
-            driveActionParam.distance = -driveActionParam.distance;
+            driveActionParam.forwardDistance = -driveActionParam.forwardDistance;
         }
 
         return driveActionParam;
@@ -72,10 +67,10 @@ public class AvoidWallDriveAction implements DriveAction {
      * 
      * @param bot    ボット
      * @param pcWall 衝突壁
-     * @return DriveActionParam
+     * @return DriveParams
      */
-    private DriveActionParam backwardAction(OkuRunBot bot, ArenaMap.PotentialCollisionWall pcWall) {
-        final DriveActionParam driveActionParam = new DriveActionParam();
+    private DriveParams backwardAction(OkuRunBot bot, ArenaMap.PotentialCollisionWall pcWall) {
+        final DriveParams driveActionParam = new DriveParams();
 
         // 壁に対して平行より10度だけ離れる方向に旋回
         driveActionParam.leftTurnAngle = pcWall.wall.getLeftTurnAngleToParallel(bot);
@@ -87,9 +82,9 @@ public class AvoidWallDriveAction implements DriveAction {
         final double turnsToCollision = pcWall.turnsToCollision;
         driveActionParam.maxSpeed = Math.min(Constants.MAX_SPEED,
                 turnsToCollision * Math.abs(Constants.DECELERATION));
-        driveActionParam.distance = -100;
+        driveActionParam.forwardDistance = -100;
         if (driveActionParam.maxSpeed < Constants.MAX_SPEED && bot.getSpeed() < -driveActionParam.maxSpeed) {
-            driveActionParam.distance = -driveActionParam.distance;
+            driveActionParam.forwardDistance = -driveActionParam.forwardDistance;
         }
 
         return driveActionParam;

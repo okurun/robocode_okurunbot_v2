@@ -368,6 +368,17 @@ public class ArenaMap {
     }
 
     /**
+     * 指定座標が含まれるエリアを返します
+     * 座標が壁上に乗っている場合はnullを返します
+     * 
+     * @param pos [x座標, y座標]
+     * @return
+     */
+    public Area getArea(double[] pos) {
+        return getArea(pos[0], pos[1]);
+    }
+
+    /**
      * Botが現在いるエリアを返します
      * 
      * @param bot Bot

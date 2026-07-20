@@ -59,7 +59,7 @@ class AvoidWallDriveActionTest {
 
         double leftTurnAngle = getDoubleField(result, "leftTurnAngle");
         double maxSpeed = getDoubleField(result, "maxSpeed");
-        double distance = getDoubleField(result, "distance");
+        double distance = getDoubleField(result, "forwardDistance");
 
         // getLeftTurnAngleToParallel returns 30 (positive)
         // logic: leftTurnAngle + 10 = 40
@@ -82,7 +82,7 @@ class AvoidWallDriveActionTest {
 
         double leftTurnAngle = getDoubleField(result, "leftTurnAngle");
         double maxSpeed = getDoubleField(result, "maxSpeed");
-        double distance = getDoubleField(result, "distance");
+        double distance = getDoubleField(result, "forwardDistance");
 
         // getLeftTurnAngleToParallel returns -30 (not positive)
         // logic: leftTurnAngle - 10 = -40
@@ -106,7 +106,7 @@ class AvoidWallDriveActionTest {
 
         double leftTurnAngle = getDoubleField(result, "leftTurnAngle");
         double maxSpeed = getDoubleField(result, "maxSpeed");
-        double distance = getDoubleField(result, "distance");
+        double distance = getDoubleField(result, "forwardDistance");
 
         // getLeftTurnAngleToParallel returns 0 (not positive)
         // logic: leftTurnAngle - 10 = -10
@@ -131,7 +131,7 @@ class AvoidWallDriveActionTest {
 
         double leftTurnAngle = getDoubleField(result, "leftTurnAngle");
         double maxSpeed = getDoubleField(result, "maxSpeed");
-        double distance = getDoubleField(result, "distance");
+        double distance = getDoubleField(result, "forwardDistance");
 
         // getLeftTurnAngleToParallel returns 30 (positive)
         // logic: leftTurnAngle + 10 = 40
@@ -155,7 +155,7 @@ class AvoidWallDriveActionTest {
 
         double leftTurnAngle = getDoubleField(result, "leftTurnAngle");
         double maxSpeed = getDoubleField(result, "maxSpeed");
-        double distance = getDoubleField(result, "distance");
+        double distance = getDoubleField(result, "forwardDistance");
 
         // getLeftTurnAngleToParallel returns -30 (not positive)
         // logic: leftTurnAngle - 10 = -40
@@ -181,7 +181,7 @@ class AvoidWallDriveActionTest {
 
         double leftTurnAngle = getDoubleField(result, "leftTurnAngle");
         double maxSpeed = getDoubleField(result, "maxSpeed");
-        double distance = getDoubleField(result, "distance");
+        double distance = getDoubleField(result, "forwardDistance");
 
         // getLeftTurnAngleToParallel returns 0 (not positive)
         // logic: leftTurnAngle - 10 = -10

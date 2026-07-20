@@ -16,23 +16,11 @@ import okurun.enemymanager.EnemyState;
  */
 public class MoveToForwardDriveAction implements DriveAction {
     private enum Turn {
-        LEFT, RIGHT;
+        LEFT,
+        RIGHT;
 
         public Turn opposite() {
             return this == LEFT ? RIGHT : LEFT;
-        }
-    }
-
-    /**
-     * 加速情報
-     */
-    private static class Accel {
-        public double distance = 0;
-        public double speed = Constants.MAX_SPEED;
-
-        public Accel(double distance, double speed) {
-            this.distance = distance;
-            this.speed = speed;
         }
     }
 
@@ -52,12 +40,10 @@ public class MoveToForwardDriveAction implements DriveAction {
         // 予測を外すための乱数を初期化
         randNum = getRandNum(bot);
 
-        final double bearingTo = getBearingTo(bot, pos);
-        bot.setTurnLeft(bearingTo);
-
-        final Accel accel = getAccel(bot, pos, bearingTo);
-        bot.setForward(accel.distance);
-        bot.setMaxSpeed(accel.speed);
+        final DriveParams driveParams = createDriveParams(bot, pos, getBearingTo(bot, pos));
+        bot.setTurnLeft(driveParams.leftTurnAngle);
+        bot.setForward(driveParams.forwardDistance);
+        bot.setMaxSpeed(driveParams.maxSpeed);
 
         return null;
     }
@@ -101,37 +87,40 @@ public class MoveToForwardDriveAction implements DriveAction {
      * @param bearingTo 移動目標への旋回角度
      * @return 加速情報
      */
-    private Accel getAccel(OkuRunBot bot, double[] pos, double bearingTo) {
-        final Accel accel = new Accel(bot.distanceTo(pos[0], pos[1]), Constants.MAX_SPEED);
+    private DriveParams createDriveParams(OkuRunBot bot, double[] pos, double bearingTo) {
+        final DriveParams driveParams = new DriveParams();
+        driveParams.leftTurnAngle = bearingTo;
+        driveParams.forwardDistance = bot.distanceTo(pos[0], pos[1]);
+        driveParams.maxSpeed = Constants.MAX_SPEED;
         final Commander commander = bot.getCommander();
         switch (commander.getAccelPriority(bot)) {
             case AccelPriority.HANDLE:
                 // 旋回を優先するため、旋回角度がMAX_TURN_RATEより大きい場合は減速する
-                final double diffTurnRate = Math.abs(bearingTo) - Math.abs(bot.getMaxTurnRate());
+                final double diffTurnRate = Math.abs(driveParams.leftTurnAngle) - Math.abs(bot.getMaxTurnRate());
                 if (diffTurnRate > 90) {
-                    accel.speed = Math.max(commander.getMinSpeed(bot), bot.getSpeed() - 2);
-                    accel.distance = -1;
+                    driveParams.maxSpeed = Math.max(commander.getMinSpeed(bot), bot.getSpeed() - 2);
+                    driveParams.forwardDistance = -1;
                 } else if (diffTurnRate > 0) {
-                    accel.speed = Math.max(commander.getMinSpeed(bot), bot.getSpeed() - 1);
+                    driveParams.maxSpeed = Math.max(commander.getMinSpeed(bot), bot.getSpeed() - 1);
                 } else {
-                    accel.speed = Constants.MAX_SPEED;
+                    driveParams.maxSpeed = Constants.MAX_SPEED;
                 }
                 break;
             case AccelPriority.AVOID_BULLET:
                 // 予測を外すためにランダムでブレーキをかける
-                accel.speed = Constants.MAX_SPEED;
+                driveParams.maxSpeed = Constants.MAX_SPEED;
                 if (bot.getSpeed() > commander.getMinSpeed(bot)) {
                     if (randNum == 0) {
                         // ブレーキ
-                        accel.distance = -1;
+                        driveParams.forwardDistance = -1;
                     }
                 }
                 break;
             default:
-                accel.speed = Constants.MAX_SPEED;
+                driveParams.maxSpeed = Constants.MAX_SPEED;
                 break;
         }
-        return accel;
+        return driveParams;
     }
 
     /**

@@ -2,7 +2,6 @@ package okurun.driver.actions;
 
 import dev.robocode.tankroyale.botapi.Constants;
 import dev.robocode.tankroyale.botapi.graphics.Color;
-import okurun.Debugger;
 import okurun.OkuRunBot;
 import okurun.commander.Commander;
 import okurun.driver.Driver;
@@ -21,48 +20,59 @@ public class MoveToDriveAction implements DriveAction {
             return null;
         }
 
-        final double bearingTo = bot.bearingTo(pos);
-        final double distance = bot.distanceTo(pos);
-        bot.setMaxSpeed(Constants.MAX_SPEED);
+        final DriveParams driveParams = createDriveParams(bot, pos);
 
-        if (bot.getSpeed() >= 0) {
-            // 前進している場合
-            if (Math.abs(bearingTo) > 100) {
-                // 目標が後ろ方向にある場合は後進する
-                bot.setTurnLeft(bot.normalizeRelativeAngle(bearingTo - 180));
-                bot.setForward(-distance);
-                bot.setTracksColor(Color.GREEN);
-                // System.out.println(String.format("FB bearingTo: %.1f, distance: %.1f", bot.normalizeRelativeAngle(bearingTo - 180), -distance));
-            } else {
-                // 目標が前方向にある場合は前進する
-                bot.setTurnLeft(bearingTo);
-                bot.setForward(distance);
-                bot.setTracksColor(Color.BLUE);
-                // System.out.println(String.format("FF bearingTo: %.1f, distance: %.1f", bearingTo, distance));
-            }
-        } else {
-            // 後退している場合
-            if (Math.abs(bearingTo) < 80) {
-                // 目標が前方向にある場合は前進する
-                bot.setTurnLeft(bearingTo);
-                bot.setForward(distance);
-                bot.setTracksColor(Color.BLUE);
-                // System.out.println(String.format("BF bearingTo: %.1f, distance: %.1f", bearingTo, distance));
-            } else {
-                // 目標が後ろ方向にある場合は後進する
-                bot.setTurnLeft(bot.normalizeRelativeAngle(bearingTo - 180));
-                bot.setForward(-distance);
-                bot.setTracksColor(Color.GREEN);
-                // System.out.println(String.format("BB bearingTo: %.1f, distance: %.1f", bot.normalizeRelativeAngle(bearingTo - 180), -distance));
-            }
-        }
+        // System.out.println(String.format(
+        //     " TurnLefe: %.1f, Forward: %.1f",
+        //     driveParams.leftTurnAngle,
+        //     driveParams.forwardDistance));
 
-        final Color color = Color.LIGHT_BLUE;
-        final Debugger debugger = bot.getDebugger();
-        debugger.drawFillCircle(bot, pos, 5, Color.fromRgba(color, 50));
-        debugger.drawLine(bot, bot.getPosition(), pos, Color.fromRgba(color, 50));
+        bot.setTurnLeft(driveParams.leftTurnAngle);
+        bot.setForward(driveParams.forwardDistance);
+        bot.setMaxSpeed(driveParams.maxSpeed);
 
         return null;
     }
 
+    private DriveParams createDriveParams(OkuRunBot bot, double[] pos) {
+        final DriveParams driveParams = new DriveParams();
+        driveParams.leftTurnAngle = bot.bearingTo(pos);
+        driveParams.forwardDistance = bot.distanceTo(pos);
+        driveParams.maxSpeed = Constants.MAX_SPEED;
+        Color color = Color.BLUE;
+        // System.out.print(String.format(
+        //         "(%d) speed: %.1f, bearing: %.1f, distance: %.1f => ",
+        //         bot.getTurnNumber(),
+        //         bot.getSpeed(),
+        //         driveParams.leftTurnAngle,
+        //         driveParams.forwardDistance));
+        if (bot.getSpeed() >= 0) {
+            // 前進している場合
+            if (Math.abs(driveParams.leftTurnAngle) > 100) {
+                // 目標が後ろ方向にある場合は後進する
+                driveParams.leftTurnAngle = bot.normalizeRelativeAngle(driveParams.leftTurnAngle - 180);
+                driveParams.forwardDistance = -driveParams.forwardDistance;
+                color = Color.GREEN;
+                // System.out.print("FB");
+            } else {
+                // 目標が前方向にある場合は前進する
+                // System.out.print("FF");
+            }
+        } else {
+            // 後退している場合
+            if (Math.abs(driveParams.leftTurnAngle) < 80) {
+                // 目標が前方向にある場合は前進する
+                // System.out.print("BF");
+            } else {
+                // 目標が後ろ方向にある場合は後進する
+                driveParams.leftTurnAngle = bot.normalizeRelativeAngle(driveParams.leftTurnAngle - 180);
+                driveParams.forwardDistance = -driveParams.forwardDistance;
+                color = Color.GREEN;
+                // System.out.print("BB");
+            }
+        }
+        bot.setTracksColor(color);
+        return driveParams;
+    }
+        
 }

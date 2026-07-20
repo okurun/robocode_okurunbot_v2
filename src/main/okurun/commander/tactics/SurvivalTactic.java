@@ -49,7 +49,7 @@ public class SurvivalTactic extends AbstractTactic {
 
     @Override
     protected void updateMovePatternId(OkuRunBot bot) {
-        movePatternId = MovePatternId.SAFE_AREA_V2;
+        movePatternId = MovePatternId.OPPOSITE_SIDE;
     }
 
     @Override
