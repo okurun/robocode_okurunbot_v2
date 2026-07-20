@@ -11,8 +11,8 @@ import okurun.driver.Driver;
 
 abstract class AbstractDriveAction implements DriveAction {
     class AvoidParams {
-        public Turn turn;
-        public int randNum;
+        public Turn turn = Turn.LEFT;
+        public int randNum = 1;
     }
 
     enum Turn {

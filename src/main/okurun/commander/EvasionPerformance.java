@@ -7,14 +7,14 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 命中弾数とターン数を保持し、命中弾数/ターンを計算します
  */
 public class EvasionPerformance {
-    private final AtomicInteger hitCnt = new AtomicInteger(0);
+    private final AtomicInteger hitCount = new AtomicInteger(0);
     private final AtomicInteger turns = new AtomicInteger(0);
 
     /**
      * 情報をリセットします
      */
     public void reset() {
-        hitCnt.set(0);
+        hitCount.set(0);
         turns.set(0);
     }
 
@@ -23,8 +23,8 @@ public class EvasionPerformance {
      * 
      * @return 命中弾数
      */
-    public int getHitCnt() {
-        return hitCnt.get();
+    public int getHitCount() {
+        return hitCount.get();
     }
 
     /**
@@ -37,7 +37,7 @@ public class EvasionPerformance {
     }
 
     public void incrementHitCount() {
-        hitCnt.incrementAndGet();
+        hitCount.incrementAndGet();
     }
 
     public void incrementTurns() {
@@ -50,7 +50,7 @@ public class EvasionPerformance {
      * @param evasionPerformance 回避性能情報
      */
     public void add(EvasionPerformance evasionPerformance) {
-        hitCnt.addAndGet(evasionPerformance.getHitCnt());
+        hitCount.addAndGet(evasionPerformance.getHitCount());
         turns.addAndGet(evasionPerformance.getTurns());
     }
 
@@ -61,9 +61,9 @@ public class EvasionPerformance {
      * @return ターン毎の命中弾数
      */
     public double getHitPerTurn() {
-        if (hitCnt.get() == 0 || turns.get() == 0) {
+        if (hitCount.get() == 0 || turns.get() == 0) {
             return 0;
         }
-        return (double) hitCnt.get() / (double) turns.get();
+        return (double) hitCount.get() / (double) turns.get();
     }
 }

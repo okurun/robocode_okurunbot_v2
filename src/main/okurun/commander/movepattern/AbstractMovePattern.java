@@ -46,7 +46,7 @@ abstract class AbstractMovePattern implements MovePattern {
             System.out.println(String.format(
                     "%% TotalMovePatternEvasionPerformance(%s): hit count: %d, hit/turn: %.3f",
                     this.getClass().getSimpleName(),
-                    totalEvasionPerformance.getHitCnt(),
+                    totalEvasionPerformance.getHitCount(),
                     totalEvasionPerformance.getHitPerTurn()));
         }
         totalEvasionPerformance.reset();
@@ -65,7 +65,7 @@ abstract class AbstractMovePattern implements MovePattern {
             System.out.println(String.format(
                     "++ MovePatternEvasionPerformance(%s): hit count: %d, hit/turn: %.3f",
                     this.getClass().getSimpleName(),
-                    evasionPerformance.getHitCnt(),
+                    evasionPerformance.getHitCount(),
                     evasionPerformance.getHitPerTurn()));
         }
         evasionPerformance.reset();
