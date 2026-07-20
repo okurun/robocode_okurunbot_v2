@@ -95,7 +95,7 @@ public class Gunner {
         final Commander commander = bot.getCommander();
         ActionId action = commander.getGunActionName(bot);
         while (action != null) {
-            action = actions.get(action).action(bot);
+            action = actions.get(action).onAction(bot);
         }
     }
 

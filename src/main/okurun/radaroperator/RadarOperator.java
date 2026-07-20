@@ -36,7 +36,7 @@ public class RadarOperator {
     public void onAction(OkuRunBot bot) {
         ActionId action = bot.getCommander().getRadarAction(bot);
         while (action != null) {
-            action = actions.get(action).action(bot);
+            action = actions.get(action).onAction(bot);
         }
     }
 

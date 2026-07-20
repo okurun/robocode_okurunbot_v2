@@ -19,6 +19,19 @@ public interface DriveAction {
         }
     }
 
-    Driver.ActionId action(OkuRunBot bot);
+    /**
+     * ターン毎のアクションイベント
+     * このイベントはメインスレッドからコールされます
+     * 
+     * @param bot Bot
+     * @return Driver.ActionId 問題なく終了した場合はnullを返す。新たなActionを実行したい場合は新しいActionIdを返す
+     */
+    Driver.ActionId onAction(OkuRunBot bot);
 
+    /**
+     * 現在のアクションのDriveParamsを取得する
+     * 
+     * @param bot Bot
+     */
+    DriveParams getDriveParams();
 }

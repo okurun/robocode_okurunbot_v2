@@ -10,6 +10,9 @@ import okurun.driver.Driver;
 
 public class SafeAreaMovePattern extends AbstractMovePattern {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double[] getMovePosition(OkuRunBot bot) {
         // 敵の少ない安全なエリアへ向かう
@@ -20,25 +23,32 @@ public class SafeAreaMovePattern extends AbstractMovePattern {
                 bot.getPosition(), safeArea.getCenter(), 30, false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public HandlePriority getHandlePriority(OkuRunBot bot) {
         return HandlePriority.AVOID_BULLET;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public AccelPriority getAccelPriority(OkuRunBot bot) {
         return AccelPriority.MAX_SPEED;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double getMinSpeed(OkuRunBot bot) {
         return 2;
     }
 
     /**
-     * このムーブパターンが依存するドライブアクションIDを取得します
-     * 
-     * @return このムーブパターンが依存するドライブアクションID
+     * {@inheritDoc}
      */
     @Override
     public Driver.ActionId getDependentDriveActionId() {

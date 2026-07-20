@@ -13,8 +13,11 @@ import okurun.radaroperator.RadarOperator;
  */
 public class TargetScanRadarAction implements RadarAction {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public RadarOperator.ActionId action(OkuRunBot bot) {
+    public RadarOperator.ActionId onAction(OkuRunBot bot) {
         final Commander commander = bot.getCommander();
         final int targetEnemyId = commander.getTargetEnemyId(bot);
         if (targetEnemyId == Commander.NO_TARGET) {

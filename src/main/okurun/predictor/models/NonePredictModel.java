@@ -11,10 +11,9 @@ import dev.robocode.tankroyale.botapi.graphics.Color;
  * 予測を行わず、単純に最後の観測値を返すモデル
  */
 public class NonePredictModel extends AbstractPredictModel {
+
     /**
-     * このモデルのIDを取得する
-     * 
-     * @return モデルID
+     * {@inheritDoc}
      */
     @Override
     public PredictModelId getId() {
@@ -22,9 +21,7 @@ public class NonePredictModel extends AbstractPredictModel {
     }
 
     /**
-     * モデルの色を取得する
-     * 
-     * @return モデルの色
+     * {@inheritDoc}
      */
     @Override
     public Color getColor() {
@@ -32,12 +29,7 @@ public class NonePredictModel extends AbstractPredictModel {
     }
 
     /**
-     * 次ターンの敵の状態を予測する
-     * 
-     * @param bot          ボット
-     * @param enemyState   敵の状態
-     * @param enemyProfile 敵プロファイル
-     * @return 次ターンの敵の状態
+     * {@inheritDoc}
      */
     @Override
     public EnemyState nextTurnState(OkuRunBot bot, EnemyState enemyState, EnemyProfile enemyProfile) {
@@ -55,12 +47,9 @@ public class NonePredictModel extends AbstractPredictModel {
     }
 
     /**
-     * 指定された敵をこのモデルで予測できるかどうかを判定する
-     * 
-     * @param bot          ボット
-     * @param enemyProfile 敵プロファイル
-     * @return trueなら予測できる
+     * {@inheritDoc}
      */
+    @Override
     public boolean canPredict(OkuRunBot bot, EnemyProfile enemyProfile) {
         return enemyProfile.getStateHistory().size() > 0;
     }

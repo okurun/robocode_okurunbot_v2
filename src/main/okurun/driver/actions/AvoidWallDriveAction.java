@@ -12,9 +12,13 @@ import okurun.driver.Driver;
  * 壁を回避するDriveAction
  */
 public class AvoidWallDriveAction implements DriveAction {
+    protected DriveParams driveParams = null;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Driver.ActionId action(OkuRunBot bot) {
+    public Driver.ActionId onAction(OkuRunBot bot) {
         final ArenaMap arenaMap = bot.getArenaMap();
         final List<ArenaMap.PotentialCollisionWall> pcWalls = arenaMap.getPotentialCollisionWalls(bot);
         if (pcWalls.isEmpty()) {
@@ -23,7 +27,7 @@ public class AvoidWallDriveAction implements DriveAction {
 
         // 一番衝突までのターンが少ない壁を取得
         final ArenaMap.PotentialCollisionWall pcWall = pcWalls.get(0);
-        final DriveParams driveParams = (bot.getSpeed() < 0)
+        driveParams = (bot.getSpeed() < 0)
                 ? backwardAction(bot, pcWall)
                 : forwardAction(bot, pcWall);
 
@@ -32,6 +36,14 @@ public class AvoidWallDriveAction implements DriveAction {
         bot.setForward(driveParams.forwardDistance);
         bot.setTracksColor(Color.RED);
         return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DriveParams getDriveParams() {
+        return driveParams;
     }
 
     /**

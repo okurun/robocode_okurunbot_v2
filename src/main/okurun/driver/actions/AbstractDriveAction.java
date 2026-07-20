@@ -26,9 +26,13 @@ abstract class AbstractDriveAction implements DriveAction {
 
     protected Random random = new Random();
     protected AvoidParams avoidParams = new AvoidParams();
+    protected DriveParams driveParams = null;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Driver.ActionId action(OkuRunBot bot) {
+    public Driver.ActionId onAction(OkuRunBot bot) {
         final Commander commander = bot.getCommander();
         final double[] pos = commander.getTargetMovePosition(bot);
         if (pos == null) {
@@ -36,7 +40,7 @@ abstract class AbstractDriveAction implements DriveAction {
             return null;
         }
 
-        DriveParams driveParams = createDriveParams(bot, pos);
+        driveParams = createDriveParams(bot, pos);
 
         // 予測を外すため移動情報を更新する
         avoidParams.randNum = random.nextInt(10);
@@ -50,8 +54,23 @@ abstract class AbstractDriveAction implements DriveAction {
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DriveParams getDriveParams() {
+        return driveParams;
+    }
+
     protected abstract DriveParams createDriveParams(OkuRunBot bot, double[] pos);
 
+    /**
+     * HandlePriorityに応じて旋回角度を更新する
+     * 
+     * @param bot         ボット
+     * @param driveParams DriveParams
+     * @return DriveParams
+     */
     private DriveParams transTurnAngle(OkuRunBot bot, DriveParams driveParams) {
         final DriveParams newDriveParams = driveParams.clone();
         if (Math.abs(newDriveParams.leftTurnAngle) < bot.getMaxTurnRate()) {
@@ -78,7 +97,7 @@ abstract class AbstractDriveAction implements DriveAction {
     /**
      * AccelPriorityに応じた加速情報を更新する
      * 
-     * @param bot       ロボット
+     * @param bot         ロボット
      * @param driveParams DriveParams
      * @return DriveParams
      */

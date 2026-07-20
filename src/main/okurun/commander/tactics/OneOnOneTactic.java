@@ -11,6 +11,9 @@ import okurun.gunner.Gunner;
 
 public class OneOnOneTactic extends AbstractOneOnOneTactic {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void updateMovePatternId(OkuRunBot bot) {
         final int targetEnemyId = getTargetEnemyId(bot);
@@ -23,6 +26,9 @@ public class OneOnOneTactic extends AbstractOneOnOneTactic {
         movePatternId = enemyProfile.getMovePatternId();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void updateGunActionId(OkuRunBot bot) {
         if (targetEnemyId.get() == Commander.NO_TARGET) {

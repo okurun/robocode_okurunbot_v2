@@ -173,7 +173,7 @@ public class Predictor {
      */
     public void onPreAction(OkuRunBot bot) {
         for (PredictModel model : predictModels.values()) {
-            model.preAction();
+            model.onPreAction(bot);
         }
     }
 

@@ -19,8 +19,11 @@ public class MaxPowerGunAction implements GunAction {
 
     private static final double FIREPOWER_SEARCH_STEP = 0.4;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Gunner.ActionId action(OkuRunBot bot) {
+    public Gunner.ActionId onAction(OkuRunBot bot) {
         final Commander commander = bot.getCommander();
         final int targetEnemyId = commander.getTargetEnemyId(bot);
         if (targetEnemyId == Commander.NO_TARGET) {

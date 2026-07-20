@@ -8,18 +8,21 @@ import okurun.OkuRunBot;
 import okurun.predictor.ModelAccuracy;
 
 public abstract class AbstractPredictModel implements PredictModel {
+
     protected final Map<String, Object> caches = new ConcurrentHashMap<>();
     protected ModelAccuracy modelAccuracy = new ModelAccuracy();
     protected ModelAccuracy modelTotalAccuracy = new ModelAccuracy();
 
-    public void preAction() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onPreAction(OkuRunBot bot) {
         caches.clear();
     }
 
     /**
-     * このモデルの命中率を取得する
-     * 
-     * @return 命中率
+     * {@inheritDoc}
      */
     @Override
     public ModelAccuracy getAccuracy() {
@@ -27,9 +30,7 @@ public abstract class AbstractPredictModel implements PredictModel {
     }
 
     /**
-     * このモデルの累計命中率を取得する
-     * 
-     * @return 累計命中率
+     * {@inheritDoc}
      */
     @Override
     public ModelAccuracy getTotalAccuracy() {
@@ -37,10 +38,7 @@ public abstract class AbstractPredictModel implements PredictModel {
     }
 
     /**
-     * ゲームが終了した時の処理
-     * 
-     * @param e   ゲーム終了イベント
-     * @param bot ボット
+     * {@inheritDoc}
      */
     public void onGameEnded(GameEndedEvent e, OkuRunBot bot) {
         if (modelTotalAccuracy.getFireCount() > 0) {
@@ -53,10 +51,7 @@ public abstract class AbstractPredictModel implements PredictModel {
     }
 
     /**
-     * ラウンドが終わった時の処理
-     * 
-     * @param e   ラウンドが終わったイベント
-     * @param bot ボット
+     * {@inheritDoc}
      */
     public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
         if (modelAccuracy.getFireCount() > 0) {
@@ -72,42 +67,31 @@ public abstract class AbstractPredictModel implements PredictModel {
     }
 
     /**
-     * 弾丸が発射された時の処理
-     * 
-     * @param bulletFiredEvent 弾丸が発射されたイベント
-     * @param bot              ボット
+     * {@inheritDoc}
      */
     public void onBulletFired(BulletFiredEvent e, OkuRunBot bot) {
         modelAccuracy.incrementFireCount();
     }
 
     /**
-     * 弾丸が敵に命中した時の処理
-     * 
-     * @param bulletHitBotEvent 弾丸が敵に命中したイベント
-     * @param bot               ボット
+     * {@inheritDoc}
      */
     public void onBulletHit(BulletHitBotEvent e, OkuRunBot bot) {
         modelAccuracy.incrementHitCount();
     }
 
     /**
-     * 弾丸が弾丸に命中した時の処理
-     * 
-     * @param bulletHitBulletEvent 弾丸が弾丸に命中したイベント
-     * @param bot                  ボット
+     * {@inheritDoc}
      */
     public void onBulletHitBullet(BulletHitBulletEvent e, OkuRunBot bot) {
         modelAccuracy.incrementMissCount();
     }
 
     /**
-     * 弾丸が壁に当たった時の処理
-     * 
-     * @param e   弾丸が壁に当たったイベント
-     * @param bot ボット
+     * {@inheritDoc}
      */
     public void onBulletHitWall(BulletHitWallEvent e, OkuRunBot bot) {
         modelAccuracy.incrementMissCount();
     }
+
 }

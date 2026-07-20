@@ -5,19 +5,20 @@ import okurun.OkuRunBot;
 import okurun.commander.EvasionPerformance;
 
 abstract class AbstractMovePattern implements MovePattern {
+
     protected final EvasionPerformance evasionPerformance = new EvasionPerformance();
     protected final EvasionPerformance totalEvasionPerformance = new EvasionPerformance();
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onPostAction(OkuRunBot bot) {
         evasionPerformance.incrementTurns();
     }
 
     /**
-     * ターン毎の命中弾数を計算します
-     * 
-     * @param turnNumber ターン数
-     * @return ターン毎の命中弾数
+     * {@inheritDoc}
      */
     @Override
     public double getHitPerTurn() {
@@ -25,9 +26,7 @@ abstract class AbstractMovePattern implements MovePattern {
     }
 
     /**
-     * トータルのターン毎の命中弾数を計算します
-     * 
-     * @return トータルのターン毎の命中弾数
+     * {@inheritDoc}
      */
     @Override
     public double getTotalHitPerTurn() {
@@ -35,10 +34,7 @@ abstract class AbstractMovePattern implements MovePattern {
     }
 
     /**
-     * ゲームが終了した時の処理
-     * 
-     * @param e   ゲーム終了イベント
-     * @param bot ボット
+     * {@inheritDoc}
      */
     @Override
     public void onGameEnded(GameEndedEvent e, OkuRunBot bot) {
@@ -53,10 +49,7 @@ abstract class AbstractMovePattern implements MovePattern {
     }
 
     /**
-     * ラウンドが終了した時の処理
-     * 
-     * @param e   ラウンド終了イベント
-     * @param bot ボット
+     * {@inheritDoc}
      */
     @Override
     public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
@@ -72,10 +65,7 @@ abstract class AbstractMovePattern implements MovePattern {
     }
 
     /**
-     * 弾丸が自分に当たった時の処理
-     * 
-     * @param e   弾丸が自分に当たったイベント
-     * @param bot ボット
+     * {@inheritDoc}
      */
     @Override
     public void onHitByBullet(HitByBulletEvent e, OkuRunBot bot) {

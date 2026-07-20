@@ -16,6 +16,7 @@ import okurun.predictor.Predictor.PredictModelId;
  * ジグザグ走行を再現して予測するモデル
  */
 public class ZigzagPredictModel extends AbstractPredictModel {
+
     private static final int LIMIT_TURN_NUM = 20;
     private static final int DETECT_ZIGZAG_TURN_CHANGE_NUM = 5;
 
@@ -34,9 +35,7 @@ public class ZigzagPredictModel extends AbstractPredictModel {
     }
 
     /**
-     * このモデルのIDを取得する
-     * 
-     * @return モデルID
+     * {@inheritDoc}
      */
     @Override
     public PredictModelId getId() {
@@ -44,9 +43,7 @@ public class ZigzagPredictModel extends AbstractPredictModel {
     }
 
     /**
-     * モデルの色を取得する
-     * 
-     * @return モデルの色
+     * {@inheritDoc}
      */
     @Override
     public Color getColor() {
@@ -54,12 +51,7 @@ public class ZigzagPredictModel extends AbstractPredictModel {
     }
 
     /**
-     * 次ターンの敵の状態を予測する
-     * 
-     * @param bot          ボット
-     * @param enemyState   敵の状態
-     * @param enemyProfile 敵プロファイル
-     * @return 次ターンの敵の状態
+     * {@inheritDoc}
      */
     @Override
     public EnemyState nextTurnState(OkuRunBot bot, EnemyState enemyState, EnemyProfile enemyProfile) {
@@ -138,12 +130,9 @@ public class ZigzagPredictModel extends AbstractPredictModel {
     }
 
     /**
-     * 指定された敵をこのモデルで予測できるかどうかを判定する
-     * 
-     * @param bot          ボット
-     * @param enemyProfile 敵プロファイル
-     * @return trueなら予測できる
+     * {@inheritDoc}
      */
+    @Override
     public boolean canPredict(OkuRunBot bot, EnemyProfile enemyProfile) {
         final Deque<EnemyState> stateHistory = enemyProfile.getStateHistory();
         if (stateHistory.size() > DETECT_ZIGZAG_TURN_CHANGE_NUM) {

@@ -17,6 +17,9 @@ import okurun.radaroperator.RadarOperator;
  */
 public class SurvivalTactic extends AbstractTactic {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void updateTargetEnemyId(OkuRunBot bot) {
         final EnemyManager enemyManager = bot.getEnemyManager();

@@ -11,6 +11,9 @@ import okurun.enemymanager.EnemyState;
 
 public class RoundAreaMovePattern extends AbstractMovePattern {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double[] getMovePosition(OkuRunBot bot) {
         // 隣のエリアへ向かう
@@ -37,25 +40,32 @@ public class RoundAreaMovePattern extends AbstractMovePattern {
         return pos;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double getMinSpeed(OkuRunBot bot) {
         return 4;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public HandlePriority getHandlePriority(OkuRunBot bot) {
         return HandlePriority.TARGET;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public AccelPriority getAccelPriority(OkuRunBot bot) {
         return AccelPriority.HANDLE;
     }
 
     /**
-     * このムーブパターンが依存するドライブアクションIDを取得します
-     * 
-     * @return このムーブパターンが依存するドライブアクションID
+     * {@inheritDoc}
      */
     @Override
     public Driver.ActionId getDependentDriveActionId() {

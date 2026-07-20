@@ -4,5 +4,14 @@ import okurun.OkuRunBot;
 import okurun.radaroperator.RadarOperator;
 
 public interface RadarAction {
-    public RadarOperator.ActionId action(OkuRunBot bot);
+
+    /**
+     * ターン毎のアクションイベント
+     * このイベントはメインスレッドからコールされます
+     * 
+     * @param bot Bot
+     * @return RadarOperator.ActionId 問題なく終了した場合はnullを返す。新たなActionを実行したい場合は新しいActionIdを返す
+     */
+    public RadarOperator.ActionId onAction(OkuRunBot bot);
+
 }

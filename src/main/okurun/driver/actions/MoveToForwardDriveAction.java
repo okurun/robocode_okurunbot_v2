@@ -8,6 +8,9 @@ import okurun.OkuRunBot;
  */
 public class MoveToForwardDriveAction extends AbstractDriveAction {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected DriveParams createDriveParams(OkuRunBot bot, double[] pos) {
         final DriveParams driveParams = new DriveParams();

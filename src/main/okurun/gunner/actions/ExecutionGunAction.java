@@ -15,8 +15,11 @@ import okurun.gunner.Gunner;
  */
 public class ExecutionGunAction implements GunAction {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Gunner.ActionId action(OkuRunBot bot) {
+    public Gunner.ActionId onAction(OkuRunBot bot) {
         final Commander commander = bot.getCommander();
         final int targetEnemyId = commander.getTargetEnemyId(bot);
         if (targetEnemyId == Commander.NO_TARGET) {
@@ -60,7 +63,6 @@ public class ExecutionGunAction implements GunAction {
                         targetEnemyId,
                         latestEnemyState.scannedTurnNum, latestEnemyState.distance));
         return null;
-
     }
 
 }

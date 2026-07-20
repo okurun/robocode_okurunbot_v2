@@ -10,7 +10,14 @@ import okurun.predictor.Predictor.PredictModelId;
 public interface GunAction {
     public static final int LIMIT_TURNS = 30;
 
-    public Gunner.ActionId action(OkuRunBot bot);
+    /**
+     * ターン毎のアクションイベント
+     * このイベントはメインスレッドからコールされます
+     * 
+     * @param bot Bot
+     * @return Gunner.ActionId 問題なく終了した場合はnullを返す。新たなActionを実行したい場合は新しいActionIdを返す
+     */
+    public Gunner.ActionId onAction(OkuRunBot bot);
 
     /**
      * 画面に円を描画します

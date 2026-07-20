@@ -13,6 +13,9 @@ import okurun.predictor.Predictor;
 
 public class EnemySideMovePattern extends AbstractMovePattern {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double[] getMovePosition(OkuRunBot bot) {
         final Commander commander = bot.getCommander();
@@ -48,11 +51,17 @@ public class EnemySideMovePattern extends AbstractMovePattern {
         return targetMovePosition;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double getMinSpeed(OkuRunBot bot) {
         return 4;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public HandlePriority getHandlePriority(OkuRunBot bot) {
         final Commander commander = bot.getCommander();
@@ -71,6 +80,9 @@ public class EnemySideMovePattern extends AbstractMovePattern {
         return HandlePriority.TARGET;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public AccelPriority getAccelPriority(OkuRunBot bot) {
         final Commander commander = bot.getCommander();
@@ -90,9 +102,7 @@ public class EnemySideMovePattern extends AbstractMovePattern {
     }
 
     /**
-     * このムーブパターンが依存するドライブアクションIDを取得します
-     * 
-     * @return このムーブパターンが依存するドライブアクションID
+     * {@inheritDoc}
      */
     @Override
     public Driver.ActionId getDependentDriveActionId() {

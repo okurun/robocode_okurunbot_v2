@@ -6,6 +6,7 @@ import java.util.Map;
 import dev.robocode.tankroyale.botapi.events.GameStartedEvent;
 import okurun.OkuRunBot;
 import okurun.driver.actions.*;
+import okurun.driver.actions.DriveAction.DriveParams;
 
 /**
  * 操舵士クラス
@@ -18,6 +19,15 @@ public class Driver {
     }
 
     private final Map<ActionId, DriveAction> actions = new HashMap<>();
+
+    /**
+     * 現在のアクションのDriveParamsを取得する
+     * 
+     * @param bot Bot
+     */
+    public DriveParams getDriveParams(OkuRunBot bot) {
+        return actions.get(bot.getCommander().getDriveAction(bot)).getDriveParams();
+    }
 
     /**
      * ターン毎のアクションの前にコールされるイベント
@@ -37,7 +47,7 @@ public class Driver {
     public void onAction(OkuRunBot bot) {
         ActionId action = bot.getCommander().getDriveAction(bot);
         while (action != null) {
-            action = actions.get(action).action(bot);
+            action = actions.get(action).onAction(bot);
         }
     }
 

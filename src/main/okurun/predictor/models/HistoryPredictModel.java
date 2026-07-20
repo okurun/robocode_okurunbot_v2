@@ -14,12 +14,11 @@ import okurun.predictor.Predictor.PredictModelId;
  * 過去の動きを再現することで予測するモデル
  */
 public class HistoryPredictModel extends AbstractPredictModel {
+
     public static final int HISTORY_POS = 30;
 
     /**
-     * このモデルのIDを取得する
-     * 
-     * @return モデルID
+     * {@inheritDoc}
      */
     @Override
     public PredictModelId getId() {
@@ -27,9 +26,7 @@ public class HistoryPredictModel extends AbstractPredictModel {
     }
 
     /**
-     * モデルの色を取得する
-     * 
-     * @return モデルの色
+     * {@inheritDoc}
      */
     @Override
     public Color getColor() {
@@ -37,12 +34,7 @@ public class HistoryPredictModel extends AbstractPredictModel {
     }
 
     /**
-     * 次ターンの敵の状態を予測する
-     * 
-     * @param bot          ボット
-     * @param enemyState   敵の状態
-     * @param enemyProfile 敵プロファイル
-     * @return 次ターンの敵の状態
+     * {@inheritDoc}
      */
     @Override
     public EnemyState nextTurnState(OkuRunBot bot, EnemyState enemyState, EnemyProfile enemyProfile) {
@@ -74,12 +66,9 @@ public class HistoryPredictModel extends AbstractPredictModel {
     }
 
     /**
-     * 指定された敵をこのモデルで予測できるかどうかを判定する
-     * 
-     * @param bot          ボット
-     * @param enemyProfile 敵プロファイル
-     * @return trueなら予測できる
+     * {@inheritDoc}
      */
+    @Override
     public boolean canPredict(OkuRunBot bot, EnemyProfile enemyProfile) {
         if (enemyProfile.getStateHistory().size() < HISTORY_POS) {
             return false;

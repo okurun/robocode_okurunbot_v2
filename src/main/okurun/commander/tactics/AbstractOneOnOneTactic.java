@@ -15,6 +15,9 @@ import okurun.radaroperator.RadarOperator;
  */
 public abstract class AbstractOneOnOneTactic extends AbstractTactic {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void updateTargetEnemyId(OkuRunBot bot) {
         final EnemyManager enemyManager = bot.getEnemyManager();
@@ -27,6 +30,9 @@ public abstract class AbstractOneOnOneTactic extends AbstractTactic {
         targetEnemyId.set(Commander.NO_TARGET);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void updateRadarActionId(OkuRunBot bot) {
         if (targetEnemyId.get() == Commander.NO_TARGET) {
@@ -44,6 +50,9 @@ public abstract class AbstractOneOnOneTactic extends AbstractTactic {
         radarActionId = RadarOperator.ActionId.TARGET_SCAN;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void updatePredictModelId(OkuRunBot bot) {
         if (targetEnemyId.get() != Commander.NO_TARGET) {
@@ -62,10 +71,7 @@ public abstract class AbstractOneOnOneTactic extends AbstractTactic {
     }
 
     /**
-     * ターン毎のアクションイベント
-     * このイベントはメインスレッドからコールされます
-     * 
-     * @param bot Bot
+     * {@inheritDoc}
      */
     @Override
     public void onAction(OkuRunBot bot) {

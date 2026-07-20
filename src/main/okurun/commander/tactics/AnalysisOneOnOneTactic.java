@@ -20,6 +20,9 @@ import okurun.predictor.models.PredictModel;
  */
 public class AnalysisOneOnOneTactic extends AbstractOneOnOneTactic {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void updateMovePatternId(OkuRunBot bot) {
         if (targetEnemyId.get() == Commander.NO_TARGET) {
@@ -29,6 +32,9 @@ public class AnalysisOneOnOneTactic extends AbstractOneOnOneTactic {
         movePatternId = bot.getEnemyManager().getEnemyProfile(targetEnemyId.get()).getMovePatternId();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void updateGunActionId(OkuRunBot bot) {
         gunActionId = Gunner.ActionId.MAX_POWER;
@@ -36,6 +42,9 @@ public class AnalysisOneOnOneTactic extends AbstractOneOnOneTactic {
         waitForGunTurn = true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void updatePredictModelId(OkuRunBot bot) {
         if (predictModelId == null) {
@@ -45,10 +54,7 @@ public class AnalysisOneOnOneTactic extends AbstractOneOnOneTactic {
     }
 
     /**
-     * 弾丸が発射された時の処理
-     * 
-     * @param e   弾丸が発射されたイベント
-     * @param bot ボット
+     * {@inheritDoc}
      */
     @Override
     public void onBulletFired(BulletFiredEvent e, OkuRunBot bot) {
@@ -76,10 +82,7 @@ public class AnalysisOneOnOneTactic extends AbstractOneOnOneTactic {
     }
 
     /**
-     * 弾丸が自分に当たった時の処理
-     * 
-     * @param e   弾丸が自分に当たったイベント
-     * @param bot ボット
+     * {@inheritDoc}
      */
     @Override
     public void onHitByBullet(HitByBulletEvent e, OkuRunBot bot) {

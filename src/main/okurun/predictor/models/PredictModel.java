@@ -44,8 +44,10 @@ public interface PredictModel {
 
     /**
      * アクションの前に実行される処理
+     * 
+     * @param bot Bot
      */
-    void preAction();
+    void onPreAction(OkuRunBot bot);
 
     /**
      * このモデルの命中率を取得する

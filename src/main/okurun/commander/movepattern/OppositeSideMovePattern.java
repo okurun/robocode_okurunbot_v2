@@ -12,9 +12,13 @@ import okurun.enemymanager.EnemyManager;
 import okurun.enemymanager.EnemyState;
 
 public class OppositeSideMovePattern extends AbstractMovePattern {
+
     private boolean isOrbiting = false;
     private boolean clockwise = true;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double[] getMovePosition(OkuRunBot bot) {
         final ArenaMap arenaMap = bot.getArenaMap();
@@ -61,25 +65,32 @@ public class OppositeSideMovePattern extends AbstractMovePattern {
         return targetArea.getCenter();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public HandlePriority getHandlePriority(OkuRunBot bot) {
         return HandlePriority.TARGET;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public AccelPriority getAccelPriority(OkuRunBot bot) {
         return AccelPriority.HANDLE;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double getMinSpeed(OkuRunBot bot) {
         return 4;
     }
 
     /**
-     * このムーブパターンが依存するドライブアクションIDを取得します
-     * 
-     * @return このムーブパターンが依存するドライブアクションID
+     * {@inheritDoc}
      */
     @Override
     public Driver.ActionId getDependentDriveActionId() {

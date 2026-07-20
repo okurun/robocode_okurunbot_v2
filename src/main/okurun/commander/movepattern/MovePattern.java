@@ -9,6 +9,13 @@ import okurun.commander.Commander.HandlePriority;
 import okurun.driver.Driver;
 
 public interface MovePattern {
+
+    /**
+     * ターン毎のアクションの後にコールされるイベント
+     * このイベントはメインスレッドからコールされます
+     * 
+     * @param bot Bot
+     */
     void onPostAction(OkuRunBot bot);
 
     /**
