@@ -6,10 +6,8 @@ import java.util.Map;
 import dev.robocode.tankroyale.botapi.Constants;
 import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
-import okurun.arenamap.ArenaMap;
 import okurun.commander.Commander;
 import okurun.commander.Commander.MovePatternId;
-import okurun.driver.Driver;
 import okurun.enemymanager.EnemyManager;
 import okurun.enemymanager.EnemyProfile;
 import okurun.gunner.Gunner;
@@ -29,17 +27,6 @@ public class AnalysisOneOnOneTactic extends AbstractOneOnOneTactic {
             return;
         }
         movePatternId = bot.getEnemyManager().getEnemyProfile(targetEnemyId.get()).getMovePatternId();
-    }
-
-    @Override
-    protected void updateDriveActionId(OkuRunBot bot) {
-        final ArenaMap arenaMap = bot.getArenaMap();
-        final List<ArenaMap.PotentialCollisionWall> collisionWalls = arenaMap.getPotentialCollisionWalls(bot);
-        if (!collisionWalls.isEmpty()) {
-            driveActionId = Driver.ActionId.AVOID_WALL;
-            return;
-        }
-        driveActionId = bot.getCommander().getMovePattern(movePatternId).getDependentDriveActionId();
     }
 
     @Override

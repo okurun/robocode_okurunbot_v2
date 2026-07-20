@@ -1,9 +1,11 @@
 package okurun.commander.tactics;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
+import okurun.arenamap.ArenaMap;
 import okurun.commander.Commander;
 import okurun.commander.Commander.MovePatternId;
 import okurun.driver.Driver;
@@ -27,11 +29,21 @@ public abstract class AbstractTactic implements Tactic {
 
     protected abstract void updateMovePatternId(OkuRunBot bot);
 
-    protected abstract void updateDriveActionId(OkuRunBot bot);
-
     protected abstract void updateGunActionId(OkuRunBot bot);
 
     protected abstract void updateRadarActionId(OkuRunBot bot);
+
+    protected void updateDriveActionId(OkuRunBot bot) {
+        final ArenaMap arenaMap = bot.getArenaMap();
+        final List<ArenaMap.PotentialCollisionWall> collisionWalls = arenaMap.getPotentialCollisionWalls(bot);
+        if (!collisionWalls.isEmpty()) {
+            // 衝突する可能性のある壁がある場合は壁回避を行います
+            driveActionId = Driver.ActionId.AVOID_WALL;
+            return;
+        }
+        // 移動パターンの依存するドライブアクションを取得します
+        driveActionId = bot.getCommander().getMovePattern(movePatternId).getDependentDriveActionId();
+    }
 
     @Override
     public int getTargetEnemyId(OkuRunBot bot) {
