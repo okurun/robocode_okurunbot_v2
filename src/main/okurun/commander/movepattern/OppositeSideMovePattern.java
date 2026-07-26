@@ -70,7 +70,7 @@ public class OppositeSideMovePattern extends AbstractMovePattern {
      */
     @Override
     public HandlePriority getHandlePriority(OkuRunBot bot) {
-        return HandlePriority.TARGET;
+        return HandlePriority.AVOID_BULLET;
     }
 
     /**

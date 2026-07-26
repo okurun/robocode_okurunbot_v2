@@ -10,23 +10,21 @@ import okurun.commander.Commander.HandlePriority;
 import okurun.driver.Driver;
 
 abstract class AbstractDriveAction implements DriveAction {
-    class AvoidParams {
-        public Turn turn = Turn.LEFT;
-        public int randNum = 1;
-    }
-
-    enum Turn {
-        LEFT,
-        RIGHT;
-
-        public Turn opposite() {
-            return this == LEFT ? RIGHT : LEFT;
-        }
-    }
-
+    /** ランダムクラス */
     protected Random random = new Random();
+    /** 回避時のパラメータ */
     protected AvoidParams avoidParams = new AvoidParams();
+    /** 移動時のパラメータ */
     protected DriveParams driveParams = null;
+
+    /**
+     * DriveParamsを作成する
+     * 
+     * @param bot ボット
+     * @param pos 移動先
+     * @return DriveParams
+     */
+    protected abstract DriveParams createDriveParams(OkuRunBot bot, double[] pos);
 
     /**
      * {@inheritDoc}
@@ -62,7 +60,28 @@ abstract class AbstractDriveAction implements DriveAction {
         return driveParams;
     }
 
-    protected abstract DriveParams createDriveParams(OkuRunBot bot, double[] pos);
+    /** 回避時のパラメータ */
+    private static class AvoidParams {
+        /** 回避方向 */
+        public Turn turn = Turn.LEFT;
+        /** ランダム値 */
+        public int randNum = 1;
+    }
+
+    /** 回避方向 */
+    private static enum Turn {
+        LEFT,
+        RIGHT;
+
+        /**
+         * 逆方向を取得
+         * 
+         * @return 逆方向
+         */
+        public Turn opposite() {
+            return this == LEFT ? RIGHT : LEFT;
+        }
+    }
 
     /**
      * HandlePriorityに応じて旋回角度を更新する
@@ -83,10 +102,10 @@ abstract class AbstractDriveAction implements DriveAction {
                 }
                 switch (avoidParams.turn) {
                     case Turn.LEFT:
-                        newDriveParams.leftTurnAngle += bot.getMaxTurnRate() * 0.5;
+                        newDriveParams.leftTurnAngle = bot.getMaxTurnRate();
                         break;
                     case Turn.RIGHT:
-                        newDriveParams.leftTurnAngle -= bot.getMaxTurnRate() * 0.5;
+                        newDriveParams.leftTurnAngle = -bot.getMaxTurnRate();
                         break;
                 }
             }

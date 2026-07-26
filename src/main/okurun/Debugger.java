@@ -2,6 +2,7 @@ package okurun;
 
 import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.commander.Commander;
+import okurun.driver.actions.DriveAction.DriveParams;
 import okurun.enemymanager.EnemyManager;
 import okurun.enemymanager.EnemyProfile;
 import okurun.enemymanager.EnemyState;
@@ -56,6 +57,13 @@ public class Debugger {
 
         // 移動目標を描画します
         drawMoveToTarget(bot, commander.getTargetMovePosition(bot));
+
+        // 実際の移動方向を描画します
+        final DriveParams driveParams = bot.getDriver().getDriveParams(bot);
+        final double[] pos = Predictor.calcPosition(bot.getPosition(),
+                bot.normalizeAbsoluteAngle(bot.getDirection() + driveParams.leftTurnAngle), driveParams.forwardDistance,
+                1);
+        drawLine(bot, bot.getPosition(), pos, Color.WHITE);
     }
 
     /**

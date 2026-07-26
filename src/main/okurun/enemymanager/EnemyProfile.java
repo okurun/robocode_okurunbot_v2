@@ -275,6 +275,9 @@ public class EnemyProfile {
                 System.out.println("(" + bot.getTurnNumber() + ")*** " + getMovePatternId() + " -> " + movePatternId);
             }
             setMovePatternId(movePatternId);
+
+            // 予測モデルも優先度を変更する
+            updateSortedPredictModels();
         }
     }
 
