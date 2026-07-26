@@ -9,6 +9,7 @@ import okurun.commander.Commander.HandlePriority;
 import okurun.commander.tactics.Tactic;
 import okurun.driver.Driver;
 import okurun.enemymanager.EnemyManager;
+import okurun.enemymanager.EnemyProfile;
 import okurun.enemymanager.EnemyState;
 
 public class OppositeSideMovePattern extends AbstractMovePattern {
@@ -23,22 +24,52 @@ public class OppositeSideMovePattern extends AbstractMovePattern {
     public double[] getMovePosition(OkuRunBot bot) {
         final ArenaMap arenaMap = bot.getArenaMap();
         final Commander commander = bot.getCommander();
-        final Area targetArea;
+        Area targetArea = null;
         if (commander.getTargetEnemyId(bot) == Commander.NO_TARGET) {
             // 敵の少ないエリアを目標エリアとする
             targetArea = arenaMap.getSafeArea(bot);
+        }
+        final EnemyManager enemyManager = bot.getEnemyManager();
+        final EnemyProfile enemyProfile = enemyManager.getEnemyProfile(commander.getTargetEnemyId(bot));
+        final EnemyState enemyState = enemyProfile.getLatestState();
+        if (enemyState == null) {
+            // 敵の少ないエリアを目標エリアとする
+            targetArea = arenaMap.getSafeArea(bot);
         } else {
-            final EnemyManager enemyManager = bot.getEnemyManager();
-            final EnemyState enemyState = enemyManager.getLatestEnemyState(commander.getTargetEnemyId(bot));
-            if (enemyState == null) {
-                // 敵の少ないエリアを目標エリアとする
-                targetArea = arenaMap.getSafeArea(bot);
-            } else {
-                // 敵のいるエリアの反対側のエリアを目標エリアとする
-                targetArea = arenaMap.getArea(enemyState.getPosition()).getOppositeArea();
+            // 敵のいるエリアの反対側のエリアを目標エリアとする
+            targetArea = arenaMap.getArea(enemyState.getPosition()).getOppositeArea();
+        }
+
+        final double[] pos = getMovePosition(bot, targetArea);
+        final EnemyState predictedState = bot.getPredictor().predict(bot, enemyProfile, bot.getTurnNumber() + 1);
+        if (predictedState == null) {
+            // 予測が出来ない場合は敵の位置を考慮しない
+            return pos;
+        }
+        // 敵がいる方向
+        final double enemyDirection = bot.normalizeAbsoluteAngle(bot.bearingTo(predictedState.getPosition()));
+        // 進行方向
+        final double myDirection = bot.normalizeAbsoluteAngle(bot.bearingTo(pos));
+        if (Math.abs(enemyDirection - myDirection) < 20) {
+            // 進行方向に敵がいる
+            if (bot.distanceTo(predictedState.getPosition()) < 120 && bot.getEnergy() - enemyState.energy < 0) {
+                // 敵との距離が近く、負けている場合は目標エリアの隣のエリアへ向かう（衝突を避ける）
+                return getMovePosition(bot, targetArea.getNeighboringArea(bot));
             }
         }
 
+        return pos;
+    }
+
+    /**
+     * 目標エリアへ向かうための目標位置を取得します
+     * 
+     * @param bot        ボット
+     * @param targetArea 目標エリア
+     * @return 目標位置
+     */
+    private double[] getMovePosition(OkuRunBot bot, Area targetArea) {
+        final ArenaMap arenaMap = bot.getArenaMap();
         final Area currentArea = arenaMap.getArea(bot);
         if (targetArea != currentArea) {
             // 現在のエリアと目標エリアが違う場合は目標エリアの中心を目指す
@@ -78,7 +109,7 @@ public class OppositeSideMovePattern extends AbstractMovePattern {
      */
     @Override
     public AccelPriority getAccelPriority(OkuRunBot bot) {
-        return AccelPriority.HANDLE;
+        return AccelPriority.MAX_SPEED;
     }
 
     /**

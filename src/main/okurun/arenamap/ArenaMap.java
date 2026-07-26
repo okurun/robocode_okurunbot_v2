@@ -201,9 +201,15 @@ public class ArenaMap {
             if (Math.abs(bot.bearingTo(neighboringAreas.get(0).getCenter())) > Math.abs(bot
                     .bearingTo(neighboringAreas.get(1).getCenter()))) {
                 // 隣接エリアのうち、進行方向に最も近いエリアを返す
-                return neighboringAreas.get(1);
+                if (bot.getSpeed() >= 0) {
+                    return neighboringAreas.get(1);
+                }
+                return neighboringAreas.get(0);
             }
-            return neighboringAreas.get(0);
+            if (bot.getSpeed() >= 0) {
+                return neighboringAreas.get(0);
+            }
+            return neighboringAreas.get(1);
         }
     }
 

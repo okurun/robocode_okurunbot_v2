@@ -41,7 +41,7 @@ abstract class AbstractDriveAction implements DriveAction {
         driveParams = createDriveParams(bot, pos);
 
         // 予測を外すため移動情報を更新する
-        avoidParams.randNum = random.nextInt(10);
+        avoidParams.randNum = random.nextInt(20);
         driveParams = transTurnAngle(bot, driveParams);
         driveParams = transAccelInfo(bot, driveParams);
 
@@ -92,7 +92,8 @@ abstract class AbstractDriveAction implements DriveAction {
      */
     private DriveParams transTurnAngle(OkuRunBot bot, DriveParams driveParams) {
         final DriveParams newDriveParams = driveParams.clone();
-        if (Math.abs(newDriveParams.leftTurnAngle) < bot.getMaxTurnRate()) {
+        final double maxTurnRate = bot.getMaxTurnRate();
+        if (Math.abs(newDriveParams.leftTurnAngle) < maxTurnRate) {
             // 旋回に余裕がある（直進に近い状態）
             if (bot.getCommander().getHandlePriority(bot) == HandlePriority.AVOID_BULLET) {
                 // 回避行動を行う
@@ -102,10 +103,10 @@ abstract class AbstractDriveAction implements DriveAction {
                 }
                 switch (avoidParams.turn) {
                     case Turn.LEFT:
-                        newDriveParams.leftTurnAngle = bot.getMaxTurnRate();
+                        newDriveParams.leftTurnAngle = maxTurnRate;
                         break;
                     case Turn.RIGHT:
-                        newDriveParams.leftTurnAngle = -bot.getMaxTurnRate();
+                        newDriveParams.leftTurnAngle = -maxTurnRate;
                         break;
                 }
             }
