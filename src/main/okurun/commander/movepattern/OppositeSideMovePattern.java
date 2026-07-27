@@ -25,16 +25,16 @@ public class OppositeSideMovePattern extends AbstractMovePattern {
         final ArenaMap arenaMap = bot.getArenaMap();
         final Commander commander = bot.getCommander();
         if (commander.getTargetEnemyId(bot) == Commander.NO_TARGET) {
-            // 敵の少ないエリアを目標エリアとする
-            return getMovePosition(bot, arenaMap.getSafeArea(bot));
+            // 現在のエリアを目標エリアとする
+            return getMovePosition(bot, arenaMap.getArea(bot));
         }
 
         final EnemyManager enemyManager = bot.getEnemyManager();
         final EnemyProfile enemyProfile = enemyManager.getEnemyProfile(commander.getTargetEnemyId(bot));
         final EnemyState enemyState = enemyProfile.getLatestState();
         if (enemyState == null) {
-            // 敵の少ないエリアを目標エリアとする
-            return getMovePosition(bot, arenaMap.getSafeArea(bot));
+            // 現在のエリアを目標エリアとする
+            return getMovePosition(bot, arenaMap.getArea(bot));
         }
 
         // 敵のいるエリアの反対側のエリアを目標エリアとする
