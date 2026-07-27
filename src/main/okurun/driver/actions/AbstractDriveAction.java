@@ -103,14 +103,15 @@ abstract class AbstractDriveAction implements DriveAction {
                 }
                 switch (avoidParams.turn) {
                     case Turn.LEFT:
-                        newDriveParams.leftTurnAngle = maxTurnRate;
+                        newDriveParams.leftTurnAngle += maxTurnRate;
                         break;
                     case Turn.RIGHT:
-                        newDriveParams.leftTurnAngle = -maxTurnRate;
+                        newDriveParams.leftTurnAngle -= maxTurnRate;
                         break;
                 }
             }
         }
+        newDriveParams.leftTurnAngle = Math.min(Math.max(newDriveParams.leftTurnAngle, -Constants.MAX_TURN_RATE), Constants.MAX_TURN_RATE);
         return newDriveParams;
     }
 

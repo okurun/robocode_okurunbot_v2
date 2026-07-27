@@ -24,22 +24,21 @@ public class OppositeSideMovePattern extends AbstractMovePattern {
     public double[] getMovePosition(OkuRunBot bot) {
         final ArenaMap arenaMap = bot.getArenaMap();
         final Commander commander = bot.getCommander();
-        Area targetArea = null;
         if (commander.getTargetEnemyId(bot) == Commander.NO_TARGET) {
             // 敵の少ないエリアを目標エリアとする
-            targetArea = arenaMap.getSafeArea(bot);
+            return getMovePosition(bot, arenaMap.getSafeArea(bot));
         }
+
         final EnemyManager enemyManager = bot.getEnemyManager();
         final EnemyProfile enemyProfile = enemyManager.getEnemyProfile(commander.getTargetEnemyId(bot));
         final EnemyState enemyState = enemyProfile.getLatestState();
         if (enemyState == null) {
             // 敵の少ないエリアを目標エリアとする
-            targetArea = arenaMap.getSafeArea(bot);
-        } else {
-            // 敵のいるエリアの反対側のエリアを目標エリアとする
-            targetArea = arenaMap.getArea(enemyState.getPosition()).getOppositeArea();
+            return getMovePosition(bot, arenaMap.getSafeArea(bot));
         }
 
+        // 敵のいるエリアの反対側のエリアを目標エリアとする
+        final Area targetArea = arenaMap.getArea(enemyState.getPosition()).getOppositeArea();
         final double[] pos = getMovePosition(bot, targetArea);
         final EnemyState predictedState = bot.getPredictor().predict(bot, enemyProfile, bot.getTurnNumber() + 1);
         if (predictedState == null) {
@@ -52,8 +51,8 @@ public class OppositeSideMovePattern extends AbstractMovePattern {
         final double myDirection = bot.normalizeAbsoluteAngle(bot.bearingTo(pos));
         if (Math.abs(enemyDirection - myDirection) < 20) {
             // 進行方向に敵がいる
-            if (bot.distanceTo(predictedState.getPosition()) < 120 && bot.getEnergy() - enemyState.energy < 0) {
-                // 敵との距離が近く、負けている場合は目標エリアの隣のエリアへ向かう（衝突を避ける）
+            if (bot.distanceTo(predictedState.getPosition()) < 120) {
+                // 敵との距離が近い場合は目標エリアの隣のエリアへ向かう（衝突を避ける）
                 return getMovePosition(bot, targetArea.getNeighboringArea(bot));
             }
         }
@@ -101,7 +100,22 @@ public class OppositeSideMovePattern extends AbstractMovePattern {
      */
     @Override
     public HandlePriority getHandlePriority(OkuRunBot bot) {
-        return HandlePriority.AVOID_BULLET;
+        final EnemyManager enemyManager = bot.getEnemyManager();
+        final int targetEnemyId = bot.getCommander().getTargetEnemyId(bot);
+        if (targetEnemyId == Commander.NO_TARGET) {
+            return HandlePriority.TARGET;
+        }
+        final EnemyProfile enemyProfile = enemyManager.getEnemyProfile(targetEnemyId);
+        final EnemyState currentState = bot.getPredictor().predict(bot, enemyProfile, bot.getTurnNumber());
+        if (currentState == null) {
+            return HandlePriority.TARGET;
+        }
+        final double enemyLateralAngle = Math.abs(bot.bearingTo(currentState.getPosition()));
+        if (enemyLateralAngle < 45 || enemyLateralAngle > 135) {
+            // 自分が敵に対して縦に向いている場合は回避運動をする
+            return HandlePriority.AVOID_BULLET;
+        }
+        return HandlePriority.TARGET;
     }
 
     /**

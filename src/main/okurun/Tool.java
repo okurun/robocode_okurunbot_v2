@@ -7,6 +7,21 @@ public class Tool {
     /**
      * 自分から見て相手が何度横に向いているかを計算します。
      * 
+     * @param bot        ボット
+     * @param enemyState 攻撃対象の現在の状態
+     * @return 敵の相対角度（-180度 〜 180度）
+     *         0度: 相手が自分から遠ざかる方向を向いている
+     *         180度（または-180度）: 相手が自分の方（真正面）を向いている
+     *         90度: 相手が自分から見て右に直角に動こうとしている
+     *         -90度: 相手が自分から見て左に直角に動こうとしている
+     */
+    public static double getEnemyLateralAngle(OkuRunBot bot, EnemyState enemyState) {
+        return getEnemyLateralAngle(bot.getX(), bot.getY(), enemyState.x, enemyState.y, enemyState.heading);
+    }
+
+    /**
+     * 自分から見て相手が何度横に向いているかを計算します。
+     * 
      * @param myX          自分のX座標
      * @param myY          自分のY座標
      * @param enemyX       相手のX座標
