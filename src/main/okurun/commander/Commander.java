@@ -239,28 +239,11 @@ public class Commander {
      * @param bot ボット
      */
     public void onRoundEnded(RoundEndedEvent e, OkuRunBot bot) {
-        final int targetEnemyId = getTargetEnemyId(bot);
         for (final Tactic tactic : tactics.values()) {
             tactic.onRoundEnded(e, bot);
         }
         for (final MovePattern movePattern : movePatterns.values()) {
             movePattern.onRoundEnded(e, bot);
-        }
-
-        if (targetEnemyId != Commander.NO_TARGET) {
-            final EnemyProfile enemyProfile = bot.getEnemyManager().getEnemyProfile(targetEnemyId);
-            if (!isWon.get()) {
-                // 敗北した場合、ムーブパターンを変更する
-                System.out.println("*** I lost. I intend to consider changing my move pattern.");
-                // 一番被弾率の低いムーブパターンを採用する（全体累計で評価）
-                final MovePatternId movePatternId = movePatterns.entrySet().stream()
-                        .sorted((a, b) -> Double.compare(a.getValue().getTotalHitPerTurn(),
-                                b.getValue().getTotalHitPerTurn()))
-                        .map(Map.Entry::getKey)
-                        .findFirst().get();
-                System.out.println("*** " + enemyProfile.getMovePatternId() + " -> " + movePatternId);
-                enemyProfile.setMovePatternId(movePatternId);
-            }
         }
         isWon.set(false);
     }

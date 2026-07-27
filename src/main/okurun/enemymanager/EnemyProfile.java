@@ -215,20 +215,24 @@ public class EnemyProfile {
 
     private void updateSortedPredictModels() {
         System.out.print("{{ PredictModels: ");
+        String str = "";
         for (PredictModelId model : sortedPredictModels) {
-            System.out.print(model + " > ");
+            System.out.print(str + model);
+            str = " > ";
         }
-        System.out.println("END }}");
+        System.out.println(" }}");
         sortedPredictModels = predictModelAccuracies.entrySet().stream()
                 .sorted((a, b) -> Double.compare(b.getValue().getHitRate(), a.getValue().getHitRate()))
                 .map(Map.Entry::getKey)
                 .toArray(PredictModelId[]::new);
         System.out.print("--> {{ PredictModels: ");
+            str = "";
         for (PredictModelId model : sortedPredictModels) {
-            System.out.print(String.format("%s(%.1f%%) > ", model,
+            System.out.print(str + String.format("%s(%.1f%%)", model,
                     predictModelAccuracies.get(model).getHitRate() * 100));
+            str = " > ";
         }
-        System.out.println("END }}");
+        System.out.println(" }}");
     }
 
     /**
@@ -264,7 +268,7 @@ public class EnemyProfile {
 
         movePatternEvasionPerformances.get(commander.getMovePatternId(bot)).incrementTurns();
 
-        if (bot.getTurnNumber() % 100 == 0) {
+        if (bot.getTurnNumber() % 100 == 1) {
             // 一番被弾率の低いムーブパターンを採用する（全体累計で評価）
             final MovePatternId movePatternId = movePatternEvasionPerformances.entrySet().stream()
                     .sorted((a, b) -> Double.compare(a.getValue().getHitPerTurn(),
