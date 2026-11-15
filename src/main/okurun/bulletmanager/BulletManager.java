@@ -80,6 +80,10 @@ public class BulletManager {
      */
     public void onGameEnded(GameEndedEvent e, OkuRunBot bot) {
         try {
+            enemyBulletWaves.clear();
+            myFlyingBullets.clear();
+            myBulletHistory.clear();
+            myBulletHitStates.clear();
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();
@@ -108,8 +112,9 @@ public class BulletManager {
      */
     public void onBulletFired(BulletFiredEvent e, OkuRunBot bot) {
         try {
-            addFlyingMyBullet(e.getBullet(), e.getTurnNumber());
-            final MyBullet flyingBullet = getFlyingMyBullet(e.getBullet().getBulletId());
+            final BulletState bulletState = e.getBullet();
+            addFlyingMyBullet(bulletState, e.getTurnNumber());
+            final MyBullet flyingBullet = getFlyingMyBullet(bulletState.getBulletId());
             if (flyingBullet == null) {
                 return;
             }
@@ -134,10 +139,10 @@ public class BulletManager {
                 return;
             }
             myBullet.damage = e.getDamage();
-            myBullet.hitTurnNumber = e.getTurnNumber();
+            myBullet.endTurnNumber = e.getTurnNumber();
             myBullet.hitEnemyId = e.getVictimId();
             myBulletHitStates.put(e.getVictimId(), myBullet);
-            removeFlyingMyBullets(e.getBullet().getBulletId());
+            removeFlyingMyBullets(bulletState.getBulletId());
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();
@@ -152,7 +157,13 @@ public class BulletManager {
      */
     public void onBulletHitBullet(BulletHitBulletEvent e, OkuRunBot bot) {
         try {
-            removeFlyingMyBullets(e.getBullet().getBulletId());
+            final BulletState bulletState = e.getBullet();
+            final MyBullet myBullet = myFlyingBullets.get(bulletState.getBulletId());
+            if (myBullet == null) {
+                return;
+            }
+            myBullet.endTurnNumber = e.getTurnNumber();
+            removeFlyingMyBullets(bulletState.getBulletId());
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();
@@ -167,7 +178,13 @@ public class BulletManager {
      */
     public void onBulletHitWall(BulletHitWallEvent e, OkuRunBot bot) {
         try {
-            removeFlyingMyBullets(e.getBullet().getBulletId());
+            final BulletState bulletState = e.getBullet();
+            final MyBullet myBullet = myFlyingBullets.get(bulletState.getBulletId());
+            if (myBullet == null) {
+                return;
+            }
+            myBullet.endTurnNumber = e.getTurnNumber();
+            removeFlyingMyBullets(bulletState.getBulletId());
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();
@@ -258,7 +275,7 @@ public class BulletManager {
         double diffEnergy = prevState.energy - latestState.energy;
 
         final MyBullet bulletHitState = myBulletHitStates.get(targetEnemyId);
-        if (bulletHitState != null && bulletHitState.hitTurnNumber >= bot.getTurnNumber() - 1) {
+        if (bulletHitState != null && bulletHitState.endTurnNumber >= bot.getTurnNumber() - 1) {
             // 直前ターンに敵が被弾していたらそのダメージを差し引く
             diffEnergy -= bulletHitState.damage;
         }
@@ -285,11 +302,18 @@ public class BulletManager {
             return;
         }
 
+        final EnemyBulletWave prevWave = enemyBulletWaves.peekFirst();
+        if (prevWave != null && prevWave.firedTurnNumber >= bot.getTurnNumber() -2 && diffEnergy <= 0.1) {
+            // 連続して発砲は出来ないためペナルティと判定
+            // 最後の波は残ってしまうが判定が難しいのでそのまま
+            enemyBulletWaves.pollFirst();
+        }
+
         // 前ターンに発砲したので波を作成
         final DriveParams prevDriveParams = bot.getDriver().getPreDriveParams();
         final boolean moveForward = (prevDriveParams == null) ? true : (prevDriveParams.forwardDistance >= 0);
         final boolean moveLeft = (prevDriveParams == null) ? true : (prevDriveParams.leftTurnAngle >= 0);
-        enemyBulletWaves.addFirst(new EnemyBulletWave(targetEnemyId, prevState.x, prevState.y,
+        enemyBulletWaves.offerFirst(new EnemyBulletWave(targetEnemyId, prevState.x, prevState.y,
                 prevState.scannedTurnNum, diffEnergy, bot.calcBulletSpeed(diffEnergy),
                 moveForward, moveLeft));
     }

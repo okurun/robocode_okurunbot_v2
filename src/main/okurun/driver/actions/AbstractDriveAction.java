@@ -77,7 +77,10 @@ abstract class AbstractDriveAction implements DriveAction {
             if (wave != null && wave.getCountDown() <= AVOID_BULLET_TURNS) {
                 double bearingTo = bot.bearingTo(wave.getPosition());
                 if ((bearingTo > -45 && bearingTo < 45) || (bearingTo > 135 && bearingTo < -135)) {
-                    newDriveParams.leftTurnAngle = (bearingTo < 0) ? bearingTo + 90 : bearingTo - 90;
+                    // 壁が近い時は回避運動をしない
+                    if (bot.getArenaMap().getNearestWall(bot).getDistance(bot) > 100) {
+                        newDriveParams.leftTurnAngle = (bearingTo < 0) ? bearingTo + 90 : bearingTo - 90;
+                    }
                 }
             }
         }
@@ -113,12 +116,15 @@ abstract class AbstractDriveAction implements DriveAction {
                 if (wave != null && wave.getCountDown() <= AVOID_BULLET_TURNS) {
                     double bearingTo = bot.bearingTo(wave.getPosition());
                     if ((bearingTo <= -45 && bearingTo >= -135) || (bearingTo >= 45 && bearingTo <= 135)) {
-                        if (wave.moveForward) {
-                            // 減速もしくは逆進する
-                            newDriveParams.forwardDistance = -50;
-                        } else {
-                            // 減速もしくは逆進する
-                            newDriveParams.forwardDistance = 50;
+                        // 壁が近い時は回避運動をしない
+                        if (bot.getArenaMap().getNearestWall(bot).getDistance(bot) > 100) {
+                            if (wave.moveForward) {
+                                // 減速もしくは逆進する
+                                newDriveParams.forwardDistance = -50;
+                            } else {
+                                // 減速もしくは逆進する
+                                newDriveParams.forwardDistance = 50;
+                            }
                         }
                     }
                 }

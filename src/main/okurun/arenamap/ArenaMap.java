@@ -1,6 +1,7 @@
 package okurun.arenamap;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -120,6 +121,20 @@ public class ArenaMap {
                 }
                 default -> throw new IllegalStateException("Unknown wall id: " + id);
             }
+        }
+
+        /**
+         * 壁との距離を返します
+         * @param bot
+         * @return
+         */
+        public double getDistance(IBot bot) {
+            return switch (id) {
+                case LEFT -> bot.getX();
+                case RIGHT -> x - bot.getX();
+                case TOP -> y - bot.getY();
+                case BOTTOM -> bot.getY();
+            };
         }
     }
 
@@ -293,6 +308,22 @@ public class ArenaMap {
             this.wall = wall;
             this.turnsToCollision = turnsToCollision;
         }
+    }
+
+    /**
+     * 最も近い壁を返します
+     * 
+     * @param bot
+     * @return
+     */
+    public Wall getNearestWall(OkuRunBot bot) {
+        if (caches.containsKey("getNearestWall")) {
+            return (Wall) caches.get("getNearestWall");
+        }
+        final Wall nearestWall = walls.values().stream()
+            .min(Comparator.comparingDouble(wall -> wall.getDistance(bot))).orElse(null);
+        caches.put("getNearestWall", nearestWall);
+        return nearestWall;
     }
 
     /**
