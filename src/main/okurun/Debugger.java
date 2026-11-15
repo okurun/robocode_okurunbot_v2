@@ -1,13 +1,13 @@
 package okurun;
 
 import dev.robocode.tankroyale.botapi.graphics.Color;
+import okurun.bulletmanager.MyBullet;
+import okurun.bulletmanager.BulletManager;
+import okurun.bulletmanager.EnemyBulletWave;
 import okurun.commander.Commander;
-import okurun.driver.actions.DriveAction.DriveParams;
 import okurun.enemymanager.EnemyManager;
 import okurun.enemymanager.EnemyProfile;
 import okurun.enemymanager.EnemyState;
-import okurun.gunner.BulletHistory;
-import okurun.gunner.Gunner;
 import okurun.predictor.Predictor;
 
 public class Debugger {
@@ -44,8 +44,12 @@ public class Debugger {
         // }
 
         // 射撃目標位置を描きます
-        final Gunner gunner = bot.getGunner();
-        for (final BulletHistory bulletHistory : gunner.getBulletHistories()) {
+        final BulletManager bulletManager = bot.getBulletManager();
+        for (final MyBullet bulletHistory : bulletManager.getMyFlyingBullets()) {
+            if (bulletHistory.predictTurnNum < bot.getTurnNumber()) {
+                // 予測ターンを越えたものは描かない
+                continue;
+            }
             Color color = getBulletColor(bulletHistory.power);
             if (bulletHistory.predictTurnNum > bot.getTurnNumber()) {
                 color = Color.fromRgba(color, 200);
@@ -58,12 +62,10 @@ public class Debugger {
         // 移動目標を描画します
         drawMoveToTarget(bot, commander.getTargetMovePosition(bot));
 
-        // 実際の移動方向を描画します
-        final DriveParams driveParams = bot.getDriver().getDriveParams(bot);
-        final double[] pos = Predictor.calcPosition(bot.getPosition(),
-                bot.normalizeAbsoluteAngle(bot.getDirection() + driveParams.leftTurnAngle), driveParams.forwardDistance,
-                1);
-        drawLine(bot, bot.getPosition(), pos, Color.WHITE);
+        // Waveを描画します
+        for (final EnemyBulletWave wave : bulletManager.getEnemyBulletWaves()) {
+            drawWave(bot, wave);
+        }
     }
 
     /**
@@ -146,6 +148,10 @@ public class Debugger {
         g.drawLine(x, y - 12, x, y + 12);
     }
 
+    private void drawWave(OkuRunBot bot, EnemyBulletWave wave) {
+        drawCircle(bot, wave.x, wave.y, wave.getDistanceTraveled(), Color.fromRgba(255, 255, 255, 100));
+    }
+
     /**
      * 画面に円を描画します
      * 
@@ -170,6 +176,33 @@ public class Debugger {
         var g = bot.getGraphics();
         g.setFillColor(color);
         g.setStrokeWidth(0);
+        g.fillCircle(x, y, radius);
+    }
+
+    /**
+     * 画面に円を描画します
+     * 
+     * @param pos    座標
+     * @param radius 半径
+     * @param color  描画色
+     */
+    public void drawCircle(OkuRunBot bot, double[] pos, double radius, Color color) {
+        drawCircle(bot, pos[0], pos[1], radius, color);
+    }
+
+    /**
+     * 画面に円を描画します
+     * 
+     * @param x      X座標
+     * @param y      Y座標
+     * @param radius 半径
+     * @param color  描画色
+     */
+    private void drawCircle(OkuRunBot bot, double x, double y, double radius, Color color) {
+        var g = bot.getGraphics();
+        g.setStrokeColor(color);
+        g.setFillColor(Color.fromRgba(0, 0, 0, 0));
+        g.setStrokeWidth(1);
         g.fillCircle(x, y, radius);
     }
 

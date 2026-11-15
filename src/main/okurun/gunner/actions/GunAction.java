@@ -22,6 +22,7 @@ public interface GunAction {
     /**
      * 画面に円を描画します
      * ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
+     * TODO
      * 
      * @param bot        ボット
      * @param fireTarget 射撃目標位置

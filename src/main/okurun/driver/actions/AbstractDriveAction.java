@@ -4,16 +4,18 @@ import java.util.Random;
 
 import dev.robocode.tankroyale.botapi.Constants;
 import okurun.OkuRunBot;
+import okurun.bulletmanager.BulletManager;
+import okurun.bulletmanager.EnemyBulletWave;
 import okurun.commander.Commander;
 import okurun.commander.Commander.AccelPriority;
 import okurun.commander.Commander.HandlePriority;
 import okurun.driver.Driver;
 
 abstract class AbstractDriveAction implements DriveAction {
+    private static final int AVOID_BULLET_TURNS = 8;
+
     /** ランダムクラス */
     protected Random random = new Random();
-    /** 回避時のパラメータ */
-    protected AvoidParams avoidParams = new AvoidParams();
     /** 移動時のパラメータ */
     protected DriveParams driveParams = null;
 
@@ -41,7 +43,6 @@ abstract class AbstractDriveAction implements DriveAction {
         driveParams = createDriveParams(bot, pos);
 
         // 予測を外すため移動情報を更新する
-        avoidParams.randNum = random.nextInt(20);
         driveParams = transTurnAngle(bot, driveParams);
         driveParams = transAccelInfo(bot, driveParams);
 
@@ -60,29 +61,6 @@ abstract class AbstractDriveAction implements DriveAction {
         return driveParams;
     }
 
-    /** 回避時のパラメータ */
-    private static class AvoidParams {
-        /** 回避方向 */
-        public Turn turn = Turn.LEFT;
-        /** ランダム値 */
-        public int randNum = 1;
-    }
-
-    /** 回避方向 */
-    private static enum Turn {
-        LEFT,
-        RIGHT;
-
-        /**
-         * 逆方向を取得
-         * 
-         * @return 逆方向
-         */
-        public Turn opposite() {
-            return this == LEFT ? RIGHT : LEFT;
-        }
-    }
-
     /**
      * HandlePriorityに応じて旋回角度を更新する
      * 
@@ -92,25 +70,15 @@ abstract class AbstractDriveAction implements DriveAction {
      */
     private DriveParams transTurnAngle(OkuRunBot bot, DriveParams driveParams) {
         final DriveParams newDriveParams = driveParams.clone();
-        final double maxTurnRate = bot.getMaxTurnRate();
-        if (Math.abs(newDriveParams.leftTurnAngle) < maxTurnRate) {
-            // 旋回に余裕がある（直進に近い状態）
-            if (bot.getCommander().getHandlePriority(bot) == HandlePriority.AVOID_BULLET) {
-                // 回避行動を行う
-                if (avoidParams.randNum == 0) {
-                    // 左右を入れ替える
-                    avoidParams.turn = avoidParams.turn.opposite();
+        final Commander commander = bot.getCommander();
+        if (commander.getHandlePriority(bot) == HandlePriority.AVOID_BULLET) {
+            final BulletManager bulletManager = bot.getBulletManager();
+            final EnemyBulletWave wave = bulletManager.getNearestEnemyBulletWave(bot);
+            if (wave != null && wave.getCountDown() <= AVOID_BULLET_TURNS) {
+                double bearingTo = bot.bearingTo(wave.getPosition());
+                if ((bearingTo > -45 && bearingTo < 45) || (bearingTo > 135 && bearingTo < -135)) {
+                    newDriveParams.leftTurnAngle = (bearingTo < 0) ? bearingTo + 90 : bearingTo - 90;
                 }
-                switch (avoidParams.turn) {
-                    case Turn.LEFT:
-                        newDriveParams.leftTurnAngle += maxTurnRate;
-                        break;
-                    case Turn.RIGHT:
-                        newDriveParams.leftTurnAngle -= maxTurnRate;
-                        break;
-                }
-                newDriveParams.leftTurnAngle = Math.min(Math.max(newDriveParams.leftTurnAngle, -maxTurnRate),
-                        maxTurnRate);
             }
         }
         return newDriveParams;
@@ -140,12 +108,18 @@ abstract class AbstractDriveAction implements DriveAction {
                 }
                 break;
             case AccelPriority.AVOID_BULLET:
-                // 予測を外すためにランダムでブレーキをかける
-                newDriveParams.maxSpeed = Constants.MAX_SPEED;
-                if (bot.getSpeed() > commander.getMinSpeed(bot)) {
-                    if (avoidParams.randNum == 0) {
-                        // ブレーキ
-                        newDriveParams.forwardDistance = -1;
+                final BulletManager bulletManager = bot.getBulletManager();
+                final EnemyBulletWave wave = bulletManager.getNearestEnemyBulletWave(bot);
+                if (wave != null && wave.getCountDown() <= AVOID_BULLET_TURNS) {
+                    double bearingTo = bot.bearingTo(wave.getPosition());
+                    if ((bearingTo <= -45 && bearingTo >= -135) || (bearingTo >= 45 && bearingTo <= 135)) {
+                        if (wave.moveForward) {
+                            // 減速もしくは逆進する
+                            newDriveParams.forwardDistance = -50;
+                        } else {
+                            // 減速もしくは逆進する
+                            newDriveParams.forwardDistance = 50;
+                        }
                     }
                 }
                 break;

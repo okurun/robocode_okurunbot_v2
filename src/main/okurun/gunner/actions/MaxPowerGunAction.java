@@ -2,11 +2,11 @@ package okurun.gunner.actions;
 
 import dev.robocode.tankroyale.botapi.Constants;
 import okurun.OkuRunBot;
+import okurun.bulletmanager.MyBullet;
 import okurun.commander.Commander;
 import okurun.enemymanager.EnemyManager;
 import okurun.enemymanager.EnemyProfile;
 import okurun.enemymanager.EnemyState;
-import okurun.gunner.BulletHistory;
 import okurun.gunner.Gunner;
 
 /**
@@ -53,7 +53,7 @@ public class MaxPowerGunAction implements GunAction {
 
         // デバッグ用に射撃目標位置に円を描きます
         // ※ 描画にはUI画面でDebug Graphicsを有効にする必要があります
-        GunAction.drawCircle(bot, fireTarget);
+        GunAction.drawCircle(bot, fireTarget); // TODO
 
         // 射撃目標位置に砲頭を向けます
         bot.setAdjustGunForBodyTurn(true);
@@ -86,9 +86,9 @@ public class MaxPowerGunAction implements GunAction {
         bot.setFire(firePower);
 
         // デバッグ用に弾丸の情報をスタックに保存します
-        bot.getGunner().addBulletStack(
-                new BulletHistory(commander.getPredictModelId(bot), fireTarget.x, fireTarget.y, targetEnemyId,
-                        fireTarget.scannedTurnNum, fireTarget.distance));
+        bot.getBulletManager().addMyBulletHistory(
+                new MyBullet(commander.getPredictModelId(bot), bot.getTurnNumber() + 1, fireTarget.scannedTurnNum,
+                        fireTarget, fireTarget));
         return null;
     }
 

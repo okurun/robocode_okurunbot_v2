@@ -2,10 +2,10 @@ package okurun.gunner.actions;
 
 import dev.robocode.tankroyale.botapi.Constants;
 import okurun.OkuRunBot;
+import okurun.bulletmanager.MyBullet;
 import okurun.commander.Commander;
 import okurun.enemymanager.EnemyManager;
 import okurun.enemymanager.EnemyState;
-import okurun.gunner.BulletHistory;
 import okurun.gunner.Gunner;
 
 /**
@@ -33,10 +33,16 @@ public class ExecutionGunAction implements GunAction {
         }
 
         final double firePower = Constants.MIN_FIREPOWER;
-        GunAction.drawCircle(bot, latestEnemyState);
+        GunAction.drawCircle(bot, latestEnemyState); // TODO
+
+        final int predictTurnNum = (int) Math.ceil(latestEnemyState.distance / bot.calcBulletSpeed(firePower));
+        final EnemyState fireTarget = new EnemyState(targetEnemyId, bot.getTurnNumber() + predictTurnNum,
+                latestEnemyState.x, latestEnemyState.y, latestEnemyState.heading, latestEnemyState.velocity,
+                latestEnemyState.energy, latestEnemyState.turnDegree, latestEnemyState.acceleration,
+                latestEnemyState.distance);
 
         // 射撃目標位置に砲頭を向けます
-        final double bearingTo = bot.gunBearingTo(latestEnemyState.getPosition());
+        final double bearingTo = bot.gunBearingTo(fireTarget.getPosition());
         bot.setAdjustGunForBodyTurn(true);
         bot.setTurnGunLeft(bearingTo);
 
@@ -46,7 +52,7 @@ public class ExecutionGunAction implements GunAction {
         }
 
         // 距離によって許容範囲を変更する
-        double angleTolerance = Math.max(5 - bot.distanceTo(latestEnemyState.getPosition()) / 100, 0);
+        double angleTolerance = Math.max(5 - bot.distanceTo(fireTarget.getPosition()) / 100, 0);
         if (bot.getGunTurnRemaining() > angleTolerance) {
             // 砲頭が回頭中なら発射しません
             return null;
@@ -58,10 +64,9 @@ public class ExecutionGunAction implements GunAction {
         }
 
         bot.setFire(firePower);
-        bot.getGunner().addBulletStack(
-                new BulletHistory(commander.getPredictModelId(bot), latestEnemyState.x, latestEnemyState.y,
-                        targetEnemyId,
-                        latestEnemyState.scannedTurnNum, latestEnemyState.distance));
+        bot.getBulletManager().addMyBulletHistory(
+                new MyBullet(commander.getPredictModelId(bot), bot.getTurnNumber() + 1, fireTarget.scannedTurnNum,
+                        fireTarget, latestEnemyState));
         return null;
     }
 

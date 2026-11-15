@@ -4,6 +4,7 @@ import dev.robocode.tankroyale.botapi.Bot;
 import dev.robocode.tankroyale.botapi.events.*;
 import dev.robocode.tankroyale.botapi.graphics.Color;
 import okurun.arenamap.ArenaMap;
+import okurun.bulletmanager.BulletManager;
 import okurun.commander.Commander;
 import okurun.driver.Driver;
 import okurun.enemymanager.EnemyManager;
@@ -20,6 +21,7 @@ public class OkuRunBot extends Bot {
 
     private final ArenaMap arenaMap;
     private final EnemyManager enemyManager;
+    private final BulletManager bulletManager;
     private final Commander commander;
     private final Driver driver;
     private final Gunner gunner;
@@ -31,6 +33,7 @@ public class OkuRunBot extends Bot {
         super();
         arenaMap = new ArenaMap();
         enemyManager = new EnemyManager();
+        bulletManager = new BulletManager();
         commander = new Commander();
         driver = new Driver();
         gunner = new Gunner();
@@ -78,6 +81,10 @@ public class OkuRunBot extends Bot {
         return enemyManager;
     }
 
+    public BulletManager getBulletManager() {
+        return bulletManager;
+    }
+
     public Commander getCommander() {
         return commander;
     }
@@ -115,6 +122,7 @@ public class OkuRunBot extends Bot {
         try {
             arenaMap.onPreAction(this);
             enemyManager.onPreAction(this);
+            bulletManager.onPreAction(this);
             predictor.onPreAction(this);
             commander.onPreAction(this);
             radarOperator.onPreAction(this);
@@ -155,6 +163,7 @@ public class OkuRunBot extends Bot {
         try {
             arenaMap.onPostAction(this);
             enemyManager.onPostAction(this);
+            bulletManager.onPostAction(this);
             predictor.onPostAction(this);
             commander.onPostAction(this);
             radarOperator.onPostAction(this);
@@ -229,6 +238,7 @@ public class OkuRunBot extends Bot {
         try {
             predictor.onGameEnded(e, this);
             commander.onGameEnded(e, this);
+            bulletManager.onGameEnded(e, this);
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();
@@ -258,6 +268,7 @@ public class OkuRunBot extends Bot {
             commander.onRoundEnded(e, this);
             predictor.onRoundEnded(e, this);
             gunner.onRoundEnded(e, this);
+            bulletManager.onRoundEnded(e, this);
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();
@@ -273,7 +284,7 @@ public class OkuRunBot extends Bot {
     public void onTick(TickEvent e) {
         try {
             enemyManager.onTick(e, this);
-            gunner.onTick(e, this);
+            bulletManager.onTick(e, this);
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();
@@ -339,7 +350,8 @@ public class OkuRunBot extends Bot {
     @Override
     public void onBulletFired(BulletFiredEvent e) {
         try {
-            gunner.onBulletFired(e, this); // 弾丸管理のために最初に実行します
+            bulletManager.onBulletFired(e, this); // 弾丸管理のために最初に実行します
+            gunner.onBulletFired(e, this);
             enemyManager.onBulletFired(e, this);
             predictor.onBulletFired(e, this);
             commander.onBulletFired(e, this);
@@ -375,7 +387,7 @@ public class OkuRunBot extends Bot {
         try {
             predictor.onBulletHit(e, this);
             enemyManager.onBulletHit(e, this);
-            gunner.onBulletHit(e, this);
+            bulletManager.onBulletHit(e, this);
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();
@@ -392,7 +404,7 @@ public class OkuRunBot extends Bot {
         try {
             predictor.onBulletHitBullet(e, this);
             enemyManager.onBulletHitBullet(e, this);
-            gunner.onBulletHitBullet(e, this);
+            bulletManager.onBulletHitBullet(e, this);
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();
@@ -409,7 +421,7 @@ public class OkuRunBot extends Bot {
         try {
             predictor.onBulletHitWall(e, this);
             enemyManager.onBulletHitWall(e, this);
-            gunner.onBulletHitWall(e, this);
+            bulletManager.onBulletHitWall(e, this);
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();

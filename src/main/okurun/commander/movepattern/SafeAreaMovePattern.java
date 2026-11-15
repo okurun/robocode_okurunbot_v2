@@ -36,7 +36,7 @@ public class SafeAreaMovePattern extends AbstractMovePattern {
      */
     @Override
     public AccelPriority getAccelPriority(OkuRunBot bot) {
-        return AccelPriority.MAX_SPEED;
+        return AccelPriority.AVOID_BULLET;
     }
 
     /**

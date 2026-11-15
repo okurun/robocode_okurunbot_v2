@@ -20,13 +20,25 @@ public class Driver {
 
     private final Map<ActionId, DriveAction> actions = new HashMap<>();
 
+    private DriveParams prevDriveParams = null;
+
     /**
      * 現在のアクションのDriveParamsを取得する
      * 
      * @param bot Bot
+     * @return
      */
     public DriveParams getDriveParams(OkuRunBot bot) {
         return actions.get(bot.getCommander().getDriveAction(bot)).getDriveParams();
+    }
+
+    /**
+     * 前ターンのDriveParamsを取得する
+     * 
+     * @return
+     */
+    public DriveParams getPreDriveParams() {
+        return prevDriveParams;
     }
 
     /**
@@ -58,6 +70,7 @@ public class Driver {
      * @param bot Bot
      */
     public void onPostAction(OkuRunBot bot) {
+        prevDriveParams = getDriveParams(bot);
     }
 
     /**

@@ -94,7 +94,7 @@ public class EnemySideMovePattern extends AbstractMovePattern {
 
         final double enemyLateralAngle = Math.abs(commander.getEnemyLateralAngle(bot, enemyState));
         if (enemyLateralAngle >= 60 && enemyLateralAngle <= 120) {
-            // 敵が自分からみて横方向にいる場合はランダムにブレーキをかける
+            // 敵が自分からみて横方向にいる場合は回避運動する
             return AccelPriority.AVOID_BULLET;
         }
 

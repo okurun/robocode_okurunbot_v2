@@ -8,9 +8,9 @@ import dev.robocode.tankroyale.botapi.Constants;
 import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
 import okurun.arenamap.ArenaMap;
+import okurun.bulletmanager.MyBullet;
 import okurun.enemymanager.EnemyProfile;
 import okurun.enemymanager.EnemyState;
-import okurun.gunner.BulletHistory;
 import okurun.predictor.models.*;
 
 /**
@@ -258,13 +258,13 @@ public class Predictor {
     public void onBulletFired(BulletFiredEvent e, OkuRunBot bot) {
         try {
             final int bulletId = e.getBullet().getBulletId();
-            final BulletHistory bulletHistory = bot.getGunner().getBulletHistory(bulletId);
-            if (bulletHistory == null) {
-                System.out.println(e.getTurnNumber() + " onBulletFired: bulletHistory is null");
+            final MyBullet flyingBullet = bot.getBulletManager().getFlyingMyBullet(bulletId);
+            if (flyingBullet == null) {
+                System.out.println(e.getTurnNumber() + " onBulletFired: flyingBullet is null");
                 return;
             }
-            bulletModels.put(bulletId, bulletHistory.predictModel);
-            predictModels.get(bulletHistory.predictModel).onBulletFired(e, bot);
+            bulletModels.put(bulletId, flyingBullet.predictModel);
+            predictModels.get(flyingBullet.predictModel).onBulletFired(e, bot);
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();

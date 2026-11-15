@@ -8,8 +8,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
+import okurun.bulletmanager.MyBullet;
 import okurun.commander.Commander;
-import okurun.gunner.BulletHistory;
 
 /**
  * 敵ボット管理クラス
@@ -329,11 +329,11 @@ public class EnemyManager {
      */
     public void onBulletFired(BulletFiredEvent e, OkuRunBot bot) {
         try {
-            final BulletHistory bulletHistory = bot.getGunner().getBulletHistory(e.getBullet().getBulletId());
-            if (bulletHistory == null) {
+            final MyBullet bullet = bot.getBulletManager().getFlyingMyBullet(e.getBullet().getBulletId());
+            if (bullet == null) {
                 return;
             }
-            getEnemyProfile(bulletHistory.targetEnemyId).onBulletFired(e, bot);
+            getEnemyProfile(bullet.targetEnemyId).onBulletFired(e, bot);
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
             exception.printStackTrace();

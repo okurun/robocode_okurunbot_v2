@@ -11,11 +11,11 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import dev.robocode.tankroyale.botapi.events.*;
 import okurun.OkuRunBot;
+import okurun.bulletmanager.MyBullet;
 import okurun.commander.Commander;
 import okurun.commander.Commander.MovePatternId;
 import okurun.commander.Commander.TacticId;
 import okurun.commander.EvasionPerformance;
-import okurun.gunner.BulletHistory;
 import okurun.predictor.ModelAccuracy;
 import okurun.predictor.Predictor.PredictModelId;
 
@@ -163,6 +163,23 @@ public class EnemyProfile {
     }
 
     /**
+     * 最新の敵ボットの状態の1つ前にスキャンされた状態を返します
+     * 
+     * @return 最新の敵ボットの状態の1つ前にスキャンされた状態
+     */
+    public EnemyState getPrevState() {
+        try {
+            if (stateHistory.isEmpty() || stateHistory.size() <= 1) {
+                return null;
+            }
+            return stateHistory.stream().skip(1).findFirst().orElse(null);
+        } catch (Exception e) {
+            System.out.println("Exception in getPrevState: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
      * 3ターン以上動きがないか判定します
      * 
      * @param bot Bot
@@ -226,7 +243,7 @@ public class EnemyProfile {
                 .map(Map.Entry::getKey)
                 .toArray(PredictModelId[]::new);
         System.out.print("--> {{ PredictModels: ");
-            str = "";
+        str = "";
         for (PredictModelId model : sortedPredictModels) {
             System.out.print(str + String.format("%s(%.1f%%)", model,
                     predictModelAccuracies.get(model).getHitRate() * 100));
@@ -360,16 +377,13 @@ public class EnemyProfile {
      * @param bot Bot
      */
     public void onBulletFired(BulletFiredEvent e, OkuRunBot bot) {
-        final BulletHistory bulletHistory = bot.getGunner().getBulletHistory(e.getBullet().getBulletId());
-        if (bulletHistory == null || bulletHistory.targetEnemyId != id) {
+        final MyBullet bullet = bot.getBulletManager().getFlyingMyBullet(e.getBullet().getBulletId());
+        if (bullet == null || bullet.targetEnemyId != id) {
             return;
         }
-        if (bulletHistory.targetEnemyId != id) {
-            return;
-        }
-        ModelAccuracy accuracy = predictModelAccuracies.get(bulletHistory.predictModel);
+        ModelAccuracy accuracy = predictModelAccuracies.get(bullet.predictModel);
         if (accuracy == null) {
-            System.err.println("Warning PredictModelAccuracy is null: " + bulletHistory.predictModel);
+            System.err.println("Warning PredictModelAccuracy is null: " + bullet.predictModel);
             return;
         }
         accuracy.incrementFireCount();
@@ -400,7 +414,7 @@ public class EnemyProfile {
             return;
         }
 
-        final BulletHistory bulletHistory = bot.getGunner().getBulletHistory(e.getBullet().getBulletId());
+        final MyBullet bulletHistory = bot.getBulletManager().getFlyingMyBullet(e.getBullet().getBulletId());
         if (bulletHistory == null) {
             return;
         }

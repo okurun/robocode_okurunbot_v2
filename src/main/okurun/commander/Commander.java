@@ -93,6 +93,9 @@ public class Commander {
     }
 
     public int getTargetEnemyId(OkuRunBot bot) {
+        if (currentTactic == null) {
+            return NO_TARGET;
+        }
         return currentTactic.getTargetEnemyId(bot);
     }
 

@@ -110,12 +110,7 @@ public class OppositeSideMovePattern extends AbstractMovePattern {
         if (currentState == null) {
             return HandlePriority.TARGET;
         }
-        final double enemyLateralAngle = Math.abs(bot.bearingTo(currentState.getPosition()));
-        if (enemyLateralAngle < 45 || enemyLateralAngle > 135) {
-            // 自分が敵に対して縦に向いている場合は回避運動をする
-            return HandlePriority.AVOID_BULLET;
-        }
-        return HandlePriority.TARGET;
+        return HandlePriority.AVOID_BULLET;
     }
 
     /**
@@ -123,7 +118,7 @@ public class OppositeSideMovePattern extends AbstractMovePattern {
      */
     @Override
     public AccelPriority getAccelPriority(OkuRunBot bot) {
-        return AccelPriority.MAX_SPEED;
+        return AccelPriority.AVOID_BULLET;
     }
 
     /**
