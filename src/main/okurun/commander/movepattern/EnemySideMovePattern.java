@@ -64,20 +64,7 @@ public class EnemySideMovePattern extends AbstractMovePattern {
      */
     @Override
     public HandlePriority getHandlePriority(OkuRunBot bot) {
-        final Commander commander = bot.getCommander();
-        final EnemyManager enemyManager = bot.getEnemyManager();
-        final EnemyState enemyState = enemyManager.getLatestEnemyState(commander.getTargetEnemyId(bot));
-        if (enemyState == null) {
-            return HandlePriority.TARGET;
-        }
-
-        final double enemyLateralAngle = Math.abs(commander.getEnemyLateralAngle(bot, enemyState));
-        if (enemyLateralAngle <= 30 || enemyLateralAngle >= 120) {
-            // 敵が自分からみて縦方向にいる場合はジグザク走行する
-            return HandlePriority.AVOID_BULLET;
-        }
-
-        return HandlePriority.TARGET;
+        return HandlePriority.AVOID_BULLET;
     }
 
     /**
@@ -85,20 +72,7 @@ public class EnemySideMovePattern extends AbstractMovePattern {
      */
     @Override
     public AccelPriority getAccelPriority(OkuRunBot bot) {
-        final Commander commander = bot.getCommander();
-        final EnemyManager enemyManager = bot.getEnemyManager();
-        final EnemyState enemyState = enemyManager.getLatestEnemyState(commander.getTargetEnemyId(bot));
-        if (enemyState == null) {
-            return AccelPriority.MAX_SPEED;
-        }
-
-        final double enemyLateralAngle = Math.abs(commander.getEnemyLateralAngle(bot, enemyState));
-        if (enemyLateralAngle >= 60 && enemyLateralAngle <= 120) {
-            // 敵が自分からみて横方向にいる場合は回避運動する
-            return AccelPriority.AVOID_BULLET;
-        }
-
-        return AccelPriority.MAX_SPEED;
+        return AccelPriority.AVOID_BULLET;
     }
 
     /**

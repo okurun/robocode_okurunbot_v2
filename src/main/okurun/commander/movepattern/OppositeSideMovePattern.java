@@ -100,16 +100,6 @@ public class OppositeSideMovePattern extends AbstractMovePattern {
      */
     @Override
     public HandlePriority getHandlePriority(OkuRunBot bot) {
-        final EnemyManager enemyManager = bot.getEnemyManager();
-        final int targetEnemyId = bot.getCommander().getTargetEnemyId(bot);
-        if (targetEnemyId == Commander.NO_TARGET) {
-            return HandlePriority.TARGET;
-        }
-        final EnemyProfile enemyProfile = enemyManager.getEnemyProfile(targetEnemyId);
-        final EnemyState currentState = bot.getPredictor().predict(bot, enemyProfile, bot.getTurnNumber());
-        if (currentState == null) {
-            return HandlePriority.TARGET;
-        }
         return HandlePriority.AVOID_BULLET;
     }
 

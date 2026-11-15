@@ -48,7 +48,7 @@ public class SurvivalTactic extends AbstractTactic {
 
     @Override
     protected void updateMovePatternId(OkuRunBot bot) {
-        movePatternId = MovePatternId.OPPOSITE_SIDE;
+        movePatternId = MovePatternId.SAFE_AREA;
     }
 
     @Override

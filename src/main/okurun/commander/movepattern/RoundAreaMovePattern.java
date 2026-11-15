@@ -7,6 +7,8 @@ import okurun.commander.Commander;
 import okurun.commander.Commander.AccelPriority;
 import okurun.commander.Commander.HandlePriority;
 import okurun.driver.Driver;
+import okurun.enemymanager.EnemyManager;
+import okurun.enemymanager.EnemyProfile;
 import okurun.enemymanager.EnemyState;
 
 public class RoundAreaMovePattern extends AbstractMovePattern {
@@ -61,7 +63,20 @@ public class RoundAreaMovePattern extends AbstractMovePattern {
      */
     @Override
     public AccelPriority getAccelPriority(OkuRunBot bot) {
-        return AccelPriority.HANDLE;
+        final EnemyManager enemyManager = bot.getEnemyManager();
+        if (enemyManager.getAliveAndNotMissingEnemyCount(bot) > 1) {
+            return AccelPriority.HANDLE;
+        }
+        final int targetEnemyId = bot.getCommander().getTargetEnemyId(bot);
+        if (targetEnemyId == Commander.NO_TARGET) {
+            return AccelPriority.HANDLE;
+        }
+        final EnemyProfile enemyProfile = enemyManager.getEnemyProfile(targetEnemyId);
+        final EnemyState currentState = bot.getPredictor().predict(bot, enemyProfile, bot.getTurnNumber());
+        if (currentState == null) {
+            return AccelPriority.HANDLE;
+        }
+        return AccelPriority.AVOID_BULLET;
     }
 
     /**
